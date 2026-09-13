@@ -4,7 +4,29 @@
 
 Dataset sử dụng: **Online Retail** từ UCI Machine Learning Repository.
 
-Dữ liệu gồm các giao dịch bán lẻ trực tuyến trong giai đoạn từ tháng 12/2010 đến tháng 12/2011. Mỗi dòng là một sản phẩm thuộc một hóa đơn.
+File gốc: `data/raw/Online Retail.csv` (CSV, ~45 MB).
+
+Dữ liệu gồm các giao dịch bán lẻ trực tuyến trong giai đoạn từ **01/12/2010** đến **09/12/2011** (373 ngày). Mỗi dòng là một sản phẩm thuộc một hóa đơn.
+
+### Thống kê tổng quan (Data Understanding)
+
+| Metric | Giá trị |
+|---|---|
+| Tổng số dòng | 541,909 |
+| Tổng số cột | 8 |
+| Số hóa đơn (InvoiceNo) | 25,900 |
+| Số sản phẩm (StockCode) | 4,070 |
+| Số khách hàng (CustomerID) | 4,372 |
+| Số quốc gia (Country) | 38 |
+| Dòng thiếu CustomerID | 135,080 (24.93%) |
+| Dòng thiếu Description | 1,454 (0.27%) |
+| Dòng trùng lặp hoàn toàn | 5,268 (0.97%) |
+| Hóa đơn hủy (bắt đầu bằng C) | 3,836 hóa đơn / 9,288 dòng |
+| Adjust bad debt (bắt đầu bằng A) | 3 hóa đơn / 3 dòng |
+| Dòng Description chứa "adjust" hoặc "bad debt" | 34 |
+| Dòng StockCode phi sản phẩm (bắt đầu bằng chữ) | 2,995 (0.55%) |
+| Dòng Quantity ≤ 0 | 10,624 |
+| Dòng UnitPrice ≤ 0 | 2,517 |
 
 ## 2. Các cột dữ liệu gốc
 
@@ -16,14 +38,58 @@ Dữ liệu gồm các giao dịch bán lẻ trực tuyến trong giai đoạn t
 | `Quantity` | Integer | Số lượng sản phẩm | Tạo tổng số lượng và doanh thu |
 | `InvoiceDate` | Datetime | Ngày và giờ phát sinh giao dịch | Tạo đặc trưng thời gian |
 | `UnitPrice` | Float | Giá một sản phẩm | Tính tổng giá trị giao dịch |
-| `CustomerID` | String | Mã khách hàng | Gom nhóm và tạo đặc trưng khách hàng |
+| `CustomerID` | Float64 (chứa NaN) | Mã khách hàng | Gom nhóm và tạo đặc trưng khách hàng; 24.93% bị thiếu |
 | `Country` | String | Quốc gia của khách hàng | Phân tích theo khu vực |
 
-## 3. Quy tắc làm sạch
+## 3. Phân loại InvoiceNo theo ký tự đầu
+
+| Prefix | Ý nghĩa | Số dòng | Xử lý |
+|---|---|---|---|
+| Số (5xx...) | Giao dịch bình thường | 532,618 | Giữ lại |
+| `C` | Hóa đơn bị hủy (Cancellation) | 9,288 | Loại khỏi tập phân tích chính |
+| `A` | Adjust bad debt (điều chỉnh nợ xấu) | 3 | Loại - bút toán kế toán, không phải giao dịch |
+
+### Chi tiết Adjust bad debt (A)
+
+3 dòng có InvoiceNo bắt đầu bằng `A`, StockCode = `B`, Description = "Adjust bad debt".
+Giá trị UnitPrice rất lớn (±£11,062.06). Đây là bút toán điều chỉnh nợ xấu,
+**không phải giao dịch mua bán** → phải loại bỏ.
+
+Ngoài ra, có **34 dòng** trong dataset chứa từ "adjust" hoặc "bad debt" trong Description.
+Trong đó 31 dòng có UnitPrice = 0 (chỉ điều chỉnh số lượng), 3 dòng có UnitPrice ≠ 0.
+Tất cả đều thiếu CustomerID.
+
+## 4. StockCode phi sản phẩm
+
+Một số StockCode không phải mã sản phẩm thực mà là phí dịch vụ, điều chỉnh:
+
+| StockCode | Số dòng | Ý nghĩa | Xử lý |
+|---|---|---|---|
+| `POST` | 1,256 | Phí vận chuyển (Postage) | Loại khi phân tích sản phẩm |
+| `DOT` | 710 | Phí vận chuyển Dotcom | Loại khi phân tích sản phẩm |
+| `M` / `m` | 572 | Điều chỉnh thủ công (Manual) | Loại |
+| `C2` | 144 | Phí vận chuyển (Carriage) | Loại khi phân tích sản phẩm |
+| `D` | 77 | Giảm giá (Discount) | Loại |
+| `S` | 63 | Mẫu thử (Samples) | Loại |
+| `BANK CHARGES` | 37 | Phí ngân hàng | Loại |
+| `AMAZONFEE` | 34 | Phí Amazon | Loại |
+| `CRUK` | 16 | Hoa hồng CRUK | Loại |
+| `B` | 3 | Adjust bad debt | Loại |
+| `PADS` | 4 | Phụ kiện đệm | Giữ (sản phẩm thật) |
+| `gift_*` | ~34 | Gift voucher | Cân nhắc giữ/loại |
+| `DCGS*` | ~40 | Sản phẩm đặc biệt | Giữ (sản phẩm thật) |
+
+## 5. Quy tắc làm sạch
 
 ### Hóa đơn hủy
 
-Nếu `InvoiceNo` bắt đầu bằng chữ `C`, xem đó là hóa đơn bị hủy. Các dòng này được loại khỏi tập giao dịch mua hàng chính.
+### Adjust bad debt
+
+Nếu `InvoiceNo` bắt đầu bằng chữ `A`, xem đó là bút toán điều chỉnh nợ xấu. Loại bỏ khi phân tích.
+
+### StockCode phi sản phẩm
+
+Loại các mã `POST`, `DOT`, `M`, `m`, `C2`, `D`, `S`, `BANK CHARGES`, `AMAZONFEE`, `CRUK`, `B` khi phân tích sản phẩm và luật kết hợp.
 
 ### Giá trị không hợp lệ
 
@@ -45,7 +111,7 @@ Từ `InvoiceDate` tạo thêm:
 - `invoice_hour`
 - `invoice_weekday`
 
-## 4. Cột dẫn xuất ở cấp giao dịch
+## 6. Cột dẫn xuất ở cấp giao dịch
 
 | Cột | Công thức hoặc cách tạo | Ý nghĩa |
 |---|---|---|
@@ -55,7 +121,7 @@ Từ `InvoiceDate` tạo thêm:
 | `InvoiceMonth` | Năm-tháng của hóa đơn | Phân tích doanh thu theo tháng |
 | `InvoiceHour` | Giờ trong ngày | Phân tích giờ mua hàng |
 
-## 5. Cột dẫn xuất ở cấp hóa đơn
+## 7. Cột dẫn xuất ở cấp hóa đơn
 
 Sau khi gom theo `InvoiceNo`, tạo:
 
@@ -67,7 +133,7 @@ Sau khi gom theo `InvoiceNo`, tạo:
 | `InvoiceCountry` | Quốc gia của hóa đơn |
 | `InvoiceHour` | Giờ phát sinh hóa đơn |
 
-## 6. Cột dẫn xuất ở cấp khách hàng
+## 8. Cột dẫn xuất ở cấp khách hàng
 
 | Cột | Cách tính | Ý nghĩa |
 |---|---|---|
@@ -82,7 +148,7 @@ Sau khi gom theo `InvoiceNo`, tạo:
 | `AveragePurchaseInterval` | Khoảng cách trung bình giữa các lần mua | Chu kỳ mua hàng |
 | `Country` | Quốc gia của khách hàng | Phân tích theo khu vực |
 
-## 7. Nhãn classification
+## 9. Nhãn classification
 
 Nhãn `repeat_purchase_90d` được tạo theo quy trình:
 
@@ -93,7 +159,7 @@ Nhãn `repeat_purchase_90d` được tạo theo quy trình:
 
 Không được dùng giao dịch trong 90 ngày tương lai để tạo các đặc trưng như `Frequency`, `Monetary` hoặc `Recency`.
 
-## 8. Dữ liệu cho association rules
+## 10. Dữ liệu cho association rules
 
 Tạo bảng dạng giỏ hàng:
 
