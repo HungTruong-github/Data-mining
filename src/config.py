@@ -28,6 +28,22 @@ FIGURES_DIR = OUTPUTS_DIR / "figures"
 TABLES_DIR = OUTPUTS_DIR / "tables"
 RULES_DIR = OUTPUTS_DIR / "rules"
 
+def get_stage_dirs(stage_name: str):
+    """
+    Tạo và trả về bộ đôi đường dẫn (figures_dir, tables_dir) cho từng stage.
+    Ví dụ: stage_name="data_understanding" ->
+           outputs/figures/data_understanding/
+           outputs/tables/data_understanding/
+    """
+    fig_dir = FIGURES_DIR / stage_name
+    tbl_dir = TABLES_DIR / stage_name
+    fig_dir.mkdir(parents=True, exist_ok=True)
+    tbl_dir.mkdir(parents=True, exist_ok=True)
+    return fig_dir, tbl_dir
+
+# Đường dẫn riêng cho stage 01 - Data Understanding
+FIGURES_DATA_UNDERSTANDING, TABLES_DATA_UNDERSTANDING = get_stage_dirs("data_understanding")
+
 # ── Docs ──────────────────────────────────────────────────────────────
 DOCS_DIR = PROJECT_ROOT / "docs"
 

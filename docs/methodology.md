@@ -41,7 +41,7 @@ Thực hiện các bước:
 - Vẽ phân phối doanh thu, số lượng và giá sản phẩm.
 - Phân tích doanh thu theo tháng, quốc gia và sản phẩm.
 
-Kết quả của giai đoạn này được lưu tại `outputs/tables/` và `outputs/figures/`.
+Kết quả của giai đoạn này được lưu tại `outputs/tables/data_understanding/` và `outputs/figures/data_understanding/`.
 
 ## 4. Data Preparation
 

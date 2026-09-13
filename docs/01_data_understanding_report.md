@@ -226,14 +226,14 @@ Tổng: **2,995 dòng** (0.55%) có StockCode bắt đầu bằng chữ cái.
 
 ## 10. Biểu đồ đã tạo
 
-| File | Nội dung |
-|---|---|
-| `outputs/figures/dist_quantity.png` | Phân phối Quantity (toàn bộ + zoom 1-50) |
-| `outputs/figures/dist_unitprice.png` | Phân phối UnitPrice (toàn bộ + zoom 0-10£) |
-| `outputs/figures/revenue_by_month.png` | Doanh thu theo tháng (loại C và A) |
-| `outputs/figures/top10_products_revenue.png` | Top 10 sản phẩm theo doanh thu |
-| `outputs/figures/top_countries_revenue.png` | Top 15 quốc gia + pie chart ngoài UK |
-| `outputs/figures/invoice_type_distribution.png` | Phân bổ loại InvoiceNo (Normal/C/A) |
+| File | Nội dung | Đặc điểm cải tiến |
+|---|---|---|
+| `outputs/figures/data_understanding/dist_quantity.png` | Phân phối Quantity (thông thường 1-50 + toàn cảnh Log10) | Không bị ép, thể hiện cả mua hàng và hủy hàng theo thang log10 |
+| `outputs/figures/data_understanding/dist_unitprice.png` | Phân phối UnitPrice (thông thường £0-£15 + toàn cảnh Log10) | Hiển thị rõ dải giá thực tế, min/max outlier không làm xẹp biểu đồ |
+| `outputs/figures/data_understanding/revenue_by_month.png` | Doanh thu theo tháng (giao dịch hợp lệ, loại C và A) | Chuẩn tỉ lệ khung hình (13:6), nhãn £K/£M rõ ràng, chú thích T12/2011 |
+| `outputs/figures/data_understanding/top10_products_revenue.png` | Top 10 sản phẩm theo doanh thu | Tên sản phẩm rõ ràng, palette mako hiện đại, giá trị định dạng tiền tệ |
+| `outputs/figures/data_understanding/top_countries_revenue.png` | Top 10 quốc gia (bao gồm UK) & Top 10 quốc tế (ngoài UK) | Biểu đồ cột ngang đôi, so sánh trực quan thị trường quốc tế |
+| `outputs/figures/data_understanding/invoice_type_distribution.png` | Phân bổ loại InvoiceNo (Normal/C/A) | Bar chart log-scale thấy rõ cả 3 loại + Donut chart với Legend riêng biệt, không đè chữ |
 
 ---
 
@@ -247,14 +247,14 @@ Tổng: **2,995 dòng** (0.55%) có StockCode bắt đầu bằng chữ cái.
 | `src/data_loader.py` | Module tải dữ liệu, hỗ trợ CSV + XLSX |
 | `notebooks/01_data_understanding.ipynb` | Notebook Data Understanding hoàn chỉnh |
 | `notebooks/run_01_data_understanding.py` | Script chạy tự động (tương đương notebook) |
-| `outputs/tables/raw_summary.csv` | Bảng tổng hợp dữ liệu gốc (27 metrics) |
-| `outputs/tables/descriptive_statistics.csv` | Thống kê mô tả |
-| `outputs/figures/dist_quantity.png` | Biểu đồ phân phối Quantity |
-| `outputs/figures/dist_unitprice.png` | Biểu đồ phân phối UnitPrice |
-| `outputs/figures/revenue_by_month.png` | Biểu đồ doanh thu theo tháng |
-| `outputs/figures/top10_products_revenue.png` | Biểu đồ Top 10 sản phẩm |
-| `outputs/figures/top_countries_revenue.png` | Biểu đồ Top quốc gia |
-| `outputs/figures/invoice_type_distribution.png` | Biểu đồ phân bổ loại InvoiceNo |
+| `outputs/tables/data_understanding/raw_summary.csv` | Bảng tổng hợp dữ liệu gốc (27 metrics) |
+| `outputs/tables/data_understanding/descriptive_statistics.csv` | Thống kê mô tả |
+| `outputs/figures/data_understanding/dist_quantity.png` | Biểu đồ phân phối Quantity (không bị ép) |
+| `outputs/figures/data_understanding/dist_unitprice.png` | Biểu đồ phân phối UnitPrice (không bị ép) |
+| `outputs/figures/data_understanding/revenue_by_month.png` | Biểu đồ doanh thu theo tháng (chuẩn tỉ lệ) |
+| `outputs/figures/data_understanding/top10_products_revenue.png` | Biểu đồ Top 10 sản phẩm |
+| `outputs/figures/data_understanding/top_countries_revenue.png` | Biểu đồ Top quốc gia (UK & Quốc tế) |
+| `outputs/figures/data_understanding/invoice_type_distribution.png` | Biểu đồ phân bổ loại InvoiceNo (Log-scale & Donut) |
 | `docs/01_data_understanding_report.md` | File tổng hợp này |
 
 ### File đã cập nhật
