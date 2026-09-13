@@ -45,13 +45,51 @@ Kết quả của giai đoạn này được lưu tại `outputs/tables/data_und
 
 ## 4. Data Preparation
 
-### 4.1 Làm sạch
+### 4.1 Làm sạch (Data Preparation & Cleaning)
 
-- Chuyển `InvoiceDate` sang kiểu datetime.
-- Loại bỏ hóa đơn hủy khỏi tập mua hàng chính.
-- Loại bỏ `Quantity <= 0` và `UnitPrice <= 0`.
-- Xử lý bản ghi thiếu `CustomerID`.
-- Kiểm tra và xử lý outlier.
+Pipeline làm sạch được triển khai theo quy trình 10 bước chuẩn hóa, đảm bảo tính tái lập (reproducible), bảo toàn dữ liệu gốc (raw data integrity) và không gây rò rỉ dữ liệu (no data leakage):
+
+1. **Chuẩn hóa kiểu dữ liệu & Thuộc tính dẫn xuất cấp giao dịch**:
+   - Ép kiểu `InvoiceNo` và `StockCode` về dạng chuỗi ký tự (`str`), xóa bỏ khoảng trắng.
+   - Chuyển đổi `InvoiceDate` sang kiểu thời gian `datetime64[ns]`.
+   - Ép kiểu số cho `Quantity` (int64) và `UnitPrice` (float64).
+   - Tạo thuộc tính `TotalAmount = Quantity * UnitPrice`.
+
+2. **Gắn cờ giao dịch (Transaction Flags)**:
+   - Tạo 5 cờ logic: `IsCancelled` (hóa đơn 'C'), `IsAdjust` (hóa đơn 'A'), `IsDuplicate` (dòng trùng lặp hoàn toàn), `IsQuantityInvalid` (Quantity <= 0), `IsPriceInvalid` (UnitPrice <= 0).
+
+3. **Phân tích và loại bỏ hóa đơn hủy (`C`) và điều chỉnh nợ xấu (`A`)**:
+   - Hóa đơn hủy (`C`): 9,288 dòng (3,836 hóa đơn) với `Quantity < 0`, doanh số âm -£896,812.49. Tách riêng khỏi tập giao dịch mua để không làm lệch phân tích hành vi và RFM.
+   - Bút toán nợ xấu (`A`): 3 dòng mang mã `B` (Adjust bad debt), UnitPrice lên tới ±£11,062.06. Đây là nghiệp vụ kế toán nội bộ, loại bỏ hoàn toàn.
+
+4. **Xử lý giá trị thiếu (Missing Values)**:
+   - `Description`: Thiếu 1,454 dòng (0.27%). Điền tự động bằng mode (mô tả phổ biến nhất) của từng `StockCode`. Nếu không có, điền `"Unknown Product"`.
+   - `CustomerID`: Thiếu 135,080 dòng (24.93%). Đây là khách vãng lai. Giữ lại trong tập dữ liệu chung để tính doanh số tổng thể, nhưng lọc bỏ khi phân tích hành vi cấp khách hàng.
+
+5. **Loại bỏ giao dịch không hợp lệ**:
+   - Loại bỏ các dòng có `Quantity <= 0` còn lại (1,336 dòng - hàng hỏng, điều chỉnh kho).
+   - Loại bỏ các dòng có `UnitPrice <= 0` (1,179 dòng - hàng khuyến mãi 0 đồng hoặc lỗi hệ thống).
+
+6. **Loại bỏ bản ghi trùng lặp (Duplicates)**:
+   - Loại bỏ 5,226 dòng trùng lặp hoàn toàn trên 8 thuộc tính gốc (lỗi truyền dữ liệu hoặc người dùng bấm gửi nhiều lần), chỉ giữ bản ghi đầu tiên.
+
+7. **Phân loại và loại bỏ `StockCode` phi sản phẩm**:
+   - Phân loại các mã dịch vụ/phí/điều chỉnh: `POST`, `DOT`, `M`, `C2`, `D`, `S`, `BANK CHARGES`, `AMAZONFEE`, `CRUK`, `B` (loại 2,306 dòng).
+   - Giữ lại các mã sản phẩm vật lý đặc biệt có Description hợp lệ (`PADS`, `DCGS*`).
+   - Tách riêng mã phiếu quà tặng (`gift_*`) khi phân tích sản phẩm.
+
+8. **Phát hiện và gắn cờ giá trị bất thường (Outliers)**:
+   - Áp dụng phương pháp IQR (Interquartile Range) cho `Quantity`, `UnitPrice`, và `TotalAmount`.
+   - Không xóa bỏ cứng các dòng này (vì đại diện cho giao dịch mua buôn sỉ thực tế), mà gắn cờ `IsQuantityOutlier`, `IsPriceOutlier`, `IsAmountOutlier`.
+
+9. **Tạo 3 tập dữ liệu trung gian (`data/interim/`)**:
+   - `cleaned_transactions.csv` (522,571 dòng): Toàn bộ giao dịch mua bán hợp lệ.
+   - `customer_transactions.csv` (391,153 dòng): Chỉ giữ giao dịch có định danh `CustomerID`, phục vụ tính RFM, phân cụm K-Means và dự báo mua lại.
+   - `product_transactions.csv` (522,540 dòng): Loại bỏ thêm mã phiếu quà tặng `gift_*`, phục vụ khai phá luật kết hợp sản phẩm (Association Rules).
+
+10. **Lưu vết và trực quan hóa so sánh Trước - Sau**:
+    - Lưu toàn bộ bảng thống kê vào `outputs/tables/data_preparation/`.
+    - Lưu 8 biểu đồ so sánh vào `outputs/figures/data_preparation/`.
 
 ### 4.2 Feature engineering
 

@@ -44,6 +44,9 @@ def get_stage_dirs(stage_name: str):
 # Đường dẫn riêng cho stage 01 - Data Understanding
 FIGURES_DATA_UNDERSTANDING, TABLES_DATA_UNDERSTANDING = get_stage_dirs("data_understanding")
 
+# Đường dẫn riêng cho stage 02 - Data Preparation
+FIGURES_DATA_PREPARATION, TABLES_DATA_PREPARATION = get_stage_dirs("data_preparation")
+
 # ── Docs ──────────────────────────────────────────────────────────────
 DOCS_DIR = PROJECT_ROOT / "docs"
 
@@ -55,6 +58,14 @@ RANDOM_STATE = 42
 TEST_SIZE = 0.2
 REPEAT_PURCHASE_WINDOW_DAYS = 90
 
+# ── StockCode phi sản phẩm ───────────────────────────────────────────
+# Các mã dịch vụ, phí, điều chỉnh — không phải sản phẩm vật lý
+NON_PRODUCT_STOCK_CODES = {
+    'POST', 'DOT', 'M', 'm', 'C2', 'D', 'S',
+    'BANK CHARGES', 'AMAZONFEE', 'CRUK', 'B',
+}
+
 # ── Đảm bảo thư mục output tồn tại ──────────────────────────────────
 for d in [FIGURES_DIR, TABLES_DIR, RULES_DIR, INTERIM_DIR, PROCESSED_DIR, MODELS_DIR]:
     d.mkdir(parents=True, exist_ok=True)
+

@@ -79,49 +79,48 @@ Một số StockCode không phải mã sản phẩm thực mà là phí dịch v
 | `gift_*` | ~34 | Gift voucher | Cân nhắc giữ/loại |
 | `DCGS*` | ~40 | Sản phẩm đặc biệt | Giữ (sản phẩm thật) |
 
-## 5. Quy tắc làm sạch
+## 5. Quy tắc làm sạch và Thống kê thực tế (Phase 02)
 
-### Hóa đơn hủy
+| Bước | Vấn đề | Tiêu chí nhận diện | Số dòng loại bỏ | Số dòng còn lại | Quyết định & Lý do |
+|---|---|---|---|---|---|
+| **01** | Dữ liệu gốc | — | — | 541,909 | Toàn bộ dữ liệu raw từ CSV |
+| **02** | Hóa đơn hủy | `InvoiceNo` bắt đầu bằng `C` | 9,288 dòng (3,836 HĐ) | 532,621 | Loại bỏ: Giao dịch hủy có số lượng âm, không phản ánh mua hàng thực tế |
+| **03** | Bút toán nợ xấu | `InvoiceNo` bắt đầu bằng `A` | 3 dòng (3 HĐ) | 532,618 | Loại bỏ: Bút toán kế toán nội bộ điều chỉnh nợ xấu, giá trị lớn (±£11,062.06) |
+| **04** | Số lượng không hợp lệ | `Quantity <= 0` (ngoài C/A) | 1,336 dòng | 531,282 | Loại bỏ: Hàng hư hỏng, kiểm kê kho, thất thoát |
+| **05** | Đơn giá không hợp lệ | `UnitPrice <= 0` | 1,179 dòng | 530,103 | Loại bỏ: Quà tặng mẫu 0 đồng hoặc bản ghi lỗi hệ thống |
+| **06** | Bản ghi trùng lặp | Trùng hoàn toàn 8 thuộc tính gốc | 5,226 dòng | 524,877 | Loại bỏ: Giữ lại bản ghi đầu tiên (`keep='first'`), khắc phục lỗi gửi trùng |
+| **07** | StockCode phi sản phẩm | Mã thuộc `NON_PRODUCT_STOCK_CODES` | 2,306 dòng | 522,571 | Loại bỏ: Cước bưu chính (`POST`, `DOT`), phí điều chỉnh (`M`), ngân hàng,... |
+| **08** | **Tập giao dịch sạch** | Toàn bộ giao dịch hợp lệ | — | **522,571** | Lưu tại `data/interim/cleaned_transactions.csv` |
+| **09** | **Tập khách hàng** | Thiếu `CustomerID` (NaN) | 131,418 dòng | **391,153** | Lưu tại `data/interim/customer_transactions.csv` (cho RFM, K-Means) |
+| **10** | **Tập sản phẩm** | Mã phiếu quà tặng (`gift_*`) | 31 dòng | **522,540** | Lưu tại `data/interim/product_transactions.csv` (cho Association Rules) |
 
-### Adjust bad debt
+### Xử lý Missing Values
+- `Description`: Thiếu 1,454 dòng (0.27%) ban đầu. Đã được điền hoàn toàn bằng mode của từng `StockCode` (100% được khôi phục, không còn missing).
+- `CustomerID`: Thiếu 135,080 dòng (24.93%) ở dữ liệu raw, sau khi loại các dòng không hợp lệ còn 131,418 dòng. Không điền nhân tạo mà giữ trong `cleaned_transactions.csv` và chỉ lọc khi phân tích khách hàng.
 
-Nếu `InvoiceNo` bắt đầu bằng chữ `A`, xem đó là bút toán điều chỉnh nợ xấu. Loại bỏ khi phân tích.
+## 6. Cột dẫn xuất & Cờ giao dịch (Transaction Flags)
 
-### StockCode phi sản phẩm
+| Cột | Kiểu dữ liệu | Cách tạo / Công thức | Ý nghĩa & Ứng dụng |
+|---|---|---|---|
+| `TotalAmount` | Float64 | `Quantity * UnitPrice` | Tổng giá trị tiền tệ của dòng sản phẩm |
+| `IsCancelled` | Boolean | `InvoiceNo.str.startswith('C')` | Đánh dấu hóa đơn hủy |
+| `IsAdjust` | Boolean | `InvoiceNo.str.startswith('A')` | Đánh dấu hóa đơn điều chỉnh nợ xấu |
+| `IsDuplicate` | Boolean | `df.duplicated(subset=original_cols)` | Đánh dấu dòng trùng lặp hoàn toàn |
+| `IsQuantityInvalid` | Boolean | `Quantity <= 0` | Đánh dấu số lượng không hợp lệ |
+| `IsPriceInvalid` | Boolean | `UnitPrice <= 0` | Đánh dấu đơn giá không hợp lệ |
+| `IsQuantityOutlier` | Boolean | $Quantity < Q_1 - 1.5 \times IQR$ hoặc $> Q_3 + 1.5 \times IQR$ | Đánh dấu ngoại lai số lượng (26,815 dòng, 5.13%) |
+| `IsPriceOutlier` | Boolean | $UnitPrice < Q_1 - 1.5 \times IQR$ hoặc $> Q_3 + 1.5 \times IQR$ | Đánh dấu ngoại lai đơn giá (35,772 dòng, 6.85%) |
+| `IsAmountOutlier` | Boolean | $TotalAmount < Q_1 - 1.5 \times IQR$ hoặc $> Q_3 + 1.5 \times IQR$ | Đánh dấu ngoại lai tổng tiền (41,124 dòng, 7.87%) |
 
-Loại các mã `POST`, `DOT`, `M`, `m`, `C2`, `D`, `S`, `BANK CHARGES`, `AMAZONFEE`, `CRUK`, `B` khi phân tích sản phẩm và luật kết hợp.
+## 7. Các tập dữ liệu trung gian (Interim Datasets)
 
-### Giá trị không hợp lệ
+| File | Đường dẫn | Số dòng | Số cột | Mục đích sử dụng |
+|---|---|---|---|---|
+| `cleaned_transactions.csv` | `data/interim/` | 522,571 | 12 | Toàn bộ giao dịch mua hợp lệ; phân tích doanh thu tổng thể, xu hướng bán hàng |
+| `customer_transactions.csv` | `data/interim/` | 391,153 | 12 | Chỉ giao dịch có `CustomerID`; phân khúc khách hàng (RFM, K-Means), dự đoán mua lại |
+| `product_transactions.csv` | `data/interim/` | 522,540 | 12 | Loại bỏ non-product và voucher; khai phá luật kết hợp sản phẩm (Association Rules) |
 
-- Loại bỏ bản ghi có `Quantity <= 0`.
-- Loại bỏ bản ghi có `UnitPrice <= 0`.
-- Kiểm tra các giá trị cực lớn bằng IQR hoặc percentile.
-
-### Khách hàng không có mã
-
-Các bản ghi thiếu `CustomerID` không dùng cho phân tích khách hàng, vì không thể gán giao dịch cho một khách hàng cụ thể. Có thể giữ lại chúng khi phân tích doanh thu tổng thể.
-
-### Thời gian
-
-Từ `InvoiceDate` tạo thêm:
-
-- `invoice_year`
-- `invoice_month`
-- `invoice_day`
-- `invoice_hour`
-- `invoice_weekday`
-
-## 6. Cột dẫn xuất ở cấp giao dịch
-
-| Cột | Công thức hoặc cách tạo | Ý nghĩa |
-|---|---|---|
-| `TotalAmount` | `Quantity * UnitPrice` | Giá trị dòng sản phẩm |
-| `IsCancelled` | Dựa vào `InvoiceNo` | Xác định giao dịch hủy |
-| `InvoiceDateOnly` | Chỉ lấy phần ngày | Tính số ngày hoạt động |
-| `InvoiceMonth` | Năm-tháng của hóa đơn | Phân tích doanh thu theo tháng |
-| `InvoiceHour` | Giờ trong ngày | Phân tích giờ mua hàng |
-
-## 7. Cột dẫn xuất ở cấp hóa đơn
+## 8. Cột dẫn xuất ở cấp hóa đơn
 
 Sau khi gom theo `InvoiceNo`, tạo:
 
@@ -133,7 +132,7 @@ Sau khi gom theo `InvoiceNo`, tạo:
 | `InvoiceCountry` | Quốc gia của hóa đơn |
 | `InvoiceHour` | Giờ phát sinh hóa đơn |
 
-## 8. Cột dẫn xuất ở cấp khách hàng
+## 9. Cột dẫn xuất ở cấp khách hàng
 
 | Cột | Cách tính | Ý nghĩa |
 |---|---|---|
@@ -148,7 +147,7 @@ Sau khi gom theo `InvoiceNo`, tạo:
 | `AveragePurchaseInterval` | Khoảng cách trung bình giữa các lần mua | Chu kỳ mua hàng |
 | `Country` | Quốc gia của khách hàng | Phân tích theo khu vực |
 
-## 9. Nhãn classification
+## 10. Nhãn classification
 
 Nhãn `repeat_purchase_90d` được tạo theo quy trình:
 
@@ -159,7 +158,7 @@ Nhãn `repeat_purchase_90d` được tạo theo quy trình:
 
 Không được dùng giao dịch trong 90 ngày tương lai để tạo các đặc trưng như `Frequency`, `Monetary` hoặc `Recency`.
 
-## 10. Dữ liệu cho association rules
+## 11. Dữ liệu cho association rules
 
 Tạo bảng dạng giỏ hàng:
 
