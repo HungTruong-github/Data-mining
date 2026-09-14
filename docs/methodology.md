@@ -91,31 +91,108 @@ Pipeline làm sạch được triển khai theo quy trình 10 bước chuẩn h�
     - Lưu toàn bộ bảng thống kê vào `outputs/tables/data_preparation/`.
     - Lưu 8 biểu đồ so sánh vào `outputs/figures/data_preparation/`.
 
-### 4.2 Feature engineering
+### 4.2 Feature engineering (Phase 03)
 
-Tạo bảng ở ba cấp độ:
+Tạo đặc trưng ở ba cấp độ phục vụ ba bài toán chính:
 
-- Cấp giao dịch.
-- Cấp hóa đơn.
-- Cấp khách hàng.
+#### 4.2.1 Đặc trưng RFM cấp khách hàng
 
-Các đặc trưng chính ở cấp khách hàng là Recency, Frequency, Monetary, TotalItems, UniqueProducts, AverageOrderValue và CancellationRate.
+Từ `data/interim/customer_transactions.csv` (391,153 dòng, 4,334 khách hàng), tạo bảng RFM mỗi khách hàng 1 dòng:
+
+**Định nghĩa RFM:**
+- **Recency** = `reference_date − LastPurchaseDate` (đơn vị: ngày). `reference_date = max(InvoiceDate) + 1 ngày`. Recency nhỏ → khách mua gần đây.
+- **Frequency** = Số hóa đơn (`InvoiceNo`) khác nhau bằng `nunique()`. Không đếm số dòng giao dịch vì một hóa đơn có thể chứa nhiều sản phẩm.
+- **Monetary** = Tổng `TotalAmount = Quantity × UnitPrice`.
+
+**Lý do chọn `reference_date = max_date + 1`**: Đảm bảo khách mua vào ngày cuối cùng vẫn có Recency ≥ 1 (tránh Recency = 0).
+
+**Các biến mở rộng:**
+- `TotalItems`: Tổng Quantity mua.
+- `UniqueProducts`: Số StockCode khác nhau.
+- `UniqueInvoices`: Số InvoiceNo khác nhau (= Frequency).
+- `ActiveDays`: Số ngày có giao dịch.
+- `AverageOrderValue`: Monetary / Frequency.
+- `AverageItemsPerInvoice`: TotalItems / Frequency.
+- `CustomerLifetimeDays`: Số ngày từ lần mua đầu đến lần mua cuối.
+- `Country`: Quốc gia xuất hiện nhiều nhất.
+
+**Lý do không dùng `CustomerID` làm feature**: CustomerID là định danh, không mang thông tin hành vi. Đưa vào mô hình sẽ gây overfitting.
+
+#### 4.2.2 Điểm RFM và phân khúc mô tả
+
+Chia mỗi biến R, F, M thành 5 nhóm (1–5) bằng `pd.qcut` với xử lý quantile trùng (`duplicates='drop'` và fallback `rank(method='first')`).
+
+Phân khúc mô tả dựa trên logic if-else:
+- Champions: R ≥ 4 AND F ≥ 4 AND M ≥ 4.
+- Loyal Customers: F ≥ 4 AND M ≥ 3.
+- Big Spenders: M ≥ 4.
+- Recent Customers: R ≥ 4 AND F ≤ 2.
+- At Risk: R ≤ 2 AND F ≥ 2.
+- Regular Customers: Tất cả trường hợp còn lại.
+
+Đây là phân khúc heuristic, sẽ được kiểm chứng bằng K-Means clustering ở Phase 05.
 
 ### 4.3 Chuẩn bị cho clustering
 
-- Chọn các đặc trưng RFM.
-- Có thể log-transform các biến lệch phải như `Monetary` và `Frequency`.
-- Chuẩn hóa bằng StandardScaler.
-- Xác định số cụm bằng Elbow Method và Silhouette Score.
+- Chọn các đặc trưng: Recency, Frequency, Monetary, TotalItems, UniqueProducts, AverageOrderValue, CustomerLifetimeDays.
+- Log-transform (`log1p`) các biến lệch phải: Recency, Frequency, Monetary. Giúp phân phối gần chuẩn hơn, cải thiện hiệu quả của K-Means (vốn nhạy cảm với scale).
+- Chuẩn hóa bằng StandardScaler (thực hiện ở notebook 04).
+- Xác định số cụm bằng Elbow Method và Silhouette Score (thực hiện ở notebook 04).
+- Giữ CustomerID trong file để nối kết quả, nhưng **không** dùng làm biến đầu vào.
 
-### 4.4 Chuẩn bị cho classification
+Kết quả lưu: `data/processed/rfm_clustering_features.csv` (4,334 khách hàng × 11 cột).
 
-- Tạo nhãn `repeat_purchase_90d`.
-- Loại bỏ ID khỏi tập đặc trưng.
-- One-hot encoding cho biến phân loại nếu sử dụng `Country`.
-- Chia dữ liệu thành train/test.
-- Dùng StratifiedKFold trên tập train.
-- Chỉ fit scaler và encoder trên tập train để tránh data leakage.
+### 4.4 Chuẩn bị cho classification (repeat_purchase_90d)
+
+#### 4.4.1 Chiến lược tránh data leakage
+
+Đây là bước **bắt buộc** phải tách thời gian chặt chẽ:
+
+```
+|←── Feature period ──→|←── Label window (90 ngày) ──→|
+                    cutoff_date                    max_date
+```
+
+- `max_date = max(InvoiceDate)` trong customer_transactions.
+- `cutoff_date = max_date − 90 ngày`.
+- Feature chỉ được tính từ giao dịch **≤ cutoff_date**.
+- Label kiểm tra giao dịch trong **(cutoff_date, cutoff_date + 90 ngày]**.
+- `repeat_purchase_90d = 1` nếu khách có ≥ 1 InvoiceNo khác nhau trong cửa sổ label.
+
+**Tuyệt đối không được:**
+- Dùng toàn bộ lịch sử đến max_date để tạo feature.
+- Đưa future_invoice_count hoặc future_revenue vào file modeling.
+- Dùng ngày mua trong tương lai làm Recency.
+
+#### 4.4.2 Giới hạn của nhãn repeat purchase 90 ngày
+
+- Chỉ đánh giá được khả năng mua lại trong 1 cửa sổ thời gian cố định.
+- Khách hàng mới xuất hiện sau cutoff_date không có lịch sử → không được gán nhãn.
+- Cửa sổ 90 ngày có thể không phù hợp với mọi ngành hàng.
+#### 4.4.3 Xác thực chống Data Leakage và Cutoff Date
+
+Hàm `validate_feature_data()` thực hiện kiểm tra chặt chẽ tính hợp lệ về mặt thời gian:
+1. **Kiểm tra Recency**: Recency tính so với `feature_ref_date = cutoff_date + 1 day` phải ≥ 1 ngày (chứng minh không có giao dịch nào từ hoặc sau `feature_ref_date` bị đưa vào tính feature).
+2. **Kiểm tra lịch sử khách hàng**: 100% khách hàng trong `repeat_purchase_features.csv` (3,368 khách) có lịch sử giao dịch `InvoiceDate <= cutoff_date`.
+3. **Chặn rò rỉ khách hàng mới**: 0 khách hàng mới xuất hiện sau `cutoff_date` bị lọt vào tập feature.
+4. **Kiểm tra tính toán không cộng dồn tương lai**: Đối chiếu `Frequency` của `repeat_purchase_features` khớp 100% với số hóa đơn tính riêng trên tập giao dịch `InvoiceDate <= cutoff_date`.
+5. **Xác thực nhãn mục tiêu**: 100% khách mang nhãn 1 thực sự có giao dịch trong `(cutoff_date, cutoff_date + 90 days]` và 100% khách mang nhãn 0 không có giao dịch nào trong khoảng thời gian này.
+6. **Không chứa cột tương lai**: `future_invoice_count` và `future_revenue` hoàn toàn bị loại bỏ khỏi dữ liệu đưa vào mô hình.
+
+Kết quả: `data/processed/repeat_purchase_features.csv` — chứa feature + label, **không** chứa future info.
+
+### 4.5 Chuẩn bị basket data cho Association Rules
+
+- Sử dụng `data/interim/product_transactions.csv` (đã loại mã phi sản phẩm và gift voucher).
+- Mỗi `InvoiceNo` = 1 giao dịch (basket).
+- Mỗi `StockCode` chỉ xuất hiện 1 lần trong mỗi hóa đơn.
+- Dùng StockCode làm item ID; giữ Description để tra cứu tên sản phẩm.
+- Loại duplicate theo (InvoiceNo, StockCode).
+
+Kết quả:
+- `data/processed/association_basket_long.csv` — dạng dài (InvoiceNo, StockCode, Description).
+- `data/processed/association_basket_matrix.csv` — ma trận one-hot nếu kích thước hợp lý.
+
 
 ## 5. Modeling
 

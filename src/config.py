@@ -47,6 +47,9 @@ FIGURES_DATA_UNDERSTANDING, TABLES_DATA_UNDERSTANDING = get_stage_dirs("data_und
 # Đường dẫn riêng cho stage 02 - Data Preparation
 FIGURES_DATA_PREPARATION, TABLES_DATA_PREPARATION = get_stage_dirs("data_preparation")
 
+# Đường dẫn riêng cho stage 03 - Feature Engineering
+FIGURES_FEATURE_ENGINEERING, TABLES_FEATURE_ENGINEERING = get_stage_dirs("feature_engineering")
+
 # ── Docs ──────────────────────────────────────────────────────────────
 DOCS_DIR = PROJECT_ROOT / "docs"
 
