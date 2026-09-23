@@ -72,3 +72,12 @@ NON_PRODUCT_STOCK_CODES = {
 for d in [FIGURES_DIR, TABLES_DIR, RULES_DIR, INTERIM_DIR, PROCESSED_DIR, MODELS_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
+
+# Duong dan rieng cho stage 04 - Customer Clustering
+FIGURES_CLUSTERING, TABLES_CLUSTERING = get_stage_dirs("clustering")
+MODELS_CLUSTERING_DIR = MODELS_DIR / "clustering"
+MODELS_CLUSTERING_DIR.mkdir(parents=True, exist_ok=True)
+
+# Duong dan rieng cho stage 06 - Association Rules
+FIGURES_ASSOCIATION, TABLES_ASSOCIATION = get_stage_dirs("association_rules")
+TABLES_ASSOCIATION_RULES_DIR = TABLES_ASSOCIATION
