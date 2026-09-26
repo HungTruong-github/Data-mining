@@ -1,0 +1,135 @@
+Data-mining
+|-- .git
+|   |-- hooks
+|   |   |-- applypatch-msg.sample
+|   |   |-- commit-msg.sample
+|   |   |-- fsmonitor-watchman.sample
+|   |   |-- post-update.sample
+|   |   |-- pre-applypatch.sample
+|   |   |-- pre-commit.sample
+|   |   |-- pre-merge-commit.sample
+|   |   |-- prepare-commit-msg.sample
+|   |   |-- pre-push.sample
+|   |   |-- pre-rebase.sample
+|   |   |-- pre-receive.sample
+|   |   |-- push-to-checkout.sample
+|   |   |-- sendemail-validate.sample
+|   |   \-- update.sample
+|   |-- info
+|   |   \-- exclude
+|   |-- logs
+|   |   |-- refs
+|   |   |   |-- heads
+|   |   |   |   \-- main
+|   |   |   \-- remotes
+|   |   |       \-- origin
+|   |   |           \-- HEAD
+|   |   \-- HEAD
+|   |-- objects
+|   |   |-- info
+|   |   \-- pack
+|   |       |-- pack-3c776ccad7e22e4614e13e190d6ef5849b65a1f0.idx
+|   |       |-- pack-3c776ccad7e22e4614e13e190d6ef5849b65a1f0.pack
+|   |       \-- pack-3c776ccad7e22e4614e13e190d6ef5849b65a1f0.rev
+|   |-- refs
+|   |   |-- heads
+|   |   |   \-- main
+|   |   |-- remotes
+|   |   |   \-- origin
+|   |   |       \-- HEAD
+|   |   \-- tags
+|   |-- config
+|   |-- description
+|   |-- HEAD
+|   |-- index
+|   \-- packed-refs
+|-- app
+|   \-- app.py
+|-- data
+|   |-- interim
+|   |   |-- cleaned_transactions.csv
+|   |   |-- customer_transactions.csv
+|   |   \-- product_transactions.csv
+|   |-- processed
+|   |   |-- association_basket_long.csv
+|   |   |-- association_basket_matrix.csv
+|   |   |-- repeat_purchase_features.csv
+|   |   |-- rfm_clustering_features.csv
+|   |   \-- rfm_customer_features.csv
+|   \-- raw
+|       |-- Online Retail.csv
+|       \-- README.md
+|-- docs
+|   |-- 01_data_understanding_report.md
+|   |-- 02_data_preparation_report.md
+|   |-- business_understanding.md
+|   |-- data_dictionary.md
+|   |-- methodology.md
+|   |-- Rubric_FinalProject_DataMining_CaoHoc.pdf
+|   \-- team_tasks.md
+|-- models
+|-- notebooks
+|   |-- 01_data_understanding.ipynb
+|   |-- 02_eda_and_cleaning.ipynb
+|   |-- 03_feature_engineering_rfm.ipynb
+|   |-- 04_customer_clustering.ipynb
+|   |-- 05_repeat_purchase_classification.ipynb
+|   |-- 06_association_rules.ipynb
+|   |-- 07_model_comparison_and_insights.ipynb
+|   |-- run_01_data_understanding.py
+|   |-- run_02_eda_and_cleaning.py
+|   \-- run_03_feature_engineering.py
+|-- outputs
+|   |-- figures
+|   |   |-- data_preparation
+|   |   |   |-- boxplot_quantity_before_after.png
+|   |   |   |-- boxplot_unitprice_before_after.png
+|   |   |   |-- cleaning_funnel.png
+|   |   |   |-- dist_totalamount_before_after.png
+|   |   |   |-- missing_values_heatmap.png
+|   |   |   |-- outlier_detection.png
+|   |   |   |-- removal_reasons_pie.png
+|   |   |   \-- revenue_by_month_before_after.png
+|   |   |-- data_understanding
+|   |   \-- feature_engineering
+|   |       |-- repeat_purchase_label_balance.png
+|   |       |-- rfm_correlation_matrix.png
+|   |       |-- rfm_distribution.png
+|   |       |-- rfm_log_transform_comparison.png
+|   |       |-- rfm_score_distribution.png
+|   |       \-- rfm_segment_overview.png
+|   |-- rules
+|   \-- tables
+|       |-- data_preparation
+|       |   |-- cleaning_summary.csv
+|       |   |-- invoice_cleaning_summary.csv
+|       |   |-- missing_values_after_cleaning.csv
+|       |   |-- outlier_summary.csv
+|       |   \-- stockcode_classification.csv
+|       |-- data_understanding
+|       \-- feature_engineering
+|           |-- feature_engineering_summary.csv
+|           |-- feature_summary.csv
+|           |-- repeat_purchase_class_balance.csv
+|           |-- repeat_purchase_label_audit.csv
+|           \-- rfm_segment_summary.csv
+|-- src
+|   |-- __init__.py
+|   |-- association_rules.py
+|   |-- classification.py
+|   |-- clustering.py
+|   |-- config.py
+|   |-- data_loader.py
+|   |-- evaluation.py
+|   |-- feature_engineering.py
+|   |-- preprocessing.py
+|   |-- rfm_analysis.py
+|   \-- visualization.py
+|-- tests
+|   |-- test_feature_engineering.py
+|   \-- test_preprocessing.py
+|-- .gitignore
+|-- LICENSE
+|-- README.md
+|-- requirements.txt
+\-- run_pipeline.py
