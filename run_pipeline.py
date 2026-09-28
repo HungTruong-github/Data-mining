@@ -81,8 +81,8 @@ def main():
         },
         {
             "name": "05. Repeat Purchase Classification",
-            "script": None,
-            "outputs": []
+            "script": "notebooks/run_05_repeat_purchase_classification.py",
+            "outputs": ["outputs/tables/classification/model_comparison.csv", "models/classification/best_classifier_pipeline.joblib"]
         },
         {
             "name": "06. Association Rules",

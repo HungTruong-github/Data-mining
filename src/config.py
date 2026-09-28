@@ -81,3 +81,8 @@ MODELS_CLUSTERING_DIR.mkdir(parents=True, exist_ok=True)
 # Duong dan rieng cho stage 06 - Association Rules
 FIGURES_ASSOCIATION, TABLES_ASSOCIATION = get_stage_dirs("association_rules")
 TABLES_ASSOCIATION_RULES_DIR = TABLES_ASSOCIATION
+
+# Duong dan rieng cho stage 05 - Classification
+FIGURES_CLASSIFICATION, TABLES_CLASSIFICATION = get_stage_dirs("classification")
+MODELS_CLASSIFICATION_DIR = MODELS_DIR / "classification"
+MODELS_CLASSIFICATION_DIR.mkdir(parents=True, exist_ok=True)
