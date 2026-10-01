@@ -1,0 +1,118 @@
+{
+  "generated": "2026-10-01T09:42:07.176508",
+  "random_state": 42,
+  "steps": {
+    "step_04_clustering": {
+      "output_files": [
+        {
+          "path": "data\\processed\\customer_clusters.csv",
+          "exists": true,
+          "size_bytes": 251709,
+          "sha256": "3d1c9095e007f65b88a921c79d7f5cc36513b090dd7e3d274e8ced7d04957d40"
+        },
+        {
+          "path": "outputs\\tables\\clustering\\clustering_algorithm_comparison.csv",
+          "exists": true,
+          "size_bytes": 2062,
+          "sha256": "a8b20b061d9acb4fc22fc7057c682e54cfc8b1c8573e9d7093bf295d835f76cf"
+        },
+        {
+          "path": "outputs\\tables\\clustering\\cluster_profiles.csv",
+          "exists": true,
+          "size_bytes": 301,
+          "sha256": "5b2316a0b4f4b3c063585513998f9dd29790811cb8a146c44ec568e763319a20"
+        },
+        {
+          "path": "models\\clustering\\clustering_model.pkl",
+          "exists": true,
+          "size_bytes": 18111,
+          "sha256": "0ed0d23f599b53919b046f898877ae446c40bb48c66762e08890945e42a90e8f"
+        }
+      ]
+    },
+    "step_05_classification": {
+      "output_files": [
+        {
+          "path": "outputs\\tables\\classification\\model_comparison.csv",
+          "exists": true,
+          "size_bytes": 747,
+          "sha256": "0c2921010b994289cee245d3b2f5518e66d0f4dcaaaeb84065116679d8717c4b"
+        },
+        {
+          "path": "outputs\\tables\\classification\\cv_results.csv",
+          "exists": true,
+          "size_bytes": 661,
+          "sha256": "5839b1fbb36a90693de4ba095612e135e8dc8e1537a2e8d5a770837021bf2bb0"
+        },
+        {
+          "path": "outputs\\tables\\classification\\feature_importance.csv",
+          "exists": true,
+          "size_bytes": 1697,
+          "sha256": "93502f25b2009b955d77ccc6879e28933df240b19e9bc2eb51e6661cfc5efbc5"
+        },
+        {
+          "path": "models\\classification\\best_classifier_pipeline.joblib",
+          "exists": true,
+          "size_bytes": 20699451,
+          "sha256": "7e8a1c7fe855a7d6ae339d70a116bab44a6fd059f5a7d7c053477baa5cdc159e"
+        },
+        {
+          "path": "models\\classification\\classification_metadata.json",
+          "exists": true,
+          "size_bytes": 929,
+          "sha256": "ca526bdf2679ea445cf414b5c6389ce944542aa7f30313bf56cd3920254f6f7a"
+        }
+      ]
+    },
+    "step_06_association": {
+      "output_files": [
+        {
+          "path": "outputs\\tables\\association_rules\\association_algorithm_comparison.csv",
+          "exists": true,
+          "size_bytes": 244,
+          "sha256": "2f0f8281207843cd2ea4cde4f88328c55bdd4449751be7055a204936734aebaa"
+        },
+        {
+          "path": "outputs\\tables\\association_rules\\association_rules\\selected_association_rules.csv",
+          "exists": true,
+          "size_bytes": 11566,
+          "sha256": "ef61386176f43c17e1056739096d5c24ed028cac92aa573f490bc9574742a7ba"
+        }
+      ]
+    },
+    "step_07_insights": {
+      "output_files": [
+        {
+          "path": "outputs\\tables\\model_comparison\\clustering_model_comparison.csv",
+          "exists": true,
+          "size_bytes": 2197,
+          "sha256": "be0d3ad4376e0762ac78034d6822e59e55a3777bd76940e274f66be3dedf5993"
+        },
+        {
+          "path": "outputs\\tables\\model_comparison\\classification_model_comparison.csv",
+          "exists": true,
+          "size_bytes": 1029,
+          "sha256": "9bbb02f17801ea1d792582e245c75d9bfb0b222c643c1778b1d77a7ba4f59a74"
+        },
+        {
+          "path": "outputs\\tables\\model_comparison\\association_rules_comparison.csv",
+          "exists": true,
+          "size_bytes": 380,
+          "sha256": "da0c023de88472f38c21c1242440b4082f7b30014c8eb09cd0e4f540df987c8c"
+        },
+        {
+          "path": "outputs\\tables\\insights\\customer_segment_insights.csv",
+          "exists": true,
+          "size_bytes": 826,
+          "sha256": "556e3cff84c71387d5d4a69c8ed058f1ca52eb6ac7861c6dd55ab3d2e73e203f"
+        },
+        {
+          "path": "outputs\\reports\\07_model_comparison_and_insights.md",
+          "exists": true,
+          "size_bytes": 5161,
+          "sha256": "59573ac139a4e4e595f1c7e35069bb4594b5dc8ed31c037b2b1f2f85ca296d6b"
+        }
+      ]
+    }
+  }
+}

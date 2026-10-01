@@ -1,0 +1,39 @@
+{
+  "run_timestamp": "2026-10-01T09:42:07.172234",
+  "git_commit": "11731b4",
+  "random_state": 42,
+  "input_files": {
+    "rfm_features": "D:\\Project\\Data-mininng\\data\\processed\\rfm_customer_features.csv",
+    "repeat_features": "D:\\Project\\Data-mininng\\data\\processed\\repeat_purchase_features.csv",
+    "customer_clusters": "D:\\Project\\Data-mininng\\data\\processed\\customer_clusters.csv",
+    "cluster_comparison": "D:\\Project\\Data-mininng\\outputs\\tables\\clustering\\clustering_algorithm_comparison.csv",
+    "cluster_profiles": "D:\\Project\\Data-mininng\\outputs\\tables\\clustering\\cluster_profiles.csv",
+    "class_comparison": "D:\\Project\\Data-mininng\\outputs\\tables\\classification\\model_comparison.csv",
+    "cv_results": "D:\\Project\\Data-mininng\\outputs\\tables\\classification\\cv_results.csv",
+    "test_predictions": "D:\\Project\\Data-mininng\\outputs\\tables\\classification\\test_predictions.csv",
+    "feature_importance": "D:\\Project\\Data-mininng\\outputs\\tables\\classification\\feature_importance.csv",
+    "assoc_comparison": "D:\\Project\\Data-mininng\\outputs\\tables\\association_rules\\association_algorithm_comparison.csv",
+    "selected_rules": "D:\\Project\\Data-mininng\\outputs\\tables\\association_rules\\association_rules\\selected_association_rules.csv",
+    "business_insights": "D:\\Project\\Data-mininng\\outputs\\tables\\association_rules\\association_business_insights.csv",
+    "class_metadata": "D:\\Project\\Data-mininng\\models\\classification\\classification_metadata.json"
+  },
+  "selected_clustering_model": "K-Means K=2",
+  "selected_classification_model": "RandomForest",
+  "selected_association_algorithm": "Apriori",
+  "key_metrics": {
+    "clustering_silhouette": 0.433,
+    "classification_cv_f1": 0.6726,
+    "classification_test_f1": 0.7086,
+    "classification_test_auc": 0.7438,
+    "association_valid_rules": 61
+  },
+  "key_insights": [
+    "2 customer segments identified",
+    "Top feature for repeat purchase: Recency"
+  ],
+  "warnings": [
+    "DummyClassifier F1 exceeds real models due to class imbalance",
+    "Association rules are correlational, not causal"
+  ],
+  "validation_status": "PASS"
+}

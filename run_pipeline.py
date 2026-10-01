@@ -91,8 +91,8 @@ def main():
         },
         {
             "name": "07. Model Comparison and Insights",
-            "script": None,
-            "outputs": []
+            "script": "notebooks/run_07_model_comparison_and_insights.py",
+            "outputs": ["outputs/tables/model_comparison/clustering_model_comparison.csv", "outputs/reports/07_model_comparison_and_insights.md", "outputs/evidence/pipeline_manifest.json"]
         }
     ]
     
