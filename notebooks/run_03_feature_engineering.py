@@ -25,7 +25,7 @@ import seaborn as sns
 from src.config import (
     INTERIM_DIR, PROCESSED_DIR,
     FIGURES_FEATURE_ENGINEERING, TABLES_FEATURE_ENGINEERING,
-    REPEAT_PURCHASE_WINDOW_DAYS, RAW_DATA_CSV,
+    REPEAT_PURCHASE_WINDOW_DAYS, get_raw_data_path,
 )
 from src.feature_engineering import (
     build_rfm_features,

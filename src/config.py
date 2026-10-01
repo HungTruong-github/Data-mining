@@ -17,7 +17,31 @@ PROCESSED_DIR = DATA_DIR / "processed"
 
 # ── File dữ liệu gốc ────────────────────────────────────────────────
 # Dataset gốc ở dạng CSV
+# Dataset goc — ho tro ca CSV va XLSX
 RAW_DATA_CSV = RAW_DIR / "Online Retail.csv"
+RAW_DATA_XLSX = RAW_DIR / "Online Retail.xlsx"
+
+REQUIRED_COLUMNS = [
+    'InvoiceNo', 'StockCode', 'Description', 'Quantity',
+    'InvoiceDate', 'UnitPrice', 'CustomerID', 'Country'
+]
+
+def get_raw_data_path():
+    """
+    Tim file du lieu goc theo thu tu uu tien: CSV > XLSX.
+    Raise FileNotFoundError neu khong tim thay.
+    """
+    if RAW_DATA_CSV.exists():
+        return RAW_DATA_CSV
+    elif RAW_DATA_XLSX.exists():
+        return RAW_DATA_XLSX
+    else:
+        raise FileNotFoundError(
+            f"Khong tim thay file du lieu goc tai:\n"
+            f"  - {RAW_DATA_CSV}\n"
+            f"  - {RAW_DATA_XLSX}\n"
+            f"Vui long tai du lieu tu: https://archive.ics.uci.edu/dataset/352/online+retail"
+        )
 
 # ── Models ────────────────────────────────────────────────────────────
 MODELS_DIR = PROJECT_ROOT / "models"

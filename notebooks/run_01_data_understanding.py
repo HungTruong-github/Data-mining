@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from src.config import (
-    RAW_DATA_CSV, FIGURES_DIR, TABLES_DIR,
+    get_raw_data_path, FIGURES_DIR, TABLES_DIR,
     FIGURES_DATA_UNDERSTANDING, TABLES_DATA_UNDERSTANDING
 )
 from src.data_loader import load_raw_data

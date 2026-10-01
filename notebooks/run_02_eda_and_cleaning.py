@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from src.config import (
-    RAW_DATA_CSV, INTERIM_DIR,
+    get_raw_data_path, INTERIM_DIR,
     FIGURES_DATA_PREPARATION, TABLES_DATA_PREPARATION,
     NON_PRODUCT_STOCK_CODES
 )
