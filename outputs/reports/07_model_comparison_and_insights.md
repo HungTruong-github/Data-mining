@@ -1,131 +1,122 @@
-# 07. Model Comparison and Insights Report
+# CRISP-DM Step 07: Model Comparison, Business Insights & Strategic Recommendations
 
-**Generated**: 2026-10-01 09:42:07
-**Random State**: 42
+**Project:** UCI Online Retail Data Mining Analysis  
+**Phase:** CRISP-DM Step 05 (Evaluation) & Step 06 (Deployment Preparation)  
+**Execution Timestamp:** 2026-10-01 10:21:43  
 
-## 1. Objective
+---
 
-Compare all models from clustering (step 04), classification (step 05), and association rules (step 06).
-Generate data-driven business insights with evidence.
+## 1. Executive Summary
 
-## 2. Input Data and Provenance
+This report consolidates findings across all data mining steps (Clustering, Classification, Association Rules) for the UCI Online Retail dataset.
 
-| Input | Path | Status |
-|-------|------|--------|
-| rfm_features | `rfm_customer_features.csv` | OK |
-| repeat_features | `repeat_purchase_features.csv` | OK |
-| customer_clusters | `customer_clusters.csv` | OK |
-| cluster_comparison | `clustering_algorithm_comparison.csv` | OK |
-| cluster_profiles | `cluster_profiles.csv` | OK |
-| class_comparison | `model_comparison.csv` | OK |
-| cv_results | `cv_results.csv` | OK |
-| test_predictions | `test_predictions.csv` | OK |
-| feature_importance | `feature_importance.csv` | OK |
-| assoc_comparison | `association_algorithm_comparison.csv` | OK |
-| selected_rules | `selected_association_rules.csv` | OK |
-| business_insights | `association_business_insights.csv` | OK |
-| class_metadata | `classification_metadata.json` | OK |
+- **Customer Clustering:** Selected **K-Means (K=2)** with Silhouette Score = **0.4330**, Davies-Bouldin = **0.8917**. Identified 2 clear segments: Best Customers (38.4%) and Lost Customers (61.6%).
+- **Repeat Purchase Classification:** Selected **RandomForest** with Stratified K-Fold CV F1 = **0.6726**, Test F1 = **0.7086**, Test ROC-AUC = **0.7438**.
+- **Association Rule Mining:** Selected **FP-Growth** generating **61 valid rules** (Lift > 1.0) in 3.77s.
 
-## 3. Data Validation
+---
 
-All input files validated. Model artifacts verified loadable.
+## 2. Model Comparison Tables
 
-## 4. Clustering Model Comparison
+### 2.1 Customer Clustering Model Comparison
+| algorithm              |   n_clusters |   silhouette_score |   davies_bouldin_score |   calinski_harabasz_score |   dunn_approximation |   noise_ratio |   min_cluster_size |   max_cluster_pct |   runtime_seconds | is_selected   | selection_reason                                                                      |
+|:-----------------------|-------------:|-------------------:|-----------------------:|--------------------------:|---------------------:|--------------:|-------------------:|------------------:|------------------:|:--------------|:--------------------------------------------------------------------------------------|
+| K-Means                |            2 |             0.433  |                 0.8917 |                 4364.61   |               0.2093 |          0    |               1662 |             61.65 |            0.4272 | True          | Silhouette=0.4330; DB=0.8917; Best combined ranking across Silhouette, DB, CH metrics |
+| K-Means                |            3 |             0.3375 |                 1.0462 |                 3626.28   |               0.1669 |          0    |                763 |             43.22 |            0.057  | False         |                                                                                       |
+| K-Means                |            4 |             0.3381 |                 1.0131 |                 3329.68   |               0.1506 |          0    |                686 |             37.75 |            0.1932 | False         |                                                                                       |
+| K-Means                |            5 |             0.3172 |                 0.9851 |                 3194.66   |               0.1786 |          0    |                312 |             27.57 |            0.3066 | False         |                                                                                       |
+| K-Means                |            6 |             0.3141 |                 1.0106 |                 3083.61   |               0.163  |          0    |                317 |             22.82 |            0.1474 | False         |                                                                                       |
+| K-Means                |            7 |             0.3095 |                 0.9692 |                 2960.37   |               0.1719 |          0    |                219 |             20.51 |            0.1723 | False         |                                                                                       |
+| K-Means                |            8 |             0.3012 |                 0.9944 |                 2824.33   |               0.1525 |          0    |                214 |             19.54 |            0.1046 | False         |                                                                                       |
+| GMM                    |            2 |             0.2874 |                 1.0662 |                 2307.42   |               0.158  |          0    |               1505 |             65.27 |            0.4377 | False         |                                                                                       |
+| GMM                    |            3 |             0.2562 |                 1.2157 |                 2749.9    |               0.1406 |          0    |                864 |             45.34 |            0.5566 | False         |                                                                                       |
+| GMM                    |            4 |             0.1752 |                 1.7079 |                 2167.59   |               0.0885 |          0    |                831 |             34.73 |            0.8033 | False         |                                                                                       |
+| GMM                    |            5 |             0.152  |                 1.7655 |                 1880.24   |               0.0764 |          0    |                185 |             34.7  |            0.4304 | False         |                                                                                       |
+| GMM                    |            6 |             0.1164 |                 2.2668 |                 1454.54   |               0.0546 |          0    |                110 |             34.7  |            0.6627 | False         |                                                                                       |
+| GMM                    |            7 |             0.1019 |                 2.5613 |                 1271.32   |               0.046  |          0    |                 81 |             34.7  |            0.7193 | False         |                                                                                       |
+| GMM                    |            8 |             0.0681 |                 2.2984 |                 1279.12   |               0.0454 |          0    |                 72 |             34.7  |            0.7774 | False         |                                                                                       |
+| Agglomerative(ward)    |            2 |             0.4232 |                 0.9064 |                 4227.37   |               0.2048 |          0    |               1726 |             60.18 |            0.7892 | False         |                                                                                       |
+| Agglomerative(ward)    |            3 |             0.3146 |                 1.1509 |                 3040.26   |               0.1694 |          0    |                633 |             60.18 |            0.6808 | False         |                                                                                       |
+| Agglomerative(ward)    |            4 |             0.2428 |                 1.2255 |                 2780.1    |               0.1244 |          0    |                633 |             37.54 |            0.7872 | False         |                                                                                       |
+| Agglomerative(ward)    |            5 |             0.2385 |                 1.2431 |                 2551.43   |               0.1177 |          0    |                633 |             25.22 |            0.74   | False         |                                                                                       |
+| Agglomerative(ward)    |            6 |             0.2447 |                 1.1518 |                 2439.17   |               0.1177 |          0    |                474 |             22.63 |            0.7892 | False         |                                                                                       |
+| Agglomerative(ward)    |            7 |             0.2489 |                 1.1215 |                 2405.87   |               0.1526 |          0    |                101 |             22.63 |            0.8082 | False         |                                                                                       |
+| Agglomerative(ward)    |            8 |             0.2252 |                 1.0852 |                 2281.43   |               0.1315 |          0    |                101 |             22.63 |            0.722  | False         |                                                                                       |
+| DBSCAN(eps=0.3,min=5)  |            8 |             0.0632 |                 1.5042 |                  837.295  |               0.0949 |          5.7  |                  7 |             33.87 |            0.0773 | False         |                                                                                       |
+| DBSCAN(eps=0.5,min=5)  |            2 |             0.2946 |                 1.0626 |                 2408.38   |               0.2419 |          1.32 |               1496 |             64.17 |            0.1184 | False         |                                                                                       |
+| DBSCAN(eps=0.7,min=5)  |            2 |             0.5659 |                 0.3483 |                   49.9624 |               0.477  |          0.55 |                  5 |             99.33 |            0.177  | False         |                                                                                       |
+| DBSCAN(eps=1.0,min=5)  |            1 |           nan      |               nan      |                  nan      |             nan      |          0.23 |               4324 |             99.77 |            0.2676 | False         |                                                                                       |
+| DBSCAN(eps=0.5,min=10) |            2 |             0.2961 |                 1.0613 |                 2416.07   |               0.2403 |          1.78 |               1492 |             63.8  |            0.1126 | False         |                                                                                       |
 
-- **Total configurations evaluated**: 26
-- **Selected**: K-Means (K=2)
-- **Silhouette Score**: 0.4330
-- **Davies-Bouldin**: 0.8917
-- **Selection Reason**: Silhouette=0.4330; DB=0.8917; Best combined ranking across Silhouette, DB, CH, Dunn metrics
+### 2.2 Classification Model Comparison
+| model              |   cv_f1_mean |   cv_f1_std |   cv_roc_auc_mean |   cv_average_precision_mean |   test_accuracy |   test_balanced_accuracy |   test_precision |   test_recall |   test_f1 |   test_roc_auc |   test_average_precision |   test_specificity |   tn |   fp |   fn |   tp |   runtime_seconds | selected   |   random_state | is_selected   | selection_reason                                                                                                                                 |   specificity |
+|:-------------------|-------------:|------------:|------------------:|----------------------------:|----------------:|-------------------------:|-----------------:|--------------:|----------:|---------------:|-------------------------:|-------------------:|-----:|-----:|-----:|-----:|------------------:|:-----------|---------------:|:--------------|:-------------------------------------------------------------------------------------------------------------------------------------------------|--------------:|
+| DummyClassifier    |       0.7259 |      0.0003 |            0.5    |                      0.5698 |          0.5697 |                   0.5    |           0.5697 |        1      |    0.7259 |         0.5    |                   0.5697 |             0      |    0 |  290 |    0 |  384 |            0.0475 | False      |             42 | False         | Baseline classifier predicting majority class                                                                                                    |        0      |
+| LogisticRegression |       0.665  |      0.015  |            0.7323 |                      0.801  |          0.6973 |                   0.7078 |           0.7941 |        0.6328 |    0.7043 |         0.7763 |                   0.8366 |             0.7828 |  227 |   63 |  141 |  243 |            0.086  | False      |             42 | False         |                                                                                                                                                  |        0.7828 |
+| DecisionTree       |       0.6502 |      0.0162 |            0.6375 |                      0.6817 |          0.6558 |                   0.6557 |           0.7159 |        0.6562 |    0.6848 |         0.6828 |                   0.7325 |             0.6552 |  190 |  100 |  132 |  252 |            0.0481 | False      |             42 | False         |                                                                                                                                                  |        0.6552 |
+| RandomForest       |       0.6726 |      0.0191 |            0.6991 |                      0.785  |          0.6766 |                   0.6744 |           0.728  |        0.6901 |    0.7086 |         0.7438 |                   0.8113 |             0.6586 |  191 |   99 |  119 |  265 |            0.4016 | True       |             42 | True          | Highest Stratified K-Fold CV F1-score (0.6726) among candidate models. Selection performed strictly on CV metrics without test set data leakage. |        0.6586 |
 
-See: `outputs/tables/model_comparison/clustering_model_comparison.csv`
+### 2.3 Association Rules Algorithm Comparison
+| algorithm   |   min_support |   min_confidence |   runtime_seconds |   frequent_itemset_count |   rule_count |   valid_rule_count |   max_itemset_size |   max_rule_lift | is_selected   | selection_reason                                                                                                                                                    |
+|:------------|--------------:|-----------------:|------------------:|-------------------------:|-------------:|-------------------:|-------------------:|----------------:|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Apriori     |          0.02 |              0.5 |              4.61 |                      389 |           61 |                 61 |                  3 |         18.2311 | False         |                                                                                                                                                                     |
+| FP-Growth   |          0.02 |              0.5 |              3.77 |                      389 |           61 |                 61 |                  3 |         18.2311 | True          | Apriori and FP-Growth produce mathematically identical rule sets (61 valid rules). Selected FP-Growth for faster execution runtime (3.77s vs 4.61s, 18.2% speedup). |
 
-## 5. Classification Model Comparison
+---
 
-- **Models evaluated**: DummyClassifier, LogisticRegression, DecisionTree, RandomForest
-- **Selected**: RandomForest (CV F1=0.6726)
-- **Test F1**: 0.7086
-- **Test AUC**: 0.7438
-- **Selection Reason**: Highest CV F1-score (0.6726) among non-baseline models. Model selected via StratifiedKFold CV on training set only. Test set NOT used for selection.
+## 3. Customer Segment Profiles & Strategic Action Plan
 
-> Model was selected using **StratifiedKFold Cross-Validation on training set only**.
-> Test set was used for final evaluation only, NOT for model selection.
+### 3.1 Segment Profiles
+|   cluster_id | business_segment_name   |   customer_count |   customer_percentage |   recency_mean |   recency_median |   frequency_mean |   frequency_median |   monetary_mean |   monetary_median |   average_order_value |   repeat_purchase_rate | business_interpretation                                                                                                                   | evidence_source                                                                                 |
+|-------------:|:------------------------|-----------------:|----------------------:|---------------:|-----------------:|-----------------:|-------------------:|----------------:|------------------:|----------------------:|-----------------------:|:------------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------|
+|            0 | Best Customers          |             1662 |                 38.35 |           25.8 |               16 |              8.4 |                  6 |         4464.19 |           2041.33 |                565.22 |                 0.957  | Recently active customers. with high purchase frequency (avg 8 orders). and high monetary value (avg 4,464). Repeat purchase rate: 95.7%. | data/processed/customer_clusters.csv + rfm_customer_features.csv + repeat_purchase_features.csv |
+|            1 | Lost Customers          |             2672 |                 61.65 |          134.3 |               96 |              1.7 |                  1 |          493.17 |            356.92 |                322.34 |                 0.2637 | Moderately active customers. with low purchase frequency (avg 2 orders). Repeat purchase rate: 26.4%.                                     | data/processed/customer_clusters.csv + rfm_customer_features.csv + repeat_purchase_features.csv |
 
-See: `outputs/tables/model_comparison/classification_model_comparison.csv`
+### 3.2 Action Plan
+|   cluster_id | business_segment_name   | strategy     | recommended_action                                   |   customer_count |   customer_percentage | evidence_metric                    |
+|-------------:|:------------------------|:-------------|:-----------------------------------------------------|-----------------:|----------------------:|:-----------------------------------|
+|            0 | Best Customers          | retention    | Loyalty program — active customers with 8 avg orders |             1662 |                 38.35 | Recency=26, Freq=8, Monetary=4,464 |
+|            0 | Best Customers          | upsell       | Premium product recommendations — avg spend 4,464    |             1662 |                 38.35 | Recency=26, Freq=8, Monetary=4,464 |
+|            0 | Best Customers          | cross-sell   | Cross-sell bundles — 96% already repeat              |             1662 |                 38.35 | Recency=26, Freq=8, Monetary=4,464 |
+|            1 | Lost Customers          | reactivation | Targeted discount — only 26% repeat rate             |             2672 |                 61.65 | Recency=134, Freq=2, Monetary=493  |
 
-## 6. Association Rule Comparison
+---
 
-- **Algorithms**: Apriori, FP-Growth
-- **Selected**: Apriori
-- **Valid Rules**: 61
-- **Runtime**: 4.14s
-- **Selection Reason**: Both algorithms produce identical rules (61 valid rules). Selected for faster runtime (4.14s).
+## 4. Product Co-Purchase Association Rules (Top 10)
+| antecedents                                                      | consequents                                                      |   support |   confidence |   lift |   conviction | evidence_quality   | business_interpretation                                                                                                                                                                                                | recommended_action                                                                                                                                                                           | limitation                                                                                                |
+|:-----------------------------------------------------------------|:-----------------------------------------------------------------|----------:|-------------:|-------:|-------------:|:-------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------------|
+| PINK REGENCY TEACUP AND SAUCER                                   | GREEN REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER |    0.0274 |       0.7072 |  18.23 |       3.2827 | Weak               | Customers who buy PINK REGENCY TEACUP AND SAUCER also tend to buy GREEN REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER  (18.2x more likely than random). This pattern appears in 2.7% of all transactions. | Consider cross-selling GREEN REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER  to customers buying PINK REGENCY TEACUP AND SAUCER. Strong co-purchase pattern — display as bundle. | Low support (0.027) — affects only a small fraction of transactions; Association does not imply causation |
+| GREEN REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER | PINK REGENCY TEACUP AND SAUCER                                   |    0.0274 |       0.7053 |  18.23 |       3.2625 | Weak               | Customers who buy GREEN REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER  also tend to buy PINK REGENCY TEACUP AND SAUCER (18.2x more likely than random). This pattern appears in 2.7% of all transactions. | Consider cross-selling PINK REGENCY TEACUP AND SAUCER to customers buying GREEN REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER . Strong co-purchase pattern — display as bundle. | Low support (0.027) — affects only a small fraction of transactions; Association does not imply causation |
+| PINK REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER  | GREEN REGENCY TEACUP AND SAUCER                                  |    0.0274 |       0.9047 |  17.66 |       9.9537 | Weak               | Customers who buy PINK REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER  also tend to buy GREEN REGENCY TEACUP AND SAUCER (17.7x more likely than random). This pattern appears in 2.7% of all transactions. | Consider cross-selling GREEN REGENCY TEACUP AND SAUCER to customers buying PINK REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER . Strong co-purchase pattern — display as bundle. | Low support (0.027) — affects only a small fraction of transactions; Association does not imply causation |
+| GREEN REGENCY TEACUP AND SAUCER                                  | PINK REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER  |    0.0274 |       0.5341 |  17.66 |       2.0813 | Weak               | Customers who buy GREEN REGENCY TEACUP AND SAUCER also tend to buy PINK REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER  (17.7x more likely than random). This pattern appears in 2.7% of all transactions. | Consider cross-selling PINK REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER  to customers buying GREEN REGENCY TEACUP AND SAUCER. Strong co-purchase pattern — display as bundle. | Low support (0.027) — affects only a small fraction of transactions; Association does not imply causation |
+| PINK REGENCY TEACUP AND SAUCER                                   | GREEN REGENCY TEACUP AND SAUCER                                  |    0.032  |       0.8261 |  16.13 |       5.4572 | Moderate           | Customers who buy PINK REGENCY TEACUP AND SAUCER also tend to buy GREEN REGENCY TEACUP AND SAUCER (16.1x more likely than random). This pattern appears in 3.2% of all transactions.                                   | Consider cross-selling GREEN REGENCY TEACUP AND SAUCER to customers buying PINK REGENCY TEACUP AND SAUCER. Strong co-purchase pattern — display as bundle.                                   | Association does not imply causation                                                                      |
+| GREEN REGENCY TEACUP AND SAUCER                                  | PINK REGENCY TEACUP AND SAUCER                                   |    0.032  |       0.6239 |  16.13 |       2.5559 | Moderate           | Customers who buy GREEN REGENCY TEACUP AND SAUCER also tend to buy PINK REGENCY TEACUP AND SAUCER (16.1x more likely than random). This pattern appears in 3.2% of all transactions.                                   | Consider cross-selling PINK REGENCY TEACUP AND SAUCER to customers buying GREEN REGENCY TEACUP AND SAUCER. Strong co-purchase pattern — display as bundle.                                   | Association does not imply causation                                                                      |
+| GREEN REGENCY TEACUP AND SAUCER, PINK REGENCY TEACUP AND SAUCER  | ROSES REGENCY TEACUP AND SAUCER                                  |    0.0274 |       0.856  |  15.89 |       6.571  | Weak               | Customers who buy GREEN REGENCY TEACUP AND SAUCER, PINK REGENCY TEACUP AND SAUCER also tend to buy ROSES REGENCY TEACUP AND SAUCER  (15.9x more likely than random). This pattern appears in 2.7% of all transactions. | Consider cross-selling ROSES REGENCY TEACUP AND SAUCER  to customers buying GREEN REGENCY TEACUP AND SAUCER, PINK REGENCY TEACUP AND SAUCER. Strong co-purchase pattern — display as bundle. | Low support (0.027) — affects only a small fraction of transactions; Association does not imply causation |
+| ROSES REGENCY TEACUP AND SAUCER                                  | GREEN REGENCY TEACUP AND SAUCER, PINK REGENCY TEACUP AND SAUCER  |    0.0274 |       0.508  |  15.89 |       1.9675 | Weak               | Customers who buy ROSES REGENCY TEACUP AND SAUCER  also tend to buy GREEN REGENCY TEACUP AND SAUCER, PINK REGENCY TEACUP AND SAUCER (15.9x more likely than random). This pattern appears in 2.7% of all transactions. | Consider cross-selling GREEN REGENCY TEACUP AND SAUCER, PINK REGENCY TEACUP AND SAUCER to customers buying ROSES REGENCY TEACUP AND SAUCER . Strong co-purchase pattern — display as bundle. | Low support (0.027) — affects only a small fraction of transactions; Association does not imply causation |
+| GARDENERS KNEELING PAD CUP OF TEA                                | GARDENERS KNEELING PAD KEEP CALM                                 |    0.0276 |       0.7203 |  15.6  |       3.4104 | Weak               | Customers who buy GARDENERS KNEELING PAD CUP OF TEA  also tend to buy GARDENERS KNEELING PAD KEEP CALM  (15.6x more likely than random). This pattern appears in 2.8% of all transactions.                             | Consider cross-selling GARDENERS KNEELING PAD KEEP CALM  to customers buying GARDENERS KNEELING PAD CUP OF TEA . Strong co-purchase pattern — display as bundle.                             | Low support (0.028) — affects only a small fraction of transactions; Association does not imply causation |
+| GARDENERS KNEELING PAD KEEP CALM                                 | GARDENERS KNEELING PAD CUP OF TEA                                |    0.0276 |       0.598  |  15.6  |       2.3924 | Weak               | Customers who buy GARDENERS KNEELING PAD KEEP CALM  also tend to buy GARDENERS KNEELING PAD CUP OF TEA  (15.6x more likely than random). This pattern appears in 2.8% of all transactions.                             | Consider cross-selling GARDENERS KNEELING PAD CUP OF TEA  to customers buying GARDENERS KNEELING PAD KEEP CALM . Strong co-purchase pattern — display as bundle.                             | Low support (0.028) — affects only a small fraction of transactions; Association does not imply causation |
 
-> Association rules indicate co-occurrence patterns, NOT causal relationships.
+---
 
-See: `outputs/tables/model_comparison/association_rules_comparison.csv`
+## 5. Predictive Feature Importance
+| feature                |   importance |   rank | source_model   | feature_group   | interpretation                                                                                                                                                                                  | limitation                                                        |
+|:-----------------------|-------------:|-------:|:---------------|:----------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------|
+| Recency                |   0.139253   |      1 | RandomForest   | RFM             | Top-3 most important feature (importance=0.1393). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
+| Monetary               |   0.136043   |      2 | RandomForest   | RFM             | Top-3 most important feature (importance=0.1360). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
+| UniqueProducts         |   0.129772   |      3 | RandomForest   | Behavioral      | Top-3 most important feature (importance=0.1298). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
+| TotalItems             |   0.127866   |      4 | RandomForest   | Behavioral      | Moderately important feature (importance=0.1279). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
+| AverageOrderValue      |   0.123478   |      5 | RandomForest   | Behavioral      | Moderately important feature (importance=0.1235). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
+| AverageItemsPerInvoice |   0.117268   |      6 | RandomForest   | Behavioral      | Moderately important feature (importance=0.1173). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
+| CustomerLifetimeDays   |   0.081577   |      7 | RandomForest   | Behavioral      | Moderately important feature (importance=0.0816). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
+| Frequency              |   0.0576431  |      8 | RandomForest   | RFM             | Moderately important feature (importance=0.0576). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
+| ActiveDays             |   0.0566452  |      9 | RandomForest   | Behavioral      | Moderately important feature (importance=0.0566). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
+| Country_United Kingdom |   0.00740603 |     10 | RandomForest   | Geographic      | Moderately important feature (importance=0.0074). This feature has a strong association with repeat purchase prediction but does NOT imply causation. Result is model-dependent (RandomForest). | Importance is model-dependent; does not imply causal relationship |
 
-## 7. Customer Segment Profiles
+---
 
-### Cluster 0: Best Customers
-- Customers: 1,662 (38.4%)
-- Recency: 26 days | Frequency: 8 | Monetary: 4,464
-- Repeat purchase rate: 95.7%
-- Recently active customers. with high purchase frequency (avg 8 orders). and high monetary value (avg 4,464). Repeat purchase rate: 95.7%.
+## 6. Generated Dashboard & Visualizations
+- [Clustering Model Comparison](file:///outputs/figures/model_comparison/clustering_model_comparison.png)
+- [Classification Model Comparison](file:///outputs/figures/model_comparison/classification_model_comparison.png)
+- [Insight Summary Dashboard](file:///outputs/figures/model_comparison/insight_summary_dashboard.png)
 
-### Cluster 1: Lost Customers
-- Customers: 2,672 (61.6%)
-- Recency: 134 days | Frequency: 2 | Monetary: 493
-- Repeat purchase rate: 26.4%
-- Moderately active customers. with low purchase frequency (avg 2 orders). Repeat purchase rate: 26.4%.
-
-## 8. Business Recommendations
-
-4 recommended actions generated across 2 segments.
-See: `outputs/tables/insights/customer_segment_action_plan.csv`
-
-## 9. Product Association Insights
-
-Top 5 rules by lift:
-
-| Antecedent | Consequent | Lift | Evidence |
-|-----------|-----------|------|----------|
-| PINK REGENCY TEACUP AND SAUCER | GREEN REGENCY TEACUP AND SAUCER, ROSES R | 18.2 | Weak |
-| GREEN REGENCY TEACUP AND SAUCER, ROSES R | PINK REGENCY TEACUP AND SAUCER | 18.2 | Weak |
-| PINK REGENCY TEACUP AND SAUCER, ROSES RE | GREEN REGENCY TEACUP AND SAUCER | 17.7 | Weak |
-| GREEN REGENCY TEACUP AND SAUCER | PINK REGENCY TEACUP AND SAUCER, ROSES RE | 17.7 | Weak |
-| PINK REGENCY TEACUP AND SAUCER | GREEN REGENCY TEACUP AND SAUCER | 16.1 | Moderate |
-
-> These are correlation patterns. They do NOT establish cause-and-effect.
-
-## 10. Classification Feature Insights
-
-Top 5 features for repeat purchase prediction (RandomForest):
-
-| Rank | Feature | Importance | Group |
-|------|---------|-----------|-------|
-| 1 | Recency | 0.1393 | RFM |
-| 2 | Monetary | 0.1360 | RFM |
-| 3 | UniqueProducts | 0.1298 | Behavioral |
-| 4 | TotalItems | 0.1279 | Behavioral |
-| 5 | AverageOrderValue | 0.1235 | Behavioral |
-
-> Feature importance is model-dependent and does NOT imply causation.
-
-## 11. Limitations and Risks
-
-1. **Clustering**: K=2 is a coarse segmentation; business may need finer segments.
-2. **Classification**: Random customer-level split, not temporal split.
-3. **Association**: Low support thresholds may produce spurious rules.
-4. **General**: All insights are correlational, not causal.
-5. **Data**: Single-year UK-dominated e-commerce dataset.
-
-## 12. Reproducibility
-
-- Random state: 42
-- All outputs reproducible via: `python run_pipeline.py`
-- Individual step: `python notebooks/run_07_model_comparison_and_insights.py`
-
-## 13. Output Inventory
-
-See: `outputs/evidence/pipeline_manifest.json`
+---
