@@ -276,3 +276,30 @@ def build_feature_insights():
     fi['limitation'] = 'Importance is model-dependent; does not imply causal relationship'
 
     return fi
+
+
+def generate_all_insights():
+    """Generate all business insights from model outputs."""
+    results = {}
+
+    try:
+        results['customer_segment_insights'] = build_customer_segment_insights()
+    except Exception as e:
+        print(f"[WARN] Customer segment insights: {e}")
+
+    try:
+        results['customer_segment_action_plan'] = build_action_plan()
+    except Exception as e:
+        print(f"[WARN] Action plan: {e}")
+
+    try:
+        results['product_association_insights'] = build_product_association_insights()
+    except Exception as e:
+        print(f"[WARN] Product association insights: {e}")
+
+    try:
+        results['classification_feature_insights'] = build_feature_insights()
+    except Exception as e:
+        print(f"[WARN] Feature insights: {e}")
+
+    return results

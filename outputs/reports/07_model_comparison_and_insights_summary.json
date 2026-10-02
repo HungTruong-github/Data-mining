@@ -1,6 +1,6 @@
 {
-  "run_timestamp": "2026-10-01T10:21:44.377407",
-  "git_commit": "006a149850ca1087a063ebd28337dc5e2b4409a6",
+  "run_timestamp": "2026-10-02T12:17:13.723918",
+  "git_commit": "b58a7427e950799c52d31b28b8c624923546774d",
   "random_state": 42,
   "input_files": {
     "rfm_features": "data/processed/rfm_customer_features.csv",
@@ -19,7 +19,7 @@
   },
   "selected_clustering_model": "K-Means K=2",
   "selected_classification_model": "RandomForest",
-  "selected_association_algorithm": "FP-Growth",
+  "selected_association_algorithm": "Apriori",
   "key_metrics": {
     "clustering_silhouette": 0.433,
     "classification_cv_f1": 0.6726,

@@ -1,154 +1,187 @@
 # Data Mining & Customer Analytics: Online Retail
 
-Dự án Khai phá Dữ liệu Khách hàng dựa trên tập dữ liệu Giao dịch Bán lẻ Trực tuyến (**Online Retail Dataset**), áp dụng quy trình chuẩn CRISP-DM từ tiền xử lý, phân tích RFM, phân cụm khách hàng (K-Means), phân loại dự đoán hành vi mua lại (Classification), khai phá tập phổ biến & luật kết hợp (Market Basket Analysis), đến xây dựng Dashboard tương tác (Streamlit).
+Dự án Khai phá Dữ liệu Khách hàng dựa trên tập dữ liệu Giao dịch Bán lẻ Trực tuyến (**Online Retail Dataset** — UCI ML Repository), áp dụng quy trình chuẩn CRISP-DM.
+
+**Phạm vi phân tích:**
+- Phân tích RFM và phân cụm khách hàng (K-Means, GMM, Agglomerative, DBSCAN)
+- Phân loại dự đoán hành vi mua lại (Logistic Regression, Decision Tree, Random Forest)
+- Khai phá luật kết hợp (Apriori vs FP-Growth)
+- Dashboard tương tác (Streamlit)
+
+**Nguồn dữ liệu:** [UCI Online Retail Dataset](https://archive.ics.uci.edu/dataset/352/online+retail) — 541,909 giao dịch từ UK-based online retail, 2010-12-01 → 2011-12-09.
 
 ---
 
-## 1. Cấu Trúc Dự Án (Project Structure)
+## 1. Cấu Trúc Dự Án
 
 ```text
 Data-mining/
-│
 ├── data/
-│   ├── raw/                              # Dữ liệu gốc (Online Retail.xlsx)
-│   ├── interim/                          # Dữ liệu sau bước làm sạch sơ bộ
+│   ├── raw/                              # Dữ liệu gốc
+│   │   └── Online Retail.xlsx
+│   ├── interim/                          # Dữ liệu sau làm sạch
 │   │   ├── cleaned_transactions.csv
-│   │   └── valid_invoices.csv
-│   └── processed/                        # Dữ liệu phục vụ huấn luyện mô hình
-│       ├── customer_features.csv
-│       ├── rfm_features.csv
-│       ├── repeat_purchase_dataset.csv
-│       ├── basket_transactions.csv
-│       └── product_features.csv
+│   │   ├── customer_transactions.csv
+│   │   └── product_transactions.csv
+│   └── processed/                        # Features cho modeling
+│       ├── rfm_customer_features.csv
+│       ├── rfm_clustering_features.csv
+│       ├── repeat_purchase_features.csv
+│       ├── customer_clusters.csv
+│       ├── association_basket_long.csv
+│       └── association_basket_matrix.csv
 │
-├── notebooks/                            # Jupyter Notebooks nghiên cứu & phân tích
+├── notebooks/                            # Jupyter Notebooks + Runner scripts
 │   ├── 01_data_understanding.ipynb
 │   ├── 02_eda_and_cleaning.ipynb
 │   ├── 03_feature_engineering_rfm.ipynb
 │   ├── 04_customer_clustering.ipynb
 │   ├── 05_repeat_purchase_classification.ipynb
 │   ├── 06_association_rules.ipynb
-│   └── 07_model_comparison_and_insights.ipynb
+│   ├── 07_model_comparison_and_insights.ipynb
+│   └── run_*.py                          # Runner scripts (cùng logic với notebooks)
 │
-├── src/                                  # Mã nguồn Python chuẩn hóa
-│   ├── __init__.py
+├── src/                                  # Source modules
 │   ├── config.py                         # Cấu hình đường dẫn, tham số
-│   ├── data_loader.py                    # Đọc và ghi dữ liệu
-│   ├── preprocessing.py                  # Làm sạch và tiền xử lý dữ liệu
-│   ├── feature_engineering.py            # Tạo đặc trưng khách hàng & giao dịch
-│   ├── rfm_analysis.py                   # Tính RFM và phân nhóm khách hàng
-│   ├── clustering.py                     # Thuật toán phân cụm K-Means
-│   ├── classification.py                 # Huấn luyện mô hình phân loại mua lại
-│   ├── association_rules.py              # Khai phá luật kết hợp Apriori/FP-Growth
-│   ├── evaluation.py                     # Đo lường và đánh giá mô hình
-│   └── visualization.py                  # Hàm vẽ biểu đồ chuyên nghiệp
+│   ├── data_loader.py                    # Đọc dữ liệu gốc
+│   ├── preprocessing.py                  # Làm sạch và tiền xử lý
+│   ├── feature_engineering.py            # Tạo features RFM, behavioral, basket
+│   ├── clustering.py                     # Thuật toán phân cụm
+│   ├── classification.py                 # Huấn luyện classifier
+│   ├── association_rules.py              # Apriori & FP-Growth
+│   ├── evaluation.py                     # Đánh giá mô hình
+│   ├── model_comparison.py               # So sánh và báo cáo
+│   ├── insights.py                       # Sinh business insights
+│   └── visualization.py                  # Biểu đồ
 │
-├── models/                               # Lưu trữ trọng số mô hình đã huấn luyện
+├── models/                               # Model artifacts
 │   ├── clustering/
-│   │   ├── kmeans_model.pkl
+│   │   ├── clustering_model.pkl
+│   │   ├── clustering_config.pkl
 │   │   └── scaler.pkl
 │   └── classification/
-│       ├── logistic_regression.pkl
-│       ├── decision_tree.pkl
-│       ├── random_forest.pkl
-│       └── best_model.pkl
+│       ├── best_classifier_pipeline.joblib
+│       ├── classification_metadata.json
+│       └── *_pipeline.joblib
 │
-├── outputs/                              # Kết quả đầu ra của pipeline
-│   ├── figures/                          # Biểu đồ phân tích
-│   ├── tables/                           # Báo cáo dạng bảng CSV
-│   └── rules/                            # Danh sách các luật kết hợp
+├── outputs/                              # Kết quả
+│   ├── figures/                          # Biểu đồ PNG
+│   ├── tables/                           # Bảng CSV
+│   ├── reports/                          # Báo cáo Markdown
+│   └── evidence/                         # Manifest, logs
 │
-├── app/                                  # Ứng dụng Web Dashboard
-│   └── app.py                            # Streamlit Interactive Dashboard
+├── app/                                  # Streamlit Dashboard
+│   └── app.py
 │
-├── docs/                                 # Tài liệu kỹ thuật & nghiệp vụ
+├── docs/                                 # Tài liệu
 │   ├── business_understanding.md
 │   ├── data_dictionary.md
 │   ├── methodology.md
-│   └── team_tasks.md
-│
-├── report/                               # Báo cáo tổng kết dự án
-│   ├── final_report.docx
-│   ├── final_report.pdf
-│   └── report_figures/
+│   ├── feature_decision_dictionary.md
+│   ├── decision_log.md
+│   ├── references.md
+│   └── rubric_evidence_matrix.md
 │
 ├── tests/                                # Unit tests
 │   ├── test_preprocessing.py
-│   └── test_feature_engineering.py
+│   ├── test_feature_engineering.py
+│   ├── test_classification.py
+│   └── test_model_comparison.py
 │
-├── run_pipeline.py                       # Script chạy tự động toàn bộ quy trình
-├── requirements.txt                      # Danh sách thư viện phụ thuộc
-├── README.md                             # Hướng dẫn dự án
-├── .gitignore                            # Cấu hình bỏ qua tệp nhạy cảm/rác
-└── LICENSE                               # Giấy phép bản quyền
+├── run_pipeline.py                       # Pipeline đầu–cuối (01→07)
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
 
----
+## 2. Cài Đặt
 
-## 2. Cài Đặt Môi Trường (Installation)
+### Yêu cầu
+- Python 3.10+
+- Raw data file: `data/raw/Online Retail.xlsx`
 
-1. **Khởi tạo và kích hoạt môi trường ảo (Khuyến nghị):**
-   ```bash
-   python -m venv .venv
-   # Trên Windows PowerShell:
-   .venv\Scripts\Activate.ps1
-   # Trên Linux/macOS:
-   source .venv/bin/activate
-   ```
+### Cài đặt dependencies
 
-2. **Cài đặt các gói thư viện cần thiết:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
----
-
-## 3. Dữ Liệu Đầu Vào (Dataset)
-
-Đặt tệp dữ liệu gốc `Online Retail.xlsx` vào thư mục:
-```text
-data/raw/Online Retail.xlsx
+```bash
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # Linux/Mac
+pip install -r requirements.txt
 ```
-- Nguồn tập dữ liệu: UCI Machine Learning Repository (Online Retail Data Set).
-- Tập dữ liệu chứa 541,909 giao dịch từ 01/12/2010 đến 09/12/2011 của một nhà bán lẻ quà tặng trực tuyến tại Vương Quốc Anh.
 
----
+### Tải dữ liệu
 
-## 4. Hướng Dẫn Sử Dụng (Usage)
+Tải **Online Retail Dataset** từ UCI và đặt vào `data/raw/`:
+- URL: https://archive.ics.uci.edu/dataset/352/online+retail
+- File: `Online Retail.xlsx` (≈23 MB)
 
-### 4.1 Chạy Toàn Bộ Pipeline Tự Động
-Thực thi toàn bộ chu trình xử lý dữ liệu, huấn luyện mô hình và lưu kết quả:
+## 3. Chạy Pipeline
+
+### Chạy toàn bộ pipeline (01→07):
+
 ```bash
 python run_pipeline.py
 ```
 
-### 4.2 Khởi Chạy Web Dashboard (Streamlit)
-Trực quan hóa phân khúc khách hàng, dự đoán và gợi ý sản phẩm:
+Pipeline chạy tuần tự 7 bước, mỗi bước kiểm tra output trước khi tiếp tục.
+Thời gian ước tính: ~7-8 phút.
+
+### Chạy từng bước riêng:
+
 ```bash
-streamlit run app/app.py
+python notebooks/run_01_data_understanding.py
+python notebooks/run_02_eda_and_cleaning.py
+python notebooks/run_03_feature_engineering.py
+python notebooks/run_04_customer_clustering.py
+python notebooks/run_05_repeat_purchase_classification.py
+python notebooks/run_06_association_rules.py
+python notebooks/run_07_model_comparison_and_insights.py
 ```
 
-### 4.3 Chạy Kiểm Thử (Unit Tests)
+### Chạy tests:
+
 ```bash
-pytest tests/
+python -m pytest -q
 ```
 
----
+### Chạy Dashboard:
 
-## 5. Quy Trình Khai Phá (Methodology)
+```bash
+python -m streamlit run app/app.py
+```
 
-Dự án tuân theo chuẩn **CRISP-DM** (Cross-Industry Standard Process for Data Mining):
-1. **Business Understanding**: Thấu hiểu mục tiêu giảm rời bỏ, nâng cao LTV và gợi ý sản phẩm bán chéo (Cross-selling).
-2. **Data Understanding**: Đánh giá chất lượng dữ liệu, thống kê mô tả, tỷ lệ đơn hủy, khách hàng vãng lai.
-3. **Data Preparation**: Xử lý Null CustomerID, UnitPrice <= 0, Quantity < 0, chuẩn hóa ngày tháng.
-4. **Modeling**:
-   - *Phân cụm*: Phân khúc khách hàng RFM + K-Means (Elbow method & Silhouette score).
-   - *Phân loại*: Dự đoán khách hàng có mua lại (Repeat Purchase) sau 30-90 ngày.
-   - *Luật kết hợp*: Apriori & FP-Growth phát hiện cặp sản phẩm thường mua cùng nhau.
-5. **Evaluation**: Đánh giá dựa trên Accuracy, Precision, Recall, F1-Score, ROC-AUC, Lift, Conviction.
-6. **Deployment**: Xây dựng bảng điều khiển tương tác trên Streamlit phục vụ bộ phận kinh doanh/marketing.
+## 4. Kết Quả Chính
 
----
+### 4.1 Customer Clustering
+- Thuật toán: K-Means (K=2) trên RFM features (log1p + StandardScaler)
+- Silhouette Score: 0.4330
+- 2 phân khúc: Best Customers (38.4%) và Low-Value Customers (61.6%)
 
-## 6. Giấy Phép (License)
-Dự án được phân phối dưới giấy phép [MIT License](LICENSE).
+### 4.2 Repeat Purchase Classification
+- Model: Random Forest (class_weight=balanced)
+- CV F1: 0.6726, Test F1: 0.7086, Test AUC: 0.7438
+- Baseline (DummyClassifier): CV F1 0.7259
+- Target: repeat_purchase_90d (mua lại trong 90 ngày)
+
+### 4.3 Association Rules
+- 61 valid rules (lift > 1) từ cả Apriori và FP-Growth
+- min_support=0.02, min_confidence=0.5
+- Top rule lift: ~18.2 (PINK/GREEN/ROSES REGENCY TEACUP sets)
+
+## 5. Tài Liệu Tham Khảo
+
+Xem thư mục `docs/` cho:
+- `business_understanding.md` — Bài toán nghiệp vụ
+- `methodology.md` — Phương pháp CRISP-DM
+- `data_dictionary.md` — Mô tả dữ liệu
+- `feature_decision_dictionary.md` — Từ điển features
+- `decision_log.md` — Nhật ký quyết định
+- `references.md` — Tài liệu tham khảo
+
+## 6. Đơn Vị Tiền Tệ
+
+Tất cả giá trị tiền tệ trong project sử dụng **GBP (£)** — đồng Bảng Anh, theo dữ liệu gốc.
+
+## 7. License
+
+Xem file `LICENSE` để biết chi tiết.

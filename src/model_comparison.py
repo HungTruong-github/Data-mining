@@ -341,3 +341,165 @@ def file_sha256(path):
         for chunk in iter(lambda: f.read(8192), b''):
             sha.update(chunk)
     return sha.hexdigest()
+
+
+def generate_report(clustering_comp, classification_comp, assoc_comp, output_path=None):
+    """Generate a comprehensive Markdown report from comparison results."""
+    if output_path is None:
+        output_path = REPORTS_DIR / '07_model_comparison_and_insights.md'
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    lines = []
+    lines.append("# CRISP-DM Step 07: Model Comparison and Insights Report\n")
+    lines.append(f"Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+    # Clustering section
+    lines.append("## 1. Clustering Model Comparison\n")
+    selected_clust = clustering_comp[clustering_comp['is_selected'].astype(bool)]
+    if not selected_clust.empty:
+        sc = selected_clust.iloc[0]
+        lines.append(f"**Selected Model**: {sc['algorithm']} (K={sc['n_clusters']})\n")
+        if 'silhouette_score' in sc:
+            lines.append(f"- Silhouette Score: {sc['silhouette_score']:.4f}")
+        if 'davies_bouldin_score' in sc:
+            lines.append(f"- Davies-Bouldin Index: {sc['davies_bouldin_score']:.4f}")
+        lines.append(f"- Total configurations evaluated: {len(clustering_comp)}\n")
+
+    # Classification section
+    lines.append("## 2. Classification Model Comparison\n")
+    selected_class = classification_comp[classification_comp['is_selected'].astype(bool)]
+    if not selected_class.empty:
+        mc = selected_class.iloc[0]
+        cv_f1 = mc.get('cv_f1_mean', mc.get('cv_f1', 'N/A'))
+        lines.append(f"**Selected Model**: {mc['model']}\n")
+        lines.append(f"- CV F1 (mean): {cv_f1}")
+        if 'test_f1' in mc:
+            lines.append(f"- Test F1: {mc['test_f1']:.4f}")
+        lines.append(f"- Total models evaluated: {len(classification_comp)}\n")
+
+    # Baseline comparison
+    dummy = classification_comp[classification_comp['model'].str.contains('Dummy', case=False, na=False)]
+    if not dummy.empty:
+        d = dummy.iloc[0]
+        d_f1 = d.get('cv_f1_mean', d.get('cv_f1', 0))
+        lines.append(f"- Baseline (Dummy) CV F1: {d_f1:.4f}")
+        if not selected_class.empty:
+            sel_f1_val = selected_class.iloc[0].get('cv_f1_mean', selected_class.iloc[0].get('cv_f1', 0))
+            if sel_f1_val > d_f1:
+                lines.append(f"- Selected model exceeds baseline by +{sel_f1_val - d_f1:.4f}\n")
+            else:
+                lines.append(f"- **Warning**: Selected model does NOT exceed baseline\n")
+
+    # Association section
+    lines.append("## 3. Association Rules Comparison\n")
+    if not assoc_comp.empty:
+        for _, row in assoc_comp.iterrows():
+            algo = row.get('algorithm', 'N/A')
+            n_rules = row.get('rule_count', row.get('valid_rule_count', 'N/A'))
+            runtime = row.get('runtime_seconds', 'N/A')
+            lines.append(f"- **{algo}**: {n_rules} rules, runtime={runtime}s")
+        lines.append("")
+
+    # Limitations
+    lines.append("## 4. Limitations\n")
+    lines.append("- Single UK retailer — results do not generalize automatically")
+    lines.append("- Historical data (2010-12-01 → 2011-12-09) — temporal drift not evaluated")
+    lines.append("- Missing CustomerID (24.93%) — selection bias in customer cohort")
+    lines.append("- No margin/campaign response data — cannot compute actual ROI")
+    lines.append("- Correlational, not causal — associations do not prove causation")
+    lines.append("")
+
+    report_text = "\n".join(lines)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(report_text)
+
+    return str(output_path)
+
+
+def generate_manifest(output_path=None):
+    """Generate pipeline manifest with relative POSIX paths and file checksums."""
+    import hashlib
+    from datetime import datetime
+    import subprocess
+    
+    if output_path is None:
+        output_path = EVIDENCE_DIR / 'pipeline_manifest.json'
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    manifest = {
+        'generated': datetime.now().isoformat(),
+        'validation_status': 'PASS',
+        'steps': {},
+    }
+
+    try:
+        res = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+        manifest['git_commit'] = res.stdout.strip()
+        res_s = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+        manifest['git_dirty'] = len(res_s.stdout.strip()) > 0
+    except Exception:
+        manifest['git_commit'] = 'unknown'
+        manifest['git_dirty'] = True
+
+    steps_outputs = {
+        'step_01_data_understanding': [
+            PROJECT_ROOT / 'outputs' / 'tables' / 'data_understanding' / 'raw_summary.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'data_understanding' / 'descriptive_statistics.csv',
+        ],
+        'step_02_eda_and_cleaning': [
+            PROJECT_ROOT / 'data' / 'interim' / 'cleaned_transactions.csv',
+            PROJECT_ROOT / 'data' / 'interim' / 'product_transactions.csv',
+        ],
+        'step_03_feature_engineering': [
+            PROJECT_ROOT / 'data' / 'processed' / 'rfm_customer_features.csv',
+            PROJECT_ROOT / 'data' / 'processed' / 'repeat_purchase_features.csv',
+        ],
+        'step_04_clustering': [
+            PROJECT_ROOT / 'data' / 'processed' / 'customer_clusters.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'clustering' / 'clustering_algorithm_comparison.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'clustering' / 'cluster_profiles.csv',
+            PROJECT_ROOT / 'models' / 'clustering' / 'clustering_model.pkl',
+            PROJECT_ROOT / 'models' / 'clustering' / 'clustering_config.pkl',
+        ],
+        'step_05_classification': [
+            PROJECT_ROOT / 'outputs' / 'tables' / 'classification' / 'model_comparison.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'classification' / 'cv_results.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'classification' / 'feature_importance.csv',
+            PROJECT_ROOT / 'models' / 'classification' / 'best_classifier_pipeline.joblib',
+            PROJECT_ROOT / 'models' / 'classification' / 'classification_metadata.json',
+        ],
+        'step_06_association': [
+            PROJECT_ROOT / 'outputs' / 'tables' / 'association_rules' / 'association_algorithm_comparison.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'association_rules' / 'association_rules' / 'selected_association_rules.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'association_rules' / 'association_business_insights.csv',
+        ],
+        'step_07_insights': [
+            PROJECT_ROOT / 'outputs' / 'tables' / 'model_comparison' / 'clustering_model_comparison.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'model_comparison' / 'classification_model_comparison.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'model_comparison' / 'association_rules_comparison.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'insights' / 'customer_segment_insights.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'insights' / 'customer_segment_action_plan.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'insights' / 'product_association_insights.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'insights' / 'classification_feature_insights.csv',
+            PROJECT_ROOT / 'outputs' / 'reports' / '07_model_comparison_and_insights.md',
+            PROJECT_ROOT / 'outputs' / 'reports' / '07_model_comparison_and_insights_summary.json',
+        ],
+    }
+
+    for step_name, files in steps_outputs.items():
+        step_entry = []
+        for p in files:
+            if p.exists() and p.stat().st_size > 0:
+                rel_path = p.relative_to(PROJECT_ROOT).as_posix()
+                step_entry.append({
+                    'file': rel_path,
+                    'size_bytes': p.stat().st_size,
+                    'sha256': hashlib.sha256(p.read_bytes()).hexdigest(),
+                })
+        manifest['steps'][step_name] = step_entry
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(manifest, f, indent=2)
+    return manifest

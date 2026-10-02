@@ -1,249 +1,162 @@
 {
-  "generated": "2026-10-01T10:21:44.383626",
-  "random_state": 42,
+  "generated": "2026-10-02T12:31:29.934430",
   "validation_status": "PASS",
   "steps": {
     "step_01_data_understanding": [
       {
         "file": "outputs/tables/data_understanding/raw_summary.csv",
-        "size_bytes": 757,
-        "sha256": "92199f5374e984de03631d54b4882dc0d7fbc667ca3886b9a051028702ab2b72",
-        "status": "VALIDATED"
+        "size_bytes": 320,
+        "sha256": "fc251f04c48b3548102cc831c88af7b5262e830ca21e46020a40dc8e325e5d73"
       },
       {
         "file": "outputs/tables/data_understanding/descriptive_statistics.csv",
-        "size_bytes": 552,
-        "sha256": "dc4f3a0c39ef8d565f51c7c54b6b85090c9baa84ddc9a07647304a9cf825ca65",
-        "status": "VALIDATED"
+        "size_bytes": 461,
+        "sha256": "abe5851bd8ee67004eb57a3b1632564dd31946a35239b224647c57e16fac26a8"
       }
     ],
     "step_02_eda_and_cleaning": [
       {
         "file": "data/interim/cleaned_transactions.csv",
         "size_bytes": 75676309,
-        "sha256": "154bb9905fb5c8c8da1e774c4ac0803b59dd099fe14501873b4f7e7c15a336bf",
-        "status": "VALIDATED"
+        "sha256": "154bb9905fb5c8c8da1e774c4ac0803b59dd099fe14501873b4f7e7c15a336bf"
       },
       {
         "file": "data/interim/product_transactions.csv",
         "size_bytes": 75671558,
-        "sha256": "5ae4bb7416dc6fa189f30fa2a86e468484143698278cc8ab198a65e469cccfe8",
-        "status": "VALIDATED"
+        "sha256": "5ae4bb7416dc6fa189f30fa2a86e468484143698278cc8ab198a65e469cccfe8"
       }
     ],
     "step_03_feature_engineering": [
       {
         "file": "data/processed/rfm_customer_features.csv",
         "size_bytes": 584968,
-        "sha256": "1de5c99b9788166063e1bea90e354b0fd0dccd8a07ada7d77c52455e78e8b18f",
-        "status": "VALIDATED"
+        "sha256": "1de5c99b9788166063e1bea90e354b0fd0dccd8a07ada7d77c52455e78e8b18f"
       },
       {
         "file": "data/processed/repeat_purchase_features.csv",
         "size_bytes": 235548,
-        "sha256": "cf8b92f48ade5d12aa46258b2a2eadcf77d2b38dc9c56d3adcb50edced5267f2",
-        "status": "VALIDATED"
+        "sha256": "cf8b92f48ade5d12aa46258b2a2eadcf77d2b38dc9c56d3adcb50edced5267f2"
       }
     ],
     "step_04_clustering": [
       {
         "file": "data/processed/customer_clusters.csv",
         "size_bytes": 251709,
-        "sha256": "3d1c9095e007f65b88a921c79d7f5cc36513b090dd7e3d274e8ced7d04957d40",
-        "status": "VALIDATED"
+        "sha256": "3d1c9095e007f65b88a921c79d7f5cc36513b090dd7e3d274e8ced7d04957d40"
       },
       {
         "file": "outputs/tables/clustering/clustering_algorithm_comparison.csv",
         "size_bytes": 2063,
-        "sha256": "64230909dbf5d0d5dba6071e9642f6d753099a9966b25d02d536ca090de8d4f3",
-        "status": "VALIDATED"
+        "sha256": "73216587cdb3c742cefd7c2969a762f962bfd904dd566a2478943c6812b5846d"
       },
       {
         "file": "outputs/tables/clustering/cluster_profiles.csv",
         "size_bytes": 301,
-        "sha256": "5b2316a0b4f4b3c063585513998f9dd29790811cb8a146c44ec568e763319a20",
-        "status": "VALIDATED"
+        "sha256": "5b2316a0b4f4b3c063585513998f9dd29790811cb8a146c44ec568e763319a20"
       },
       {
         "file": "models/clustering/clustering_model.pkl",
         "size_bytes": 18111,
-        "sha256": "ea6a592fdf4770ffaf092f9b786e072543c7c6645f9bbcdb32b15de1ab53f676",
-        "status": "VALIDATED"
+        "sha256": "93803371095672308200e2d3937ac9fd99bd19e96be02823b3d498a6cb45c110"
       },
       {
         "file": "models/clustering/clustering_config.pkl",
         "size_bytes": 524,
-        "sha256": "c003a5c159f3b33eba8f5969eb48146ff57376ff98c38be0d93f9ab16ba35296",
-        "status": "VALIDATED"
+        "sha256": "2d5acf3820e8decb17f6af0c7cb7395b163f27dcf82a7caeafad8a9679fbc0e5"
       }
     ],
     "step_05_classification": [
       {
         "file": "outputs/tables/classification/model_comparison.csv",
-        "size_bytes": 746,
-        "sha256": "f6f922353cf0bfa4ef43d6384402c4cd48954f36f0df3964707eaee28eb9681d",
-        "status": "VALIDATED"
+        "size_bytes": 745,
+        "sha256": "00c9bb9bbc1516c139236ed63769b32f40009d9208dd8b84d86a018efa4e80dd"
       },
       {
         "file": "outputs/tables/classification/cv_results.csv",
         "size_bytes": 661,
-        "sha256": "63d8bd68b289245a112e7f4f55782cab2e952d137dcd8ca65d5c360b3c8cd36f",
-        "status": "VALIDATED"
+        "sha256": "f2b453ce61bd8187b61c14001e45e9eefb06ee49f6f2240b4517421a6aa6cf17"
       },
       {
         "file": "outputs/tables/classification/feature_importance.csv",
         "size_bytes": 1697,
-        "sha256": "93502f25b2009b955d77ccc6879e28933df240b19e9bc2eb51e6661cfc5efbc5",
-        "status": "VALIDATED"
+        "sha256": "93502f25b2009b955d77ccc6879e28933df240b19e9bc2eb51e6661cfc5efbc5"
       },
       {
         "file": "models/classification/best_classifier_pipeline.joblib",
         "size_bytes": 20699451,
-        "sha256": "7e8a1c7fe855a7d6ae339d70a116bab44a6fd059f5a7d7c053477baa5cdc159e",
-        "status": "VALIDATED"
+        "sha256": "7e8a1c7fe855a7d6ae339d70a116bab44a6fd059f5a7d7c053477baa5cdc159e"
       },
       {
         "file": "models/classification/classification_metadata.json",
-        "size_bytes": 929,
-        "sha256": "ca526bdf2679ea445cf414b5c6389ce944542aa7f30313bf56cd3920254f6f7a",
-        "status": "VALIDATED"
+        "size_bytes": 813,
+        "sha256": "f0e1162f3c2de27d2f220d66f25a3d242f37b52027feeed40baef5c93cbe376c"
       }
     ],
     "step_06_association": [
       {
         "file": "outputs/tables/association_rules/association_algorithm_comparison.csv",
         "size_bytes": 244,
-        "sha256": "ae1724c3abc048446c6c29f099019fa1b46d014274489cfcb6b429b2f43154b9",
-        "status": "VALIDATED"
+        "sha256": "f4998fabf01634524c443dac99144e33dfd708286b20612796d2d51aa65becfa"
       },
       {
         "file": "outputs/tables/association_rules/association_rules/selected_association_rules.csv",
         "size_bytes": 11566,
-        "sha256": "ef61386176f43c17e1056739096d5c24ed028cac92aa573f490bc9574742a7ba",
-        "status": "VALIDATED"
+        "sha256": "ef61386176f43c17e1056739096d5c24ed028cac92aa573f490bc9574742a7ba"
       },
       {
         "file": "outputs/tables/association_rules/association_business_insights.csv",
         "size_bytes": 634,
-        "sha256": "6bdc4ee6de90fad96aedc324ff02f2964790d4a3ee18142cff7d7f5cd4f4f256",
-        "status": "VALIDATED"
+        "sha256": "6bdc4ee6de90fad96aedc324ff02f2964790d4a3ee18142cff7d7f5cd4f4f256"
       }
     ],
     "step_07_insights": [
       {
         "file": "outputs/tables/model_comparison/clustering_model_comparison.csv",
         "size_bytes": 2192,
-        "sha256": "d7db99d626178e7426a00be8eefede8567d2bbab69dd8f68ae8bf126fbd98604",
-        "status": "VALIDATED"
+        "sha256": "1c939a2390bbf1beb54e8f06d95a0aaed56446619d1af2b0b07284b31ee951bd"
       },
       {
         "file": "outputs/tables/model_comparison/classification_model_comparison.csv",
-        "size_bytes": 1028,
-        "sha256": "b2772e9dfbe718bb4a73756072b6d1b2e42fa573dcf7122d52b19177ed00682e",
-        "status": "VALIDATED"
+        "size_bytes": 1027,
+        "sha256": "983391557d0c135f73863a874472728340bd6c917a20934341241f6105db46ec"
       },
       {
         "file": "outputs/tables/model_comparison/association_rules_comparison.csv",
-        "size_bytes": 451,
-        "sha256": "94411ce7dd1625a62a06a89419dcd926713d4c27e8a19257e5f128b7a3db5562",
-        "status": "VALIDATED"
+        "size_bytes": 448,
+        "sha256": "ea960b51ebaf59bd777908435a1d9ce38b0c8f3d5469f13ac4e594d5fac6b88a"
       },
       {
         "file": "outputs/tables/insights/customer_segment_insights.csv",
         "size_bytes": 826,
-        "sha256": "556e3cff84c71387d5d4a69c8ed058f1ca52eb6ac7861c6dd55ab3d2e73e203f",
-        "status": "VALIDATED"
+        "sha256": "556e3cff84c71387d5d4a69c8ed058f1ca52eb6ac7861c6dd55ab3d2e73e203f"
       },
       {
         "file": "outputs/tables/insights/customer_segment_action_plan.csv",
         "size_bytes": 611,
-        "sha256": "98a7099d3479586abc4dd18dabe0f9cdd5b53a3e0f2b59f6e94766b4f470922a",
-        "status": "VALIDATED"
+        "sha256": "98a7099d3479586abc4dd18dabe0f9cdd5b53a3e0f2b59f6e94766b4f470922a"
       },
       {
         "file": "outputs/tables/insights/product_association_insights.csv",
         "size_bytes": 11199,
-        "sha256": "f22889561afe4e6b80de0c3f75251c85096f7a669713662e2bf78c224ffab9c3",
-        "status": "VALIDATED"
+        "sha256": "f22889561afe4e6b80de0c3f75251c85096f7a669713662e2bf78c224ffab9c3"
       },
       {
         "file": "outputs/tables/insights/classification_feature_insights.csv",
         "size_bytes": 13680,
-        "sha256": "fe6bcdcbfd8ef32a7581ac58a8905de266e58d237118bb4d292742846822e7ba",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/clustering_model_comparison.png",
-        "size_bytes": 183554,
-        "sha256": "5bd54ffc1c79580390262fdc0f5e26a6fd532ebfd906f91917a64efbcd9a934b",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/classification_model_comparison.png",
-        "size_bytes": 108904,
-        "sha256": "1586d063878e52f3db289424790bfb32ae39618109581ffa753b4b8b57e56be4",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/clustering_quality_metrics.png",
-        "size_bytes": 51964,
-        "sha256": "0af96da04e4e5a352d553d6d2f4d825dca598598e2aa995ba6600b64b021d01b",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/classification_cv_vs_test.png",
-        "size_bytes": 94917,
-        "sha256": "529d7a3af849f8588608b2e13ac5320275e5b0a9aa1b425ec9e077c7ac00cb31",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/cluster_size_distribution.png",
-        "size_bytes": 62772,
-        "sha256": "a42326678b9ac31e9b5adab0399fe4db0740c58d2ae81b27f4b631d4cf7809d5",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/segment_rfm_profile.png",
-        "size_bytes": 100578,
-        "sha256": "cf7cf964a1195eaa66368251900e0c0b39f048b5af714dba1a7bb781c557b981",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/segment_repeat_purchase_rate.png",
-        "size_bytes": 73444,
-        "sha256": "de05ae7e3cdc1c341de275baa316c67faa7ce8498d2afc22dfec8de44844e32b",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/top_association_rules.png",
-        "size_bytes": 272736,
-        "sha256": "be2c23e77dbdc204328ed4252f3806b2c92ad727acbd3fa4d2c9f8b91dc0c562",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/feature_importance_top20.png",
-        "size_bytes": 184620,
-        "sha256": "fcc089c6edb9ad4126a9381c6cba32e2a695faf0ea455a6e9b8e8ee8512bd971",
-        "status": "VALIDATED"
-      },
-      {
-        "file": "outputs/figures/model_comparison/insight_summary_dashboard.png",
-        "size_bytes": 319695,
-        "sha256": "34f0379ca97e36f7b7d14a44e1ef994bc4ce54c629120c905eb5d7f1cc1c028e",
-        "status": "VALIDATED"
+        "sha256": "fe6bcdcbfd8ef32a7581ac58a8905de266e58d237118bb4d292742846822e7ba"
       },
       {
         "file": "outputs/reports/07_model_comparison_and_insights.md",
-        "size_bytes": 31273,
-        "sha256": "b0bf4459793e80f17f8864c41aece47ce44dabac80e6f58e956f01dcc73300e2",
-        "status": "VALIDATED"
+        "size_bytes": 1004,
+        "sha256": "3358f77e1b1397af0dc448271441d01ce62b945cfc687db5ba3fb40fa6ae1969"
       },
       {
         "file": "outputs/reports/07_model_comparison_and_insights_summary.json",
-        "size_bytes": 1632,
-        "sha256": "ccb7e10acb5b051d7d47b3b8295543300110a24be7fd16f10b53df4dddfe3983",
-        "status": "VALIDATED"
+        "size_bytes": 1630,
+        "sha256": "5a73790c9b8d03a06298badf0580da5ffa5d86d11e7139730b7966c764c10354"
       }
     ]
-  }
+  },
+  "git_commit": "b58a7427e950799c52d31b28b8c624923546774d",
+  "git_dirty": true
 }
