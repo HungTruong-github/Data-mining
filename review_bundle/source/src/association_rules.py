@@ -3,6 +3,7 @@ Module association_rules: Apriori vs FP-Growth comparison.
 Uses StockCode as item key, maps to Description for display.
 """
 import time
+import math
 import warnings
 import numpy as np
 import pandas as pd
@@ -318,6 +319,107 @@ def frozenset_to_names(fs, mapping):
 # ====================================================================
 # 7. ALGORITHM COMPARISON TABLE
 # ====================================================================
+def calculate_min_baskets(min_support, n_baskets):
+    """Calculate minimum basket count from ceil(min_support * n_baskets)."""
+    return math.ceil(min_support * n_baskets)
+
+
+def benchmark_algorithms(basket, min_support=0.02, n_runs=3):
+    """
+    Benchmark Apriori and FP-Growth over multiple iterations on the exact same dataset and parameters.
+    Reports median runtime, standard deviation, and IQR.
+    """
+    from mlxtend.frequent_patterns import apriori as mlx_apriori
+    from mlxtend.frequent_patterns import fpgrowth as mlx_fpgrowth
+
+    apriori_times = []
+    fpgrowth_times = []
+
+    for _ in range(n_runs):
+        t0 = time.time()
+        mlx_apriori(basket, min_support=min_support, use_colnames=True)
+        apriori_times.append(round(time.time() - t0, 4))
+
+        t0 = time.time()
+        mlx_fpgrowth(basket, min_support=min_support, use_colnames=True)
+        fpgrowth_times.append(round(time.time() - t0, 4))
+
+    ap_median = round(float(np.median(apriori_times)), 4)
+    ap_std = round(float(np.std(apriori_times)), 4)
+    ap_iqr = round(float(np.percentile(apriori_times, 75) - np.percentile(apriori_times, 25)), 4)
+
+    fp_median = round(float(np.median(fpgrowth_times)), 4)
+    fp_std = round(float(np.std(fpgrowth_times)), 4)
+    fp_iqr = round(float(np.percentile(fpgrowth_times, 75) - np.percentile(fpgrowth_times, 25)), 4)
+
+    return {
+        'n_runs': n_runs,
+        'apriori_times': apriori_times,
+        'apriori_median': ap_median,
+        'apriori_std': ap_std,
+        'apriori_iqr': ap_iqr,
+        'fpgrowth_times': fpgrowth_times,
+        'fpgrowth_median': fp_median,
+        'fpgrowth_std': fp_std,
+        'fpgrowth_iqr': fp_iqr,
+    }
+
+
+def run_sensitivity_analysis(basket, min_supports=None, min_confidences=None):
+    """
+    Perform concise sensitivity analysis across min_support and min_confidence.
+    Records frequent itemsets count, valid rules count (lift > 1), and quality metrics.
+    """
+    from mlxtend.frequent_patterns import fpgrowth as mlx_fpgrowth
+    from mlxtend.frequent_patterns import association_rules as mlx_rules
+
+    if min_supports is None:
+        min_supports = [0.015, 0.02, 0.025, 0.03]
+    if min_confidences is None:
+        min_confidences = [0.4, 0.5, 0.6]
+
+    n_baskets = len(basket)
+    results = []
+
+    for sup in min_supports:
+        min_baskets = calculate_min_baskets(sup, n_baskets)
+        try:
+            itemsets = mlx_fpgrowth(basket, min_support=sup, use_colnames=True)
+            n_itemsets = len(itemsets)
+        except Exception:
+            itemsets = pd.DataFrame()
+            n_itemsets = 0
+
+        for conf in min_confidences:
+            if not itemsets.empty:
+                try:
+                    rules = mlx_rules(itemsets, metric='confidence', min_threshold=conf)
+                    valid_rules = rules[rules['lift'] > 1.0] if not rules.empty else pd.DataFrame()
+                    n_valid = len(valid_rules)
+                    max_lift = round(float(valid_rules['lift'].max()), 4) if n_valid > 0 else 0.0
+                    mean_lift = round(float(valid_rules['lift'].mean()), 4) if n_valid > 0 else 0.0
+                    mean_conf = round(float(valid_rules['confidence'].mean()), 4) if n_valid > 0 else 0.0
+                except Exception:
+                    n_valid = 0
+                    max_lift, mean_lift, mean_conf = 0.0, 0.0, 0.0
+            else:
+                n_valid = 0
+                max_lift, mean_lift, mean_conf = 0.0, 0.0, 0.0
+
+            results.append({
+                'min_support': sup,
+                'min_baskets': min_baskets,
+                'min_confidence': conf,
+                'frequent_itemsets_count': n_itemsets,
+                'valid_rules_count': n_valid,
+                'max_lift': max_lift,
+                'mean_lift': mean_lift,
+                'mean_confidence': mean_conf,
+            })
+
+    return pd.DataFrame(results)
+
+
 def build_algorithm_comparison(apriori_info, fpgrowth_info):
     """
     Build comparison table between Apriori and FP-Growth and mark selected algorithm dynamically.

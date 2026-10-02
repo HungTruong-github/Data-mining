@@ -76,6 +76,17 @@ def main():
     profiles = assign_business_names(profiles)
     name_map = dict(zip(profiles['Cluster'].astype(int), profiles['BusinessName']))
 
+    # Preprocessing & Stability evaluations
+    print("\n--- Evaluating Preprocessing Impact & Cluster Stability ---")
+    from src.clustering import compare_preprocessing_impact, evaluate_clustering_stability
+    preproc_df = compare_preprocessing_impact(df, rfm_cols, n_clusters=best_k)
+    preproc_df.to_csv(TABLES_CLUSTERING / 'clustering_preprocessing_comparison.csv', index=False)
+    print(f"  [OK] Saved clustering_preprocessing_comparison.csv")
+
+    stability_res = evaluate_clustering_stability(X_scaled, algorithm=best_algo, n_clusters=best_k)
+    pd.DataFrame([stability_res]).to_csv(TABLES_CLUSTERING / 'clustering_stability_audit.csv', index=False)
+    print(f"  [OK] Saved clustering_stability_audit.csv (mean ARI = {stability_res['mean_pairwise_ari']:.4f})")
+
     # Save files
     comparison_df.to_csv(TABLES_CLUSTERING / 'clustering_algorithm_comparison.csv', index=False)
     profiles.to_csv(TABLES_CLUSTERING / 'cluster_profiles.csv', index=False)

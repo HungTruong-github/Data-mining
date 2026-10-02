@@ -1,5 +1,5 @@
 # Review Notebook: 01_data_understanding.ipynb
-*Source Path: `d:/Project/Data-mininng/notebooks/01_data_understanding.ipynb`*
+*Source Path: `D:/Project/Data-mininng/notebooks/01_data_understanding.ipynb`*
 
 ---
 

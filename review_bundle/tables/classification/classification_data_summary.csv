@@ -1,2 +1,2 @@
-total_customers,class_0,class_1,random_state,test_size
-3368,1449,1919,42,0.2
+total_customers,n_features,class_0,class_1,class_ratio,random_state,test_size
+3368,11,1449,1919,0.5698,42,0.2

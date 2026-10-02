@@ -23,6 +23,12 @@ st.set_page_config(
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+import sys
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.classification import predict_with_threshold
+
 
 @st.cache_resource
 def load_all_artifacts():
@@ -162,8 +168,8 @@ with tab1:
                     with st.spinner("Đang chạy dự báo qua Scikit-Learn Pipeline..."):
                         X_in = input_df[feat_cols].copy()
                         applied_threshold = float(clf_meta.get('threshold', 0.5))
-                        probs = clf_pipeline.predict_proba(X_in)[:, 1]
-                        preds = (probs >= applied_threshold).astype(int)
+                        pos_label = clf_meta.get('positive_class', 1)
+                        preds, probs = predict_with_threshold(clf_pipeline, X_in, threshold=applied_threshold, pos_label=pos_label)
 
                         out_df = input_df.copy()
                         if 'CustomerID' in input_df.columns:

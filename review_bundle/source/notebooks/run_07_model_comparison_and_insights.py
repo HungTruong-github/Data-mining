@@ -139,7 +139,7 @@ def main():
     _plot_segment_repeat_rate(seg_insights)
     _plot_top_rules(prod_insights)
     _plot_feature_importance(feat_insights)
-    _plot_insight_summary(seg_insights, class_comp, assoc_comp)
+    _plot_insight_summary(seg_insights, class_comp, assoc_comp, feat=feat_insights)
 
     # -- STEP 9: Generate Report --
     print("\n--- STEP 9: Generate Report ---")
@@ -187,6 +187,11 @@ def main():
             all_exist = False
 
     assert all_exist, "Some required outputs missing!"
+
+    # Strict check: pipeline_manifest must have validation_status == PASS
+    manifest_data = json.loads((EVIDENCE / 'pipeline_manifest.json').read_text(encoding='utf-8'))
+    if manifest_data.get('validation_status') != 'PASS':
+        raise RuntimeError(f"Step 07 FAILED: pipeline_manifest.json has validation_status='FAIL'. Missing: {manifest_data.get('missing_files')}")
 
     elapsed = time.time() - total_start
     print(f"\n{'=' * 60}")
@@ -285,14 +290,14 @@ def _plot_segment_rfm(seg):
     fig, axes = plt.subplots(1, 3, figsize=(12, 4))
     metrics = [('recency_mean', 'Recency (Days, Lower = Better)', '#2a9d8f'),
                ('frequency_mean', 'Frequency (Orders, Higher = Better)', '#e76f51'),
-               ('monetary_mean', 'Monetary (Spend $, Higher = Better)', '#2b5c8f')]
+               ('monetary_mean', 'Monetary (Spend £, Higher = Better)', '#2b5c8f')]
     x_labels = [f"C{c}: {n}" for c, n in zip(seg['cluster_id'], seg['business_segment_name'])]
     for ax, (col, title, color) in zip(axes, metrics):
         bars = ax.bar(x_labels, seg[col], color=color, width=0.4)
         ax.set_title(title, fontsize=10, fontweight='bold')
         for bar in bars:
             val = bar.get_height()
-            fmt = f"${val:,.0f}" if 'Spend' in title else f"{val:.0f}"
+            fmt = f"£{val:,.0f}" if 'Spend' in title else f"{val:.0f}"
             ax.text(bar.get_x() + bar.get_width()/2, val * 1.02, fmt, ha='center', fontsize=9)
     fig.tight_layout()
     _save(fig, 'segment_rfm_profile.png')
@@ -337,7 +342,7 @@ def _plot_feature_importance(feat):
         ax.text(bar.get_width() + 0.002, bar.get_y() + bar.get_height()/2, f"{imp:.4f}", va='center', fontsize=8)
     _save(fig, 'feature_importance_top20.png')
 
-def _plot_insight_summary(seg, class_comp, assoc_comp):
+def _plot_insight_summary(seg, class_comp, assoc_comp, feat=None):
     fig, axes = plt.subplots(2, 2, figsize=(12, 8))
     # Panel 1: Cluster sizes
     axes[0, 0].pie(seg['customer_count'], labels=[f"C{c}: {n}" for c, n in zip(seg['cluster_id'], seg['business_segment_name'])],
@@ -359,19 +364,54 @@ def _plot_insight_summary(seg, class_comp, assoc_comp):
     for i, v in enumerate(seg['repeat_purchase_rate']):
         axes[1, 0].text(i, v + 0.02, f"{v:.1%}", ha='center', fontsize=9, fontweight='bold')
 
-    # Panel 4: Association rules
+    # Panel 4: Association rules & Key Strategic Findings
     axes[1, 1].axis('off')
+
+    # Dynamically extract values from artifacts
+    seg_by_spend = seg.sort_values('monetary_mean', ascending=False)
+    best_c = seg_by_spend.iloc[0]
+    lost_c = seg_by_spend.iloc[-1]
+
+    best_name = best_c['business_segment_name']
+    best_pct = best_c['customer_percentage']
+    best_rep = best_c.get('repeat_purchase_rate', 0)
+    best_spend = best_c['monetary_mean']
+
+    lost_name = lost_c['business_segment_name']
+    lost_pct = lost_c['customer_percentage']
+    lost_rep = lost_c.get('repeat_purchase_rate', 0)
+    lost_rec = lost_c['recency_mean']
+
+    feat_text = ""
+    if feat is not None and not feat.empty:
+        top1 = feat.iloc[0]
+        top2 = feat.iloc[1] if len(feat) > 1 else None
+        feat_text = f"• Top Predictors: {top1['feature']} ({top1['importance']:.1%})"
+        if top2 is not None:
+            feat_text += f",\n  {top2['feature']} ({top2['importance']:.1%})."
+    else:
+        feat_text = "• Predictor Importance: Recency and\n  Monetary are key purchase predictors."
+
+    rules_text = ""
+    if assoc_comp is not None and not assoc_comp.empty:
+        sel_assoc = assoc_comp[assoc_comp['is_selected'].astype(bool)]
+        row_assoc = sel_assoc.iloc[0] if not sel_assoc.empty else assoc_comp.iloc[0]
+        n_rules = row_assoc['valid_rule_count']
+        max_lift = row_assoc.get('max_rule_lift', row_assoc.get('max_lift', 0))
+        algo_name = row_assoc['algorithm']
+        rules_text = f"• Co-Purchase Rules ({algo_name}): {n_rules} rules (Lift > 1.0).\n  Top rule lift = {max_lift:.1f}x."
+    else:
+        rules_text = "• Co-Purchase Rules: Validated Lift > 1.0."
+
     summary_text = (
         "D. Key Strategic Findings\n"
         "----------------------------------------\n"
-        "• Best Customers (38.4%): 95.7% repeat rate,\n"
-        "  Avg spend $4,464. Action: Loyalty & VIP retention.\n\n"
-        "• Lost Customers (61.6%): 26.4% repeat rate,\n"
-        "  Recency 134 days. Action: Win-back campaign.\n\n"
-        "• Predictor Importance: Recency (13.9%) and\n"
-        "  Monetary (13.6%) are top purchase predictors.\n\n"
-        "• Co-Purchase Rules: 61 rules with Lift > 1.0.\n"
-        "  Top rule lift = 18.2x (Tea Cup sets bundle)."
+        f"• {best_name} ({best_pct:.1f}%): {best_rep:.1%} repeat rate,\n"
+        f"  Avg spend £{best_spend:,.0f}. Action: VIP retention.\n\n"
+        f"• {lost_name} ({lost_pct:.1f}%): {lost_rep:.1%} repeat rate,\n"
+        f"  Recency {lost_rec:.0f} days. Action: Win-back campaign.\n\n"
+        f"{feat_text}\n\n"
+        f"{rules_text}"
     )
     axes[1, 1].text(0.05, 0.95, summary_text, transform=axes[1, 1].transAxes,
                     fontsize=9, verticalalignment='top', fontfamily='monospace',

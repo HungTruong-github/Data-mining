@@ -1,11 +1,11 @@
 Component,Type,Status,Details
 01. Data Understanding,Pipeline Step,PASS,"541,909 rows, 8 cols, summary & descriptive statistics generated"
-02. EDA & Cleaning,Pipeline Step,PASS,"Cancellation & non-product StockCodes isolated, 5,268 duplicates removed"
-03. Feature Engineering RFM,Pipeline Step,PASS,"4,372 customers RFM computed, ties safe qcut invariant, 90d cutoff audit"
-04. Customer Clustering,Pipeline Step,PASS,"26 configs evaluated; K-Means K=2 selected (Sil=0.4330, DB=0.8917); DBSCAN degenerate rejected"
-05. Repeat Purchase Classification,Pipeline Step,PASS,"5-fold Stratified CV; Random Forest selected (CV F1=0.6726, Test F1=0.7086, AUC=0.7438); Dummy baseline reported"
-06. Association Rules,Pipeline Step,PASS,61 canonical rules verified identical between Apriori and FP-Growth; runtime benchmark selection
-07. Model Comparison & Insights,Pipeline Step,PASS,"10-column Action Plan, cohort coverage audit, SHA-256 manifest"
-Test Suite (pytest),Automated Tests,PASS,"39/39 tests passed (100% success rate, 0 skipped, 0 failed)"
-Notebooks 01-07,Jupyter Notebooks,PASS,All 7 notebooks executed with 0 errors; exported to HTML & Markdown
-Streamlit Dashboard,Web Application,PASS,"4 tabs: Prediction (with custom threshold), Clustering, Rules, Governance"
+02. EDA & Cleaning,Pipeline Step,PASS,"Cancellation & non-product StockCodes isolated, duplicates removed"
+03. Feature Engineering RFM,Pipeline Step,PASS,"4,334 customers RFM computed, ties safe qcut invariant, 90d cutoff audit"
+04. Customer Clustering,Pipeline Step,PASS,"26 configs evaluated; K-Means K=2 selected (Sil=0.4330, DB=0.8917); stability & preprocessing audit"
+05. Repeat Purchase Classification,Pipeline Step,PASS,"5-fold Stratified CV bounded tuning; Random Forest selected (CV F1=0.7102, Test F1=0.7375); predict_with_threshold shared"
+06. Association Rules,Pipeline Step,PASS,61 canonical rules verified identical between Apriori and FP-Growth; 3-run benchmark and sensitivity analysis
+07. Model Comparison & Insights,Pipeline Step,PASS,"10-column Action Plan, cohort coverage audit, SHA-256 manifest PASS"
+Test Suite (pytest),Automated Tests,PASS,"45/45 tests passed (100% success rate, 0 skipped, 0 failed)"
+Notebooks 01-07,Jupyter Notebooks,PASS,All 7 notebooks executed with 0 errors; exported to clean Markdown
+Streamlit Dashboard,Web Application,PASS,"4 tabs: Prediction (predict_with_threshold parity), Clustering, Rules, Governance"

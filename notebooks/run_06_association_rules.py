@@ -14,7 +14,7 @@ from src.config import PROCESSED_DIR, FIGURES_ASSOCIATION, TABLES_ASSOCIATION
 from src.association_rules import (
     load_basket_matrix, load_basket_from_long, map_stockcode_to_description,
     run_apriori, run_fpgrowth, generate_rules, validate_rules, build_algorithm_comparison, frozenset_to_names,
-    compare_rule_sets
+    compare_rule_sets, calculate_min_baskets, benchmark_algorithms, run_sensitivity_analysis
 )
 from src.visualization import (
     plot_top_products, plot_algorithm_comparison, plot_scatter_support_confidence_lift, plot_top_rules_by_lift
@@ -39,15 +39,18 @@ def main():
 
     min_support = 0.02
     min_confidence = 0.5
+    min_baskets = calculate_min_baskets(min_support, stats['n_invoices'])
+    print(f"\n  Thresholds: min_support={min_support} (requires ceil({min_support} x {stats['n_invoices']:,}) = {min_baskets} invoices), min_confidence={min_confidence}")
 
-    print("\n--- Running Apriori & FP-Growth ---")
-    try:
-        apriori_itemsets, apriori_time = run_apriori(basket, min_support=min_support)
-    except:
-        min_support = 0.03
-        apriori_itemsets, apriori_time = run_apriori(basket, min_support=min_support)
+    print("\n--- Running Apriori & FP-Growth Benchmark (3 Iterations) ---")
+    bench = benchmark_algorithms(basket, min_support=min_support, n_runs=3)
+    apriori_time = bench['apriori_median']
+    fpgrowth_time = bench['fpgrowth_median']
+    print(f"  Apriori median: {apriori_time:.2f}s (IQR: {bench['apriori_iqr']:.2f}s, runs: {bench['apriori_times']})")
+    print(f"  FP-Growth median: {fpgrowth_time:.2f}s (IQR: {bench['fpgrowth_iqr']:.2f}s, runs: {bench['fpgrowth_times']})")
 
-    fpgrowth_itemsets, fpgrowth_time = run_fpgrowth(basket, min_support=min_support)
+    apriori_itemsets, _ = run_apriori(basket, min_support=min_support)
+    fpgrowth_itemsets, _ = run_fpgrowth(basket, min_support=min_support)
 
     apriori_rules = generate_rules(apriori_itemsets, min_confidence=min_confidence)
     fpgrowth_rules = generate_rules(fpgrowth_itemsets, min_confidence=min_confidence)
@@ -67,6 +70,13 @@ def main():
     if not equiv_result['is_equivalent']:
         raise ValueError(f"CRITICAL: Apriori and FP-Growth rule sets do not match in content! Details: {equiv_result}")
     pd.DataFrame([equiv_result]).to_csv(TABLES_ASSOCIATION / 'association_rules_equivalence_audit.csv', index=False)
+    print("  [OK] Saved association_rules_equivalence_audit.csv")
+
+    # -- SENSITIVITY ANALYSIS --
+    print("\n--- Running Sensitivity Analysis (Support & Confidence) ---")
+    sensitivity_df = run_sensitivity_analysis(basket)
+    sensitivity_df.to_csv(TABLES_ASSOCIATION / 'rule_sensitivity_analysis.csv', index=False)
+    print(f"  [OK] Saved rule_sensitivity_analysis.csv ({len(sensitivity_df)} grid points)")
 
     def max_itemset_size(df): return int(df['itemsets'].apply(len).max()) if not df.empty else 0
 

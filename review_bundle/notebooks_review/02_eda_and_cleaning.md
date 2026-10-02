@@ -1,5 +1,5 @@
 # Review Notebook: 02_eda_and_cleaning.ipynb
-*Source Path: `d:/Project/Data-mininng/notebooks/02_eda_and_cleaning.ipynb`*
+*Source Path: `D:/Project/Data-mininng/notebooks/02_eda_and_cleaning.ipynb`*
 
 ---
 

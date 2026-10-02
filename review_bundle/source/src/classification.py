@@ -205,7 +205,7 @@ def build_model_pipelines(preprocessor, random_state=None):
 
 
 # ====================================================================
-# 5. CROSS-VALIDATION (model selection on train set only)
+# 5. CROSS-VALIDATION AND HYPERPARAMETER TUNING
 # ====================================================================
 def cross_validate_models(model_pipelines, X_train, y_train,
                           cv_folds=5, random_state=None):
@@ -242,6 +242,134 @@ def cross_validate_models(model_pipelines, X_train, y_train,
         })
 
     return pd.DataFrame(cv_results)
+
+
+def tune_model_hyperparameters(preprocessor, X_train, y_train, cv_folds=5, random_state=None):
+    """
+    Perform bounded hyperparameter tuning with GridSearchCV strictly on training set.
+    Evaluates LR, DT, RF across defined parameter grids using StratifiedKFold.
+    Also evaluates DummyClassifier baseline under identical folds.
+    
+    Returns:
+    --------
+    best_pipelines : dict of {model_name: best_Pipeline}
+    cv_results_df : pd.DataFrame comparing best model configs across CV F1, ROC-AUC, AP
+    tuning_history_df : pd.DataFrame detailing all tested configurations and fold scores
+    best_params : dict of {model_name: dict of best parameters}
+    """
+    from sklearn.model_selection import GridSearchCV
+    if random_state is None:
+        random_state = RANDOM_STATE
+
+    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
+
+    raw_pipelines = {
+        'DummyClassifier': (
+            Pipeline([
+                ('preprocessor', preprocessor),
+                ('classifier', DummyClassifier(strategy='most_frequent', random_state=random_state))
+            ]),
+            {}
+        ),
+        'LogisticRegression': (
+            Pipeline([
+                ('preprocessor', preprocessor),
+                ('classifier', LogisticRegression(max_iter=1000, random_state=random_state, solver='lbfgs'))
+            ]),
+            {
+                'classifier__C': [0.1, 1.0, 10.0],
+                'classifier__class_weight': ['balanced', None],
+            }
+        ),
+        'DecisionTree': (
+            Pipeline([
+                ('preprocessor', preprocessor),
+                ('classifier', DecisionTreeClassifier(random_state=random_state))
+            ]),
+            {
+                'classifier__max_depth': [3, 5, 10],
+                'classifier__min_samples_leaf': [1, 5, 20],
+                'classifier__class_weight': ['balanced', None],
+            }
+        ),
+        'RandomForest': (
+            Pipeline([
+                ('preprocessor', preprocessor),
+                ('classifier', RandomForestClassifier(random_state=random_state, n_jobs=-1))
+            ]),
+            {
+                'classifier__n_estimators': [100, 200],
+                'classifier__max_depth': [5, 10],
+                'classifier__min_samples_leaf': [1, 5],
+                'classifier__class_weight': ['balanced', None],
+            }
+        )
+    }
+
+    best_pipelines = {}
+    cv_summary_rows = []
+    tuning_history_rows = []
+    best_params = {}
+
+    for name, (base_pipe, param_grid) in raw_pipelines.items():
+        t0 = time.time()
+        if param_grid:
+            gs = GridSearchCV(
+                base_pipe, param_grid, cv=cv, scoring='f1',
+                return_train_score=False, n_jobs=-1, refit=True
+            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                gs.fit(X_train, y_train)
+            best_pipe = gs.best_estimator_
+            best_p = gs.best_params_
+
+            cv_res = gs.cv_results_
+            for i in range(len(cv_res['params'])):
+                row = {
+                    'model': name,
+                    'params': str(cv_res['params'][i]),
+                    'mean_test_f1': cv_res['mean_test_score'][i],
+                    'std_test_f1': cv_res['std_test_score'][i],
+                    'rank_f1': cv_res['rank_test_score'][i],
+                    'mean_fit_time_seconds': cv_res['mean_fit_time'][i],
+                }
+                for f in range(cv_folds):
+                    row[f'split{f}_test_f1'] = cv_res[f'split{f}_test_score'][i]
+                tuning_history_rows.append(row)
+        else:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                base_pipe.fit(X_train, y_train)
+            best_pipe = base_pipe
+            best_p = {'strategy': 'most_frequent'}
+
+        scoring = ['f1', 'roc_auc', 'average_precision']
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            scores = cross_validate(
+                best_pipe, X_train, y_train, cv=cv, scoring=scoring, return_train_score=False, n_jobs=-1
+            )
+        elapsed = time.time() - t0
+
+        best_pipelines[name] = best_pipe
+        best_params[name] = best_p
+
+        cv_summary_rows.append({
+            'model': name,
+            'cv_f1_mean': float(np.mean(scores['test_f1'])),
+            'cv_f1_std': float(np.std(scores['test_f1'])),
+            'cv_roc_auc_mean': float(np.mean(scores['test_roc_auc'])),
+            'cv_roc_auc_std': float(np.std(scores['test_roc_auc'])),
+            'cv_average_precision_mean': float(np.mean(scores['test_average_precision'])),
+            'cv_average_precision_std': float(np.std(scores['test_average_precision'])),
+            'cv_runtime_seconds': round(elapsed, 2),
+            'best_params': json.dumps(best_p),
+        })
+
+    cv_results_df = pd.DataFrame(cv_summary_rows)
+    tuning_history_df = pd.DataFrame(tuning_history_rows) if tuning_history_rows else pd.DataFrame()
+    return best_pipelines, cv_results_df, tuning_history_df, best_params
 
 
 # ====================================================================
@@ -284,26 +412,81 @@ def train_final_models(model_pipelines, X_train, y_train):
 
 
 # ====================================================================
-# 8. EVALUATE ON TEST SET
+# 8. PREDICTION WITH UNIFIED THRESHOLD FUNCTION
 # ====================================================================
-def evaluate_on_test(trained_pipelines, X_test, y_test, cv_results_df, selected_model):
+def predict_with_threshold(pipeline, X, threshold=0.5, pos_label=1):
+    """
+    Unified function to compute positive class probabilities and predict binary labels.
+    
+    Decision Rule:
+        y_pred = 1 if prob >= threshold else 0
+        
+    Key guarantees:
+    - probability == threshold is strictly mapped to class 1 (>= operator).
+    - No rounding is performed on probability prior to threshold comparison.
+    - Positive class column index is determined dynamically from classes_ (pipeline or classifier).
+    - Guaranteed 100% parity between offline evaluation, CSV exports, and Streamlit dashboard.
+    
+    Parameters
+    ----------
+    pipeline : sklearn.pipeline.Pipeline or classifier model
+        Fitted model pipeline.
+    X : pd.DataFrame or np.ndarray
+        Feature matrix.
+    threshold : float, default=0.5
+        Decision threshold for positive class.
+    pos_label : int or str, default=1
+        Label of the positive class.
+        
+    Returns
+    -------
+    y_pred : np.ndarray of shape (n_samples,)
+        Predicted binary labels (0 or 1).
+    y_proba : np.ndarray of shape (n_samples,)
+        Unrounded predicted probabilities for the positive class.
+    """
+    if hasattr(pipeline, 'classes_'):
+        classes = list(pipeline.classes_)
+    elif hasattr(pipeline, 'named_steps') and hasattr(pipeline.named_steps.get('classifier'), 'classes_'):
+        classes = list(pipeline.named_steps['classifier'].classes_)
+    else:
+        classes = [0, 1]
+
+    if hasattr(pipeline, 'predict_proba'):
+        try:
+            pos_idx = classes.index(pos_label)
+        except ValueError:
+            pos_idx = 1 if len(classes) > 1 else 0
+        probs = pipeline.predict_proba(X)[:, pos_idx]
+        preds = (probs >= threshold).astype(int)
+    else:
+        preds = pipeline.predict(X).astype(int)
+        probs = preds.astype(float)
+
+    return preds, probs
+
+
+# ====================================================================
+# 9. EVALUATE ON TEST SET
+# ====================================================================
+def evaluate_on_test(trained_pipelines, X_test, y_test, cv_results_df, selected_model,
+                     threshold=0.5, pos_label=1):
     """
     Evaluate all trained models on test set (final evaluation only).
+    Uses unified predict_with_threshold logic so offline evaluation and dashboard are 100% consistent.
     Returns comprehensive metrics DataFrame.
     """
     results = []
     for name, pipeline in trained_pipelines.items():
         start_time = time.time()
-        y_pred = pipeline.predict(X_test)
+        y_pred, y_proba = predict_with_threshold(pipeline, X_test, threshold=threshold, pos_label=pos_label)
 
         try:
-            y_proba = pipeline.predict_proba(X_test)[:, 1]
             roc_auc = roc_auc_score(y_test, y_proba)
             avg_precision = average_precision_score(y_test, y_proba)
         except Exception:
             roc_auc = np.nan
             avg_precision = np.nan
-            y_proba = None
 
         tn, fp, fn, tp = confusion_matrix(y_test, y_pred, labels=[0, 1]).ravel()
         specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
@@ -341,7 +524,7 @@ def evaluate_on_test(trained_pipelines, X_test, y_test, cv_results_df, selected_
 
 
 # ====================================================================
-# 9. FEATURE IMPORTANCE
+# 10. FEATURE IMPORTANCE
 # ====================================================================
 def get_feature_importance(trained_pipeline, feature_names):
     """
@@ -382,12 +565,13 @@ def get_feature_importance(trained_pipeline, feature_names):
 
 
 # ====================================================================
-# 10. SAVE ARTIFACTS
+# 11. SAVE ARTIFACTS
 # ====================================================================
 def save_classification_artifacts(trained_pipelines, selected_model, metadata,
-                                  models_dir, tables_dir, feature_importance_df=None):
+                                  models_dir, tables_dir, feature_importance_df=None,
+                                  tuning_history_df=None):
     """
-    Save all model pipelines, metadata JSON, and feature importance.
+    Save all model pipelines, metadata JSON, feature importance, and tuning history.
     """
     models_dir = Path(models_dir)
     tables_dir = Path(tables_dir)
@@ -418,5 +602,9 @@ def save_classification_artifacts(trained_pipelines, selected_model, metadata,
     # Save feature importance
     if feature_importance_df is not None:
         feature_importance_df.to_csv(tables_dir / 'feature_importance.csv', index=False)
+
+    # Save tuning history
+    if tuning_history_df is not None and not tuning_history_df.empty:
+        tuning_history_df.to_csv(tables_dir / 'cv_tuning_history.csv', index=False)
 
     return True

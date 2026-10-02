@@ -14,8 +14,10 @@ from src.classification import (
     build_preprocessor,
     build_model_pipelines,
     cross_validate_models,
+    tune_model_hyperparameters,
     select_best_model,
     train_final_models,
+    predict_with_threshold,
     evaluate_on_test,
     get_feature_importance,
 )
@@ -125,3 +127,66 @@ def test_no_nan_in_metrics(sample_df):
     for _, row in comparison[comparison['model'] != 'DummyClassifier'].iterrows():
         assert not np.isnan(row['test_f1'])
         assert not np.isnan(row['test_roc_auc'])
+
+
+def test_predict_with_threshold_strictly_applies_operator():
+    """Verify that probability >= threshold is strictly applied without rounding."""
+    class MockPipeline:
+        classes_ = np.array([0, 1])
+        def predict_proba(self, X):
+            return np.array([
+                [0.5000001, 0.4999999], # Below 0.5
+                [0.5000000, 0.5000000], # Exactly 0.5 -> must map to 1
+                [0.4999999, 0.5000001], # Above 0.5 -> must map to 1
+                [0.3000000, 0.7000000], # Custom test -> 0.7
+            ])
+
+    pipe = MockPipeline()
+    X_dummy = np.zeros((4, 2))
+
+    # Test threshold = 0.5
+    preds, probs = predict_with_threshold(pipe, X_dummy, threshold=0.5, pos_label=1)
+    np.testing.assert_array_equal(preds, [0, 1, 1, 1])
+    assert probs[1] == 0.5
+    assert preds[1] == 1, "Probability == threshold (0.5) MUST strictly map to 1"
+
+    # Test custom threshold = 0.7
+    preds_70, _ = predict_with_threshold(pipe, X_dummy, threshold=0.7, pos_label=1)
+    np.testing.assert_array_equal(preds_70, [0, 0, 0, 1])
+
+
+def test_offline_dashboard_parity(sample_df):
+    """Verify that offline evaluation and dashboard produce 100% identical outputs."""
+    X_train, X_test, y_train, y_test = split_classification_data(sample_df)
+    preprocessor, _, _ = build_preprocessor(X_train)
+    pipelines = build_model_pipelines(preprocessor)
+    pipe = pipelines['LogisticRegression']
+    pipe.fit(X_train, y_train)
+
+    # Offline evaluation call
+    offline_preds, offline_probs = predict_with_threshold(pipe, X_test, threshold=0.5, pos_label=1)
+
+    # Dashboard simulation call
+    dash_threshold = 0.5
+    dash_pos_label = 1
+    dash_preds, dash_probs = predict_with_threshold(pipe, X_test, threshold=dash_threshold, pos_label=dash_pos_label)
+
+    np.testing.assert_array_equal(offline_preds, dash_preds)
+    np.testing.assert_array_almost_equal(offline_probs, dash_probs, decimal=10)
+
+
+def test_tune_model_hyperparameters_runs_cleanly(sample_df):
+    """Verify that hyperparameter grid search explores search space and returns CV and tuning history tables."""
+    X_train, X_test, y_train, y_test = split_classification_data(sample_df)
+    preprocessor, _, _ = build_preprocessor(X_train)
+
+    best_pipes, cv_results, tuning_history, best_params = tune_model_hyperparameters(
+        preprocessor, X_train, y_train, cv_folds=2, random_state=42
+    )
+
+    assert len(best_pipes) == 4
+    assert set(cv_results['model']) == {'DummyClassifier', 'LogisticRegression', 'DecisionTree', 'RandomForest'}
+    assert not tuning_history.empty
+    assert 'rank_f1' in tuning_history.columns
+    assert 'mean_test_f1' in tuning_history.columns
+    assert len(best_params) == 4

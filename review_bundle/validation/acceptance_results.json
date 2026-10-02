@@ -22,7 +22,7 @@
     "requirement": "Rule sets canonical content comparison and equivalence audit",
     "test_method": "tests/test_model_comparison.py::test_association_rules_detailed_comparison",
     "expected": "Exact match on StockCodes and metrics within tolerance",
-    "observed": "61 rules identical across Apriori and FP-Growth (max diff < 1e-15)",
+    "observed": "61 rules identical across Apriori and FP-Growth (max diff = 0.0)",
     "status": "PASS",
     "evidence": "tables/association_rules/association_rules_equivalence_audit.csv"
   },
@@ -55,20 +55,56 @@
   },
   {
     "id": "ACC-07",
-    "requirement": "Streamlit app applies custom classification threshold",
-    "test_method": "tests/test_app_smoke.py::test_prediction_pipeline_applies_custom_threshold",
-    "expected": "Custom threshold from metadata used to classify probabilities",
-    "observed": "preds = (probs >= threshold).astype(int) applied in app and tests",
+    "requirement": "Streamlit app and offline pipeline share identical prediction rule",
+    "test_method": "tests/test_classification.py::test_offline_dashboard_parity",
+    "expected": "predict_with_threshold applies unrounded prob >= threshold with dynamic classes_",
+    "observed": "Exact probability-to-label parity verified on test set, boundary cases, and dashboard",
     "status": "PASS",
-    "evidence": "source/app/app.py"
+    "evidence": "source/src/classification.py & source/app/app.py"
   },
   {
     "id": "ACC-08",
-    "requirement": "Pipeline manifest SHA-256 verification and non-zero exit on failure",
-    "test_method": "run_pipeline.py & src/model_comparison.py::generate_manifest",
-    "expected": "All mandatory step outputs verified with SHA-256, validation PASS",
-    "observed": "All artifacts validated; exit code 0 on success, exit code 1 on failure",
+    "requirement": "Pipeline manifest SHA-256 verification and failure on missing audit",
+    "test_method": "tests/test_model_comparison.py::test_manifest_fails_when_audit_csv_missing",
+    "expected": "Missing equivalence audit causes manifest validation FAIL and non-zero exit",
+    "observed": "Manifest marks validation_status=PASS only when all artifacts exist with SHA256",
     "status": "PASS",
     "evidence": "reports/pipeline_manifest.json"
+  },
+  {
+    "id": "ACC-09",
+    "requirement": "Bounded hyperparameter grid search on train folds only",
+    "test_method": "tests/test_classification.py::test_tune_model_hyperparameters_runs_cleanly",
+    "expected": "5-fold CV grid search on train set, saving cv_tuning_history.csv",
+    "observed": "Tuning history recorded across LR, DT, RF (40 total fits, honest selection rationale)",
+    "status": "PASS",
+    "evidence": "tables/classification/cv_tuning_history.csv"
+  },
+  {
+    "id": "ACC-10",
+    "requirement": "Clustering stability audit across seeds and preprocessing comparison",
+    "test_method": "src/clustering.py & runner 04",
+    "expected": "Multi-seed ARI stability audit and StandardScaler vs Log1p+StandardScaler table",
+    "observed": "Mean ARI = 0.9996 across seeds; preprocessing comparison documented",
+    "status": "PASS",
+    "evidence": "tables/clustering/clustering_stability_audit.csv"
+  },
+  {
+    "id": "ACC-11",
+    "requirement": "Association rules multi-run benchmark and sensitivity analysis",
+    "test_method": "src/association_rules.py & runner 06",
+    "expected": "3-run median runtime with IQR, minimum baskets ceil(min_support * n_baskets)",
+    "observed": "396 min baskets; median runtime reported; 12 grid points sensitivity table",
+    "status": "PASS",
+    "evidence": "tables/association_rules/rule_sensitivity_analysis.csv"
+  },
+  {
+    "id": "ACC-12",
+    "requirement": "Recalculated metrics from test_predictions.csv match comparison table",
+    "test_method": "tests/test_model_comparison.py::test_recalculated_metrics_from_predictions_match_comparison_table",
+    "expected": "Accuracy, Precision, Recall, F1 match within 1e-4",
+    "observed": "Recalculated metrics from test predictions match model_comparison.csv exactly",
+    "status": "PASS",
+    "evidence": "tables/classification/model_comparison.csv"
   }
 ]

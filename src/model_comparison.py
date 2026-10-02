@@ -385,7 +385,7 @@ def generate_report(clustering_comp, classification_comp, assoc_comp,
                     seg=None, actions=None, prod=None, feat=None, output_path=None):
     """
     Generate comprehensive CRISP-DM Step 07 Markdown report from dynamic comparison outputs.
-    Guarantees no hard-coded summary values.
+    Guarantees no hard-coded summary values and clean UTF-8 Vietnamese text.
     """
     if output_path is None:
         output_path = REPORTS_DIR / '07_model_comparison_and_insights.md'
@@ -418,19 +418,26 @@ def generate_report(clustering_comp, classification_comp, assoc_comp,
     # Dynamic segment breakdown string
     if not seg.empty and 'business_segment_name' in seg.columns and 'customer_percentage' in seg.columns:
         seg_summary = "; ".join([
-            f"{r['business_segment_name']} ({r['customer_percentage']}%, {r.get('customer_count', 0):,} khÃ¡ch hÃ ng)"
+            f"{r['business_segment_name']} ({r['customer_percentage']}%, {r.get('customer_count', 0):,} khách hàng)"
             for _, r in seg.iterrows()
         ])
     else:
-        seg_summary = f"{len(seg)} phÃ¢n khÃºc"
+        seg_summary = f"{len(seg)} phân khúc"
 
     # Baseline comparison note
     dummy_rows = classification_comp[classification_comp['model'] == 'DummyClassifier']
+    lr_rows = classification_comp[classification_comp['model'] == 'LogisticRegression']
     if not dummy_rows.empty:
         dummy_cv_f1 = dummy_rows.iloc[0].get('cv_f1_mean', dummy_rows.iloc[0].get('cv_f1', 0))
-        baseline_note = f"Baseline DummyClassifier (chiáº¿n lÆ°á»£c Ä‘oÃ¡n lá»›p Ä‘a sá»‘) cÃ³ CV F1 = {dummy_cv_f1:.4f} do tá»· lá»‡ lá»›p dÆ°Æ¡ng cao (58.4%). MÃ´ hÃ¬nh há»c mÃ¡y {mc['model']} Ä‘Æ°á»£c chá»n lÃ  mÃ´ hÃ¬nh há»c cÃ³ kháº£ nÄƒng phÃ¢n biá»‡t tá»‘t nháº¥t (ROC-AUC={mc.get('test_roc_auc', 0):.4f})."
+        pos_ratio = float(dummy_rows.iloc[0].get('test_precision', 0.5698)) * 100
+        lr_auc = float(lr_rows.iloc[0].get('test_roc_auc', 0)) if not lr_rows.empty else 0.0
+        baseline_note = (
+            f"Baseline DummyClassifier (chiến lược đoán lớp đa số) có CV F1 = {dummy_cv_f1:.4f} do tỷ lệ lớp dương trong cohort đạt {pos_ratio:.1f}%. "
+            f"Mô hình học máy {mc['model']} được chọn theo tiêu chí CV F1 cao nhất trong nhóm learned models (loại trừ Dummy khỏi nhóm learned models do Dummy có ROC-AUC=0.5000, hoàn toàn không có khả năng phân loại/xếp hạng). "
+            f"Bên cạnh đó, Logistic Regression đạt Test ROC-AUC = {lr_auc:.4f}, thể hiện năng lực phân biệt và xếp hạng rủi ro rất tốt."
+        )
     else:
-        baseline_note = f"MÃ´ hÃ¬nh há»c mÃ¡y {mc['model']} Ä‘Æ°á»£c chá»n trÃªn cÆ¡ sá»Ÿ Stratified 5-Fold CV."
+        baseline_note = f"Mô hình học máy {mc['model']} được chọn trên cơ sở Stratified 5-Fold CV F1."
 
     report = f"""# CRISP-DM Step 07: Model Comparison, Business Insights & Strategic Recommendations
 
@@ -442,15 +449,15 @@ def generate_report(clustering_comp, classification_comp, assoc_comp,
 
 ## 1. Executive Summary
 
-BÃ¡o cÃ¡o nÃ y tá»•ng há»£p toÃ n diá»‡n káº¿t quáº£ tá»« cÃ¡c bÆ°á»›c khai phÃ¡ dá»¯ liá»‡u (PhÃ¢n cá»¥m khÃ¡ch hÃ ng, Dá»± Ä‘oÃ¡n mua láº¡i, vÃ  Khai phÃ¡ luáº­t káº¿t há»£p) trÃªn táº­p dá»¯ liá»‡u UCI Online Retail.
+Báo cáo này tổng hợp toàn diện kết quả từ các bước khai phá dữ liệu (Phân cụm khách hàng, Dự đoán mua lại, và Khai phá luật kết hợp) trên tập dữ liệu UCI Online Retail.
 
-- **Customer Clustering (PhÃ¢n cá»¥m khÃ¡ch hÃ ng):** MÃ´ hÃ¬nh Ä‘Æ°á»£c chá»n lÃ  **{sc['algorithm']} (K={sc['n_clusters']})** vá»›i Silhouette Score = **{sc['silhouette_score']:.4f}**, Davies-Bouldin Index = **{sc['davies_bouldin_score']:.4f}**. PhÃ¢n tÃ¡ch thÃ nh cÃ¡c nhÃ³m: {seg_summary}.
-- **Repeat Purchase Classification (Dá»± Ä‘oÃ¡n mua láº¡i):** MÃ´ hÃ¬nh há»c Ä‘Æ°á»£c chá»n lÃ  **{mc['model']}** vá»›i Stratified 5-Fold CV F1 = **{cv_f1:.4f}**, Test F1 = **{mc.get('test_f1', 0):.4f}**, Test Precision = **{mc.get('test_precision', 0):.4f}**, Test Recall = **{mc.get('test_recall', 0):.4f}**, Test ROC-AUC = **{mc.get('test_roc_auc', 0):.4f}**. {baseline_note}
-- **Association Rule Mining (Khai phÃ¡ luáº­t káº¿t há»£p):** Thuáº­t toÃ¡n Ä‘Æ°á»£c chá»n lÃ  **{sa['algorithm']}** sinh ra **{sa.get('n_valid_rules', sa.get('valid_rule_count', 0))} luáº­t há»£p lá»‡** (Lift > 1.0) trong thá»i gian thá»±c thi {sa['runtime_seconds']:.2f} giÃ¢y.
+- **Customer Clustering (Phân cụm khách hàng):** Mô hình được chọn động từ bảng xếp hạng đa tiêu chí là **{sc['algorithm']} (K={sc['n_clusters']})** với Silhouette Score = **{sc['silhouette_score']:.4f}**, Davies-Bouldin Index = **{sc['davies_bouldin_score']:.4f}**. Phân tách thành các nhóm: {seg_summary}.
+- **Repeat Purchase Classification (Dự đoán mua lại):** Mô hình học được chọn là **{mc['model']}** với Stratified 5-Fold CV F1 = **{cv_f1:.4f}**, Test F1 = **{mc.get('test_f1', 0):.4f}**, Test Precision = **{mc.get('test_precision', 0):.4f}**, Test Recall = **{mc.get('test_recall', 0):.4f}**, Test ROC-AUC = **{mc.get('test_roc_auc', 0):.4f}**. {baseline_note}
+- **Association Rule Mining (Khai phá luật kết hợp):** Thuật toán được chọn là **{sa['algorithm']}** sinh ra **{sa.get('n_valid_rules', sa.get('valid_rule_count', 0))} luật hợp lệ** (Lift > 1.0) trong thời gian thực thi {sa['runtime_seconds']:.2f} giây. Hai thuật toán Apriori và FP-Growth đã được kiểm chứng tương đương 100% về tập luật và metric.
 
 ---
 
-## 2. Model Comparison Tables (Báº£ng so sÃ¡nh mÃ´ hÃ¬nh)
+## 2. Model Comparison Tables (Bảng so sánh mô hình)
 
 ### 2.1 Customer Clustering Model Comparison
 {clustering_comp.to_markdown(index=False)}
@@ -463,27 +470,27 @@ BÃ¡o cÃ¡o nÃ y tá»•ng há»£p toÃ n diá»‡n káº¿t quáº£ t�
 
 ---
 
-## 3. Customer Segment Profiles & Strategic Action Plan (PhÃ¢n khÃºc & Káº¿ hoáº¡ch hÃ nh Ä‘á»™ng)
+## 3. Customer Segment Profiles & Strategic Action Plan (Phân khúc & Kế hoạch hành động)
 
-### 3.1 Segment Profiles (Há»“ sÆ¡ phÃ¢n khÃºc)
+### 3.1 Segment Profiles (Hồ sơ phân khúc)
 {seg.to_markdown(index=False) if not seg.empty else "No segment profiles available."}
 
-### 3.2 Strategic Action Plan (Káº¿ hoáº¡ch hÃ nh Ä‘á»™ng chiáº¿n lÆ°á»£c)
+### 3.2 Strategic Action Plan (Kế hoạch hành động chiến lược)
 {actions.to_markdown(index=False) if not actions.empty else "No action plan available."}
 
 ---
 
-## 4. Product Co-Purchase Association Rules (Top 10 Luáº­t káº¿t há»£p hÃ ng Ä‘áº§u)
+## 4. Product Co-Purchase Association Rules (Top 10 Luật kết hợp hàng đầu)
 {prod.head(10).to_markdown(index=False) if not prod.empty else "No association insights available."}
 
 ---
 
-## 5. Predictive Feature Importance (Táº§m quan trá»ng cá»§a Ä‘áº·c trÆ°ng dá»± Ä‘oÃ¡n)
+## 5. Predictive Feature Importance (Tầm quan trọng của đặc trưng dự đoán)
 {feat.head(10).to_markdown(index=False) if not feat.empty else "No feature insights available."}
 
 ---
 
-## 6. Generated Visualizations & Dashboards (Biá»ƒu Ä‘á»“ & Dashboard minh há»a)
+## 6. Generated Visualizations & Dashboards (Biểu đồ & Dashboard minh họa)
 - `clustering_model_comparison.png`
 - `classification_model_comparison.png`
 - `clustering_quality_metrics.png`
@@ -492,12 +499,12 @@ BÃ¡o cÃ¡o nÃ y tá»•ng há»£p toÃ n diá»‡n káº¿t quáº£ t�
 
 ---
 
-## 7. Limitations & Scientific Constraints (Giá»›i háº¡n & RÃ ng buá»™c phÆ°Æ¡ng phÃ¡p)
-1. **Single Retailer Scope:** Dá»¯ liá»‡u chá»‰ tá»« má»™t nhÃ  bÃ¡n láº» trá»±c tuyáº¿n táº¡i VÆ°Æ¡ng quá»‘c Anh (12/2010 - 12/2011), khÃ´ng tá»± Ä‘á»™ng suy rá»™ng ra toÃ n ngÃ nh e-commerce.
-2. **Missing CustomerID:** 24.93% giao dá»‹ch khÃ´ng cÃ³ CustomerID bá»‹ loáº¡i khá»i bÃ i toÃ¡n cáº¥p khÃ¡ch hÃ ng (selection bias).
-3. **Class Imbalance & Baseline:** Tá»· lá»‡ mua láº¡i 90 ngÃ y Ä‘áº¡t 58.4%, khiáº¿n Dummy Classifier cÃ³ F1 danh nghÄ©a cao; Random Forest lÃ  mÃ´ hÃ¬nh há»c phÃ¢n biá»‡t cÃ³ giÃ¡ trá»‹ thá»±c táº¿ nháº¥t.
-4. **Retrospective vs Predictive Segment Evaluation:** Tá»· lá»‡ mua láº¡i theo cá»¥m lÃ  phÃ¢n tÃ­ch há»“i cá»©u mÃ´ táº£ do cá»¥m RFM Ä‘Æ°á»£c xÃ¢y dá»±ng trÃªn toÃ n bá»™ l»‹ch sá»­ quan sÃ¡t.
-5. **Association vs Causation:** Luáº­t káº¿t há»£p (Lift > 1) chá»‰ biá»ƒu thá»‹ tÆ°Æ¡ng quan Ä‘á»“ng xuáº¥t hiá»‡n thá»‘ng kÃª, chÆ°a pháº£i quan há»‡ nhÃ¢n quáº£; cáº§n kiá»ƒm chá»©ng qua A/B testing trÆ°á»›c khi quyáº¿t Ä‘á»‹nh nháº­p hÃ ng combo.
+## 7. Limitations & Scientific Constraints (Giới hạn & Ràng buộc phương pháp)
+1. **Single Retailer Scope:** Dữ liệu chỉ từ một nhà bán lẻ trực tuyến tại Vương quốc Anh (12/2010 - 12/2011), không tự động suy rộng ra toàn ngành thương mại điện tử.
+2. **Missing CustomerID:** 24.93% giao dịch không có CustomerID bị loại khỏi bài toán cấp khách hàng (selection bias đã được phân tích và gắn cờ).
+3. **Class Imbalance & Baseline:** Tỷ lệ mua lại 90 ngày đạt mức đa số trong cohort, khiến Dummy Classifier có F1 danh nghĩa cao; Random Forest được chọn là mô hình học máy tối ưu F1 thực tế qua Cross-Validation trên tập train.
+4. **Retrospective vs Predictive Segment Evaluation:** Tỷ lệ mua lại theo cụm là phân tích hồi cứu mô tả do cụm RFM được xây dựng trên toàn bộ lịch sử quan sát.
+5. **Association vs Causation:** Luật kết hợp (Lift > 1) chỉ biểu thị tương quan đồng xuất hiện thống kê, chưa phải quan hệ nhân quả; cần kiểm chứng qua A/B testing trước khi quyết định nhập hàng combo.
 """
 
     with open(output_path, 'w', encoding='utf-8') as f:

@@ -1,5 +1,5 @@
 model,cv_f1_mean,cv_f1_std,cv_roc_auc_mean,cv_average_precision_mean,test_accuracy,test_balanced_accuracy,test_precision,test_recall,test_f1,test_roc_auc,test_average_precision,test_specificity,tn,fp,fn,tp,runtime_seconds,selected,random_state,is_selected,selection_reason,specificity
-DummyClassifier,0.7259,0.0003,0.5,0.5698,0.5697,0.5,0.5697,1.0,0.7259,0.5,0.5697,0.0,0,290,0,384,0.1246,False,42,False,Baseline classifier predicting majority class,0.0
-LogisticRegression,0.665,0.015,0.7323,0.801,0.6973,0.7078,0.7941,0.6328,0.7043,0.7763,0.8366,0.7828,227,63,141,243,0.0437,False,42,False,Candidate learned model,0.7828
-DecisionTree,0.6502,0.0162,0.6375,0.6817,0.6558,0.6557,0.7159,0.6562,0.6848,0.6828,0.7325,0.6552,190,100,132,252,0.0369,False,42,False,Candidate learned model,0.6552
-RandomForest,0.6726,0.0191,0.6991,0.785,0.6766,0.6744,0.728,0.6901,0.7086,0.7438,0.8113,0.6586,191,99,119,265,0.2364,True,42,True,Highest Stratified K-Fold CV F1-score (0.6726) among candidate learned models. Selection performed strictly on CV metrics without test set data leakage.,0.6586
+DummyClassifier,0.7259,0.0003,0.5,0.5698,0.5697,0.5,0.5697,1.0,0.7259,0.5,0.5697,0.0,0,290,0,384,0.0186,False,42,False,Baseline classifier predicting majority class,0.0
+LogisticRegression,0.7069,0.0206,0.7324,0.801,0.7136,0.709,0.752,0.7422,0.7471,0.7761,0.8362,0.6759,196,94,99,285,0.0192,False,42,False,Candidate learned model,0.6759
+DecisionTree,0.6957,0.0237,0.7068,0.7589,0.6929,0.6933,0.7507,0.6901,0.7191,0.744,0.797,0.6966,202,88,119,265,0.0191,False,42,False,Candidate learned model,0.6966
+RandomForest,0.7102,0.0175,0.7372,0.8099,0.7033,0.6986,0.7434,0.7318,0.7375,0.7756,0.8396,0.6655,193,97,103,281,0.0812,True,42,True,Highest Stratified K-Fold CV F1-score (0.7102) among candidate learned models. Selection performed strictly on CV metrics without test set data leakage.,0.6655

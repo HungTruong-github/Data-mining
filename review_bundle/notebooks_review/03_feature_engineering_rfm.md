@@ -1,5 +1,5 @@
 # Review Notebook: 03_feature_engineering_rfm.ipynb
-*Source Path: `d:/Project/Data-mininng/notebooks/03_feature_engineering_rfm.ipynb`*
+*Source Path: `D:/Project/Data-mininng/notebooks/03_feature_engineering_rfm.ipynb`*
 
 ---
 

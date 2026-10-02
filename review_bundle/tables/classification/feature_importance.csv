@@ -1,44 +1,44 @@
 feature,importance
-Recency,0.13925261095446273
-Monetary,0.13604266448146898
-UniqueProducts,0.1297718379536274
-TotalItems,0.12786567321221487
-AverageOrderValue,0.12347760469963827
-AverageItemsPerInvoice,0.11726826283425655
-CustomerLifetimeDays,0.08157695994744982
-Frequency,0.05764307694995142
-ActiveDays,0.05664524079289247
-Country_United Kingdom,0.007406029691484779
-Country_Germany,0.004078731822251102
-Country_France,0.0032140964590667946
-Country_Spain,0.0017613176013868503
-Country_Belgium,0.0017199872761034323
-Country_Switzerland,0.00158336429533615
-Country_Portugal,0.0008554970520671414
-Country_Channel Islands,0.0008448949198050523
-Country_Netherlands,0.0006644303556653529
-Country_Norway,0.0006623025770699446
-Country_Unspecified,0.0006203548285414678
-Country_Finland,0.0006033084395602528
-Country_Italy,0.0006013019881597026
-Country_Sweden,0.000600008942364613
-Country_Austria,0.0005736547262151386
-Country_Poland,0.0005489991696752773
-Country_EIRE,0.0005080057194996223
-Country_Japan,0.0003908162493402776
-Country_Denmark,0.0003904636506847983
-Country_Greece,0.0003783568901828521
-Country_Czech Republic,0.000354818712717639
-Country_European Community,0.0003224419341191163
-Country_Canada,0.00031610395067382664
-Country_Israel,0.00031244304098289403
-Country_Cyprus,0.00024797234311829707
-Country_Malta,0.00016660267657142024
-Country_Lithuania,0.0001662133287973283
-Country_Bahrain,0.00014377345730993838
-Country_Australia,0.00014109568273605122
-Country_Lebanon,0.00011384554386608759
-Country_Saudi Arabia,5.2551438869066006e-05
-Country_Singapore,5.073033463615718e-05
-Country_USA,4.9237695468571577e-05
-Country_Iceland,1.231537971047898e-05
+Frequency,0.18903353612268606
+ActiveDays,0.1778730095379856
+CustomerLifetimeDays,0.1292281763954367
+UniqueProducts,0.12241778396781872
+Monetary,0.1100820603309534
+TotalItems,0.09589795210409743
+Recency,0.07831743681294297
+AverageOrderValue,0.053511750757600014
+AverageItemsPerInvoice,0.0370883257540477
+Country_United Kingdom,0.002601731865404571
+Country_Germany,0.0018028762024089875
+Country_France,0.0009753453333724932
+Country_Switzerland,0.0003678857574191084
+Country_Belgium,0.00034299752705846225
+Country_Spain,0.00019319097423174705
+Country_Portugal,0.00010983284994796931
+Country_Channel Islands,7.78506169062663e-05
+Country_Italy,3.2903329222711626e-05
+Country_Norway,2.89517288188833e-05
+Country_Netherlands,1.6402031640297478e-05
+Country_Australia,0.0
+Country_Austria,0.0
+Country_Denmark,0.0
+Country_EIRE,0.0
+Country_Cyprus,0.0
+Country_Bahrain,0.0
+Country_Canada,0.0
+Country_Israel,0.0
+Country_Iceland,0.0
+Country_Greece,0.0
+Country_European Community,0.0
+Country_Finland,0.0
+Country_Czech Republic,0.0
+Country_Malta,0.0
+Country_Japan,0.0
+Country_Poland,0.0
+Country_Lebanon,0.0
+Country_Lithuania,0.0
+Country_Saudi Arabia,0.0
+Country_Sweden,0.0
+Country_Singapore,0.0
+Country_USA,0.0
+Country_Unspecified,0.0

@@ -1,5 +1,5 @@
 # Review Notebook: 04_customer_clustering.ipynb
-*Source Path: `d:/Project/Data-mininng/notebooks/04_customer_clustering.ipynb`*
+*Source Path: `D:/Project/Data-mininng/notebooks/04_customer_clustering.ipynb`*
 
 ---
 

@@ -1,0 +1,3 @@
+preprocessing,n_clusters,silhouette_score,min_cluster_pct,max_cluster_pct,skewness_handled,interpretation
+StandardScaler_only (No Log),2,0.8978,0.58,99.42,False,Vulnerable to extreme monetary outliers; creates heavily skewed/imbalanced clusters
+Log1p + StandardScaler,2,0.433,38.35,61.65,True,"Compresses long tails, aligns features to Gaussian-like geometry, separates meaningful RFM tiers"

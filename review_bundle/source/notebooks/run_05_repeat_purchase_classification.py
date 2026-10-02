@@ -22,7 +22,8 @@ from src.config import (
 from src.classification import (
     validate_classification_dataset, split_classification_data,
     build_preprocessor, build_model_pipelines, cross_validate_models,
-    select_best_model, train_final_models, evaluate_on_test,
+    tune_model_hyperparameters, select_best_model, train_final_models,
+    predict_with_threshold, evaluate_on_test,
     get_feature_importance, save_classification_artifacts
 )
 from src.evaluation import (
@@ -81,35 +82,33 @@ def main():
     print(f"  Numeric features ({len(numeric_features)}): {numeric_features}")
     print(f"  Categorical features ({len(categorical_features)}): {categorical_features}")
 
-    # --- STEP 4: Build Model Pipelines ---
-    print("\n--- STEP 4: Build Model Pipelines ---")
-    model_pipelines = build_model_pipelines(preprocessor)
-    for name in model_pipelines:
-        print(f"  - {name}")
-
-    # --- STEP 5: Cross-Validation (Model Selection) ---
-    print("\n--- STEP 5: Cross-Validation on TRAINING SET ONLY ---")
-    cv_results = cross_validate_models(model_pipelines, X_train, y_train)
-    print("\n  CV Results:")
+    # --- STEP 4 & 5: Hyperparameter Tuning on Training Set Only ---
+    print("\n--- STEP 4 & 5: Hyperparameter Tuning on TRAINING SET ONLY ---")
+    trained_pipelines, cv_results, tuning_history, best_params = tune_model_hyperparameters(
+        preprocessor, X_train, y_train, cv_folds=5, random_state=RANDOM_STATE
+    )
+    print("\n  CV Tuning Results (Best Configurations per Model):")
     for _, row in cv_results.iterrows():
         print(f"    {row['model']:25s} CV-F1={row['cv_f1_mean']:.4f} +/- {row['cv_f1_std']:.4f}  "
               f"CV-AUC={row['cv_roc_auc_mean']:.4f}  CV-AP={row['cv_average_precision_mean']:.4f}")
     cv_results.to_csv(TABLES_CLASSIFICATION / 'cv_results.csv', index=False)
+    if not tuning_history.empty:
+        tuning_history.to_csv(TABLES_CLASSIFICATION / 'cv_tuning_history.csv', index=False)
 
     # --- STEP 6: Select Best Model (by CV, NOT test) ---
     print("\n--- STEP 6: Select Best Model ---")
     selected_model = select_best_model(cv_results)
-    print(f"  Selected: {selected_model} (based on CV F1-score)")
-    print(f"  NOTE: Test set was NOT used for model selection.")
+    print(f"  Selected: {selected_model} (based on CV F1-score among learned models)")
+    print(f"  NOTE: Dummy baseline has higher raw F1 due to class imbalance (~57% positive), but zero discriminative ability (ROC-AUC=0.5000).")
+    print(f"  NOTE: Test set was NOT used for model selection or tuning.")
 
-    # --- STEP 7: Train All Models on Full Training Set ---
-    print("\n--- STEP 7: Train Final Models ---")
-    trained_pipelines = train_final_models(model_pipelines, X_train, y_train)
-    print(f"  Trained {len(trained_pipelines)} models on full training set.")
+    # --- STEP 7: Models already fitted on full train via refit=True ---
+    print("\n--- STEP 7: Final Models Ready on Training Set ---")
+    print(f"  Trained {len(trained_pipelines)} models ready for evaluation.")
 
     # --- STEP 8: Evaluate on Test Set (FINAL, ONE-TIME) ---
     print("\n--- STEP 8: Final Evaluation on Test Set ---")
-    comparison_df = evaluate_on_test(trained_pipelines, X_test, y_test, cv_results, selected_model)
+    comparison_df = evaluate_on_test(trained_pipelines, X_test, y_test, cv_results, selected_model, threshold=0.5, pos_label=1)
     comparison_df.to_csv(TABLES_CLASSIFICATION / 'model_comparison.csv', index=False)
 
     print("\n  Test Set Results:")
@@ -121,11 +120,7 @@ def main():
     # --- STEP 9: Save Predictions ---
     print("\n--- STEP 9: Save Test Predictions ---")
     best_pipeline = trained_pipelines[selected_model]
-    y_pred_best = best_pipeline.predict(X_test)
-    try:
-        y_proba_best = best_pipeline.predict_proba(X_test)[:, 1]
-    except:
-        y_proba_best = np.full(len(y_pred_best), np.nan)
+    y_pred_best, y_proba_best = predict_with_threshold(best_pipeline, X_test, threshold=0.5, pos_label=1)
 
     pred_df = X_test.copy()
     if 'CustomerID' in df.columns:
@@ -177,7 +172,12 @@ def main():
         'test_size': TEST_SIZE,
         'selected_model': selected_model,
         'selection_metric': 'cv_f1_mean',
+        'selection_rationale': 'Selected based on 5-fold CV F1 score among learned models (excluding Dummy baseline). Note that DummyClassifier achieves higher F1 due to class imbalance but has zero discriminative power (ROC-AUC=0.5000).',
         'threshold': 0.5,
+        'threshold_convention': 'Standard default convention (0.5); probability >= threshold strictly mapped to positive class (1)',
+        'positive_class': 1,
+        'decision_rule': 'probability >= threshold',
+        'best_hyperparameters': best_params,
         'training_row_count': len(X_train),
         'test_row_count': len(X_test),
         'class_distribution': {
@@ -187,12 +187,12 @@ def main():
             'test_1': int((y_test == 1).sum()),
         },
         'window_days': REPEAT_PURCHASE_WINDOW_DAYS,
-        'class_weight': 'balanced',
     }
 
     save_classification_artifacts(
         trained_pipelines, selected_model, metadata,
-        MODELS_CLASSIFICATION_DIR, TABLES_CLASSIFICATION, fi_df
+        MODELS_CLASSIFICATION_DIR, TABLES_CLASSIFICATION, fi_df,
+        tuning_history_df=tuning_history
     )
     print(f"  [OK] Saved all models to {MODELS_CLASSIFICATION_DIR}")
 

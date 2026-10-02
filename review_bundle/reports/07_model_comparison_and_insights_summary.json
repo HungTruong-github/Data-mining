@@ -1,6 +1,6 @@
 {
-  "run_timestamp": "2026-10-02T21:34:26.545934",
-  "git_commit": "adb1b851f474400c68d37dbcd40575b99fc107d0",
+  "run_timestamp": "2026-10-03T01:25:31.097107",
+  "git_commit": "dbad7c7a047cd1b9f6a6c8269bcbc5e3bc98c48c",
   "input_files": {
     "rfm_features": "data/processed/rfm_customer_features.csv",
     "repeat_features": "data/processed/repeat_purchase_features.csv",
@@ -22,9 +22,9 @@
   "key_metrics": {
     "clustering_silhouette": 0.433,
     "clustering_davies_bouldin": 0.8917,
-    "classification_cv_f1": 0.6726,
-    "classification_test_f1": 0.7086,
-    "classification_test_auc": 0.7438,
+    "classification_cv_f1": 0.7102,
+    "classification_test_f1": 0.7375,
+    "classification_test_auc": 0.7756,
     "association_valid_rules": 61
   },
   "validation_status": "PASS",

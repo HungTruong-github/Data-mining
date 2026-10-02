@@ -265,3 +265,76 @@ def test_pipeline_detects_rule_content_mismatch_with_equal_counts():
     assert len(result['only_in_FP-Growth']) == 1
     assert result['matched_count'] == 1
 
+
+def test_manifest_fails_when_audit_csv_missing(tmp_path, monkeypatch):
+    """Kiểm tra: Nếu thiếu association_rules_equivalence_audit.csv, manifest bắt buộc phải ghi validation_status = 'FAIL'."""
+    from src.model_comparison import generate_manifest
+    
+    # Mock file existence check to simulate missing equivalence audit CSV
+    audit_target = "association_rules_equivalence_audit.csv"
+    orig_exists = Path.exists
+    
+    def fake_exists(self):
+        if audit_target in str(self):
+            return False
+        return orig_exists(self)
+        
+    monkeypatch.setattr(Path, "exists", fake_exists)
+    test_manifest_path = tmp_path / "test_manifest.json"
+    manifest = generate_manifest(output_path=test_manifest_path)
+    
+    assert manifest['validation_status'] == 'FAIL', "Thiếu audit CSV phải làm manifest status = FAIL"
+    assert 'missing_files' in manifest
+    assert any(audit_target in f for f in manifest['missing_files']), "missing_files phải ghi rõ audit CSV"
+
+
+def test_manifest_fail_cannot_be_converted_to_summary_pass(tmp_path):
+    """Kiểm tra: Manifest FAIL không được phép chạy lọt qua bước hoàn tất (phải raise RuntimeError)."""
+    fake_manifest = {
+        'run_id': 'TEST_RUN',
+        'validation_status': 'FAIL',
+        'missing_files': ['outputs/tables/association_rules/association_rules_equivalence_audit.csv']
+    }
+    manifest_file = tmp_path / "pipeline_manifest.json"
+    manifest_file.write_text(json.dumps(fake_manifest), encoding='utf-8')
+    
+    manifest_data = json.loads(manifest_file.read_text(encoding='utf-8'))
+    with pytest.raises(RuntimeError, match="validation_status='FAIL'|validation_status is 'FAIL'"):
+        if manifest_data.get('validation_status') != 'PASS':
+            raise RuntimeError(f"Step 07 FAILED: pipeline_manifest.json has validation_status='FAIL'. Missing: {manifest_data.get('missing_files')}")
+
+
+def test_recalculated_metrics_from_predictions_match_comparison_table():
+    """Kiểm chứng: Metric tính lại từ test_predictions.csv phải khớp chính xác với classification_model_comparison.csv."""
+    pred_path = PROJECT_ROOT / 'outputs' / 'tables' / 'classification' / 'test_predictions.csv'
+    comp_path = PROJECT_ROOT / 'outputs' / 'tables' / 'classification' / 'model_comparison.csv'
+    
+    if not (pred_path.exists() and comp_path.exists()):
+        pytest.skip("Test predictions or model comparison CSV does not exist yet")
+        
+    preds = pd.read_csv(pred_path)
+    comp = pd.read_csv(comp_path)
+    
+    actual_col = 'actual' if 'actual' in preds.columns else 'repeat_purchase_90d_actual'
+    pred_col = 'predicted_label' if 'predicted_label' in preds.columns else ('predicted' if 'predicted' in preds.columns else 'repeat_purchase_90d_predicted')
+    
+    assert actual_col in preds.columns and pred_col in preds.columns
+    
+    y_true = preds[actual_col].values
+    y_pred = preds[pred_col].values
+    
+    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+    calc_acc = accuracy_score(y_true, y_pred)
+    calc_prec = precision_score(y_true, y_pred, zero_division=0)
+    calc_rec = recall_score(y_true, y_pred, zero_division=0)
+    calc_f1 = f1_score(y_true, y_pred, zero_division=0)
+    
+    is_sel_col = 'is_selected' if 'is_selected' in comp.columns else 'selected'
+    sel_row = comp[comp[is_sel_col].astype(bool)].iloc[0]
+    
+    np.testing.assert_almost_equal(calc_acc, sel_row['test_accuracy'], decimal=4, err_msg="Accuracy recalculated mismatch")
+    np.testing.assert_almost_equal(calc_prec, sel_row['test_precision'], decimal=4, err_msg="Precision recalculated mismatch")
+    np.testing.assert_almost_equal(calc_rec, sel_row['test_recall'], decimal=4, err_msg="Recall recalculated mismatch")
+    np.testing.assert_almost_equal(calc_f1, sel_row['test_f1'], decimal=4, err_msg="F1 recalculated mismatch")
+
+

@@ -1,5 +1,5 @@
 # Review Notebook: 05_repeat_purchase_classification.ipynb
-*Source Path: `d:/Project/Data-mininng/notebooks/05_repeat_purchase_classification.ipynb`*
+*Source Path: `D:/Project/Data-mininng/notebooks/05_repeat_purchase_classification.ipynb`*
 
 ---
 

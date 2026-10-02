@@ -1,5 +1,5 @@
 # Review Notebook: 07_model_comparison_and_insights.ipynb
-*Source Path: `d:/Project/Data-mininng/notebooks/07_model_comparison_and_insights.ipynb`*
+*Source Path: `D:/Project/Data-mininng/notebooks/07_model_comparison_and_insights.ipynb`*
 
 ---
 
@@ -298,21 +298,21 @@ Classification Model Comparison:
 ```text
 model  cv_f1_mean  cv_f1_std  test_f1  test_accuracy  \
 0     DummyClassifier      0.7259     0.0003   0.7259         0.5697   
-1  LogisticRegression      0.6650     0.0150   0.7043         0.6973   
-2        DecisionTree      0.6502     0.0162   0.6848         0.6558   
-3        RandomForest      0.6726     0.0191   0.7086         0.6766   
+1  LogisticRegression      0.7069     0.0206   0.7471         0.7136   
+2        DecisionTree      0.6957     0.0237   0.7191         0.6929   
+3        RandomForest      0.7102     0.0175   0.7375         0.7033   
 
    test_precision  test_recall  test_roc_auc  is_selected  
 0          0.5697       1.0000        0.5000        False  
-1          0.7941       0.6328        0.7763        False  
-2          0.7159       0.6562        0.6828        False  
-3          0.7280       0.6901        0.7438         True
+1          0.7520       0.7422        0.7761        False  
+2          0.7507       0.6901        0.7440        False  
+3          0.7434       0.7318        0.7756         True
 ```
 
 **Output (stdout):**
 ```text
 Baseline (Dummy) CV F1: 0.7259
-Selected (RandomForest) CV F1: 0.6726
+Selected (RandomForest) CV F1: 0.7102
   ⚠ Selected model KHÔNG vượt baseline trên CV F1
 ```
 
@@ -389,8 +389,8 @@ Association Rules Algorithm Comparison:
 **Result Display:**
 ```text
 algorithm  min_support  min_confidence  runtime_seconds  \
-0    Apriori       0.0200          0.5000           4.1200   
-1  FP-Growth       0.0200          0.5000           3.6100   
+0    Apriori       0.0200          0.5000           7.6363   
+1  FP-Growth       0.0200          0.5000           7.1299   
 
    frequent_itemset_count  rule_count  valid_rule_count  max_itemset_size  \
 0                     389          61                61                 3   
@@ -421,13 +421,12 @@ algorithm  min_support  min_confidence  runtime_seconds  \
 
 ```python
 # [Cell 16 - Execution Count: 8]
-try:
-    artifact_checks = verify_model_artifacts()
-    for c in artifact_checks:
-        print(c)
-    print("\n[OK] All model artifacts verified.")
-except Exception as e:
-    print(f"[WARNING] Artifact verification: {e}")
+artifact_checks = verify_model_artifacts()
+for c in artifact_checks:
+    print(c)
+if any('[FAIL]' in c for c in artifact_checks):
+    raise RuntimeError(f"Artifact verification failed: {artifact_checks}")
+print("\n[OK] All model artifacts verified.")
 ```
 
 **Output (stdout):**
@@ -445,28 +444,26 @@ Insights được sinh từ kết quả thực tế của các models, không ha
 
 ```python
 # [Cell 18 - Execution Count: 9]
-try:
-    insights = generate_all_insights()
+insights = generate_all_insights()
 
-    # Save insights tables
-    for name, df_insight in insights.items():
-        if isinstance(df_insight, pd.DataFrame) and not df_insight.empty:
-            path = OUTPUTS_DIR / 'tables' / 'insights' / f'{name}.csv'
-            path.parent.mkdir(parents=True, exist_ok=True)
-            df_insight.to_csv(path, index=False)
-            print(f"[OK] Saved {name}.csv ({len(df_insight)} rows)")
-        elif isinstance(df_insight, dict):
-            print(f"[INFO] {name}: {len(df_insight)} entries")
-
-except Exception as e:
-    print(f"[WARNING] Insights generation: {e}")
-    import traceback
-    traceback.print_exc()
+# Save insights tables
+for name, df_insight in insights.items():
+    if isinstance(df_insight, pd.DataFrame) and not df_insight.empty:
+        path = OUTPUTS_DIR / 'tables' / 'insights' / f'{name}.csv'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        df_insight.to_csv(path, index=False)
+        print(f"[OK] Saved {name}.csv ({len(df_insight)} rows)")
+    elif isinstance(df_insight, dict):
+        print(f"[INFO] {name}: {len(df_insight)} entries")
 ```
 
 **Output (stdout):**
 ```text
 [OK] Saved customer_segment_insights.csv (2 rows)
+```
+
+**Output (stdout):**
+```text
 [OK] Saved customer_segment_action_plan.csv (4 rows)
 [OK] Saved product_association_insights.csv (20 rows)
 [OK] Saved classification_feature_insights.csv (43 rows)
@@ -477,24 +474,22 @@ except Exception as e:
 ```python
 # [Cell 20 - Execution Count: 10]
 # Generate report
-try:
-    report_path = generate_report(
-        clustering_comp, classification_comp, assoc_comp,
-        output_path=REPORTS_DIR / '07_model_comparison_and_insights.md'
-    )
-    print(f"[OK] Report saved to: {report_path}")
-except Exception as e:
-    print(f"[WARNING] Report generation: {e}")
+report_path = generate_report(
+    clustering_comp, classification_comp, assoc_comp,
+    output_path=REPORTS_DIR / '07_model_comparison_and_insights.md'
+)
+print(f"[OK] Report saved to: {report_path}")
 
 # Generate manifest
-try:
-    manifest = generate_manifest()
-    manifest_path = EVIDENCE_DIR / 'pipeline_manifest.json'
-    with open(manifest_path, 'w', encoding='utf-8') as f:
-        json.dump(manifest, f, indent=2, default=str, ensure_ascii=False)
-    print(f"[OK] Manifest saved to: {manifest_path}")
-except Exception as e:
-    print(f"[WARNING] Manifest generation: {e}")
+manifest = generate_manifest()
+manifest_path = EVIDENCE_DIR / 'pipeline_manifest.json'
+with open(manifest_path, 'w', encoding='utf-8') as f:
+    json.dump(manifest, f, indent=2, default=str, ensure_ascii=False)
+print(f"[OK] Manifest saved to: {manifest_path}")
+
+if manifest.get('validation_status') != 'PASS':
+    missing = manifest.get('missing_files', [])
+    raise RuntimeError(f"Step 07 FAILED: pipeline_manifest.json validation_status is 'FAIL'. Missing files: {missing}")
 ```
 
 **Output (stdout):**
@@ -503,77 +498,77 @@ except Exception as e:
 
 **Project:** UCI Online Retail Data Mining Analysis  
 **Phase:** CRISP-DM Step 05 (Evaluation) & Step 06 (Deployment Preparation)  
-**Execution Timestamp:** 2026-10-02 20:07:32  
+**Execution Timestamp:** 2026-10-03 01:30:48  
 
 ---
 
 ## 1. Executive Summary
 
-BÃ¡o cÃ¡o nÃ y tá»•ng há»£p toÃ n diá»‡n káº¿t quáº£ tá»« cÃ¡c bÆ°á»›c khai phÃ¡ dá»¯ liá»‡u (PhÃ¢n cá»¥m khÃ¡ch hÃ ng, Dá»± Ä‘oÃ¡n mua láº¡i, vÃ  Khai phÃ¡ luáº­t káº¿t há»£p) trÃªn táº­p dá»¯ liá»‡u UCI Online Retail.
+Báo cáo này tổng hợp toàn diện kết quả từ các bước khai phá dữ liệu (Phân cụm khách hàng, Dự đoán mua lại, và Khai phá luật kết hợp) trên tập dữ liệu UCI Online Retail.
 
-- **Customer Clustering (PhÃ¢n cá»¥m khÃ¡ch hÃ ng):** MÃ´ hÃ¬nh Ä‘Æ°á»£c chá»n lÃ  **K-Means (K=2)** vá»›i Silhouette Score = **0.4330**, Davies-Bouldin Index = **0.8917**. PhÃ¢n tÃ¡ch thÃ nh cÃ¡c nhÃ³m: Best Customers (38.35%, 1,662 khÃ¡ch hÃ ng); Lost Customers (61.65%, 2,672 khÃ¡ch hÃ ng).
-- **Repeat Purchase Classification (Dá»± Ä‘oÃ¡n mua láº¡i):** MÃ´ hÃ¬nh há»c Ä‘Æ°á»£c chá»n lÃ  **RandomForest** vá»›i Stratified 5-Fold CV F1 = **0.6726**, Test F1 = **0.7086**, Test Precision = **0.7280**, Test Recall = **0.6901**, Test ROC-AUC = **0.7438**. Baseline DummyClassifier (chiáº¿n lÆ°á»£c Ä‘oÃ¡n lá»›p Ä‘a sá»‘) cÃ³ CV F1 = 0.7259 do tá»· lá»‡ lá»›p dÆ°Æ¡ng cao (58.4%). MÃ´ hÃ¬nh há»c mÃ¡y RandomForest Ä‘Æ°á»£c chá»n lÃ  mÃ´ hÃ¬nh há»c cÃ³ kháº£ nÄƒng phÃ¢n biá»‡t tá»‘t nháº¥t (ROC-AUC=0.7438).
-- **Association Rule Mining (Khai phÃ¡ luáº­t káº¿t há»£p):** Thuáº­t toÃ¡n Ä‘Æ°á»£c chá»n lÃ  **FP-Growth** sinh ra **61 luáº­t há»£p lá»‡** (Lift > 1.0) trong thá»i gian thá»±c thi 3.61 giÃ¢y.
+- **Customer Clustering (Phân cụm khách hàng):** Mô hình được chọn động từ bảng xếp hạng đa tiêu chí là **K-Means (K=2)** với Silhouette Score = **0.4330**, Davies-Bouldin Index = **0.8917**. Phân tách thành các nhóm: Best Customers (38.35%, 1,662 khách hàng); Lost Customers (61.65%, 2,672 khách hàng).
+- **Repeat Purchase Classification (Dự đoán mua lại):** Mô hình học được chọn là **RandomForest** với Stratified 5-Fold CV F1 = **0.7102**, Test F1 = **0.7375**, Test Precision = **0.7434**, Test Recall = **0.7318**, Test ROC-AUC = **0.7756**. Baseline DummyClassifier (chiến lược đoán lớp đa số) có CV F1 = 0.7259 do tỷ lệ lớp dương trong cohort đạt 57.0%. Mô hình học máy RandomForest được chọn theo tiêu chí CV F1 cao nhất trong nhóm learned models (loại trừ Dummy khỏi nhóm learned models do Dummy có ROC-AUC=0.5000, hoàn toàn không có khả năng phân loại/xếp hạng). Bên cạnh đó, Logistic Regression đạt Test ROC-AUC = 0.7761, thể hiện năng lực phân biệt và xếp hạng rủi ro rất tốt.
+- **Association Rule Mining (Khai phá luật kết hợp):** Thuật toán được chọn là **FP-Growth** sinh ra **61 luật hợp lệ** (Lift > 1.0) trong thời gian thực thi 7.13 giây. Hai thuật toán Apriori và FP-Growth đã được kiểm chứng tương đương 100% về tập luật và metric.
 
 ---
 
-## 2. Model Comparison Tables (Báº£ng so sÃ¡nh mÃ´ hÃ¬nh)
+## 2. Model Comparison Tables (Bảng so sánh mô hình)
 
 ### 2.1 Customer Clustering Model Comparison
 | algorithm              |   n_clusters |   silhouette_score |   davies_bouldin_score |   calinski_harabasz_score |   dunn_approximation |   noise_ratio |   min_cluster_size |   max_cluster_pct |   runtime_seconds | is_selected   | is_eligible   | rejection_reason                                                                                                                           | selection_reason                                                                      |   rank_sil |   rank_db |   rank_ch |   rank_dunn |   combined_rank |
 |:-----------------------|-------------:|-------------------:|-----------------------:|--------------------------:|---------------------:|--------------:|-------------------:|------------------:|------------------:|:--------------|:--------------|:-------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------|-----------:|----------:|----------:|------------:|----------------:|
-| K-Means                |            2 |             0.433  |                 0.8917 |                 4364.61   |               0.2093 |          0    |               1662 |             61.65 |            0.0638 | True          | True          | nan                                                                                                                                        | Silhouette=0.4330; DB=0.8917; Best combined ranking across Silhouette, DB, CH metrics |          1 |         1 |         1 |         3   |             6   |
-| K-Means                |            3 |             0.3375 |                 1.0462 |                 3626.28   |               0.1669 |          0    |                763 |             43.22 |            0.0255 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 23.0)                                             |          4 |         8 |         3 |         8   |            23   |
-| K-Means                |            4 |             0.3381 |                 1.0131 |                 3329.68   |               0.1506 |          0    |                686 |             37.75 |            0.0449 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 27.0)                                             |          3 |         7 |         4 |        13   |            27   |
-| K-Means                |            5 |             0.3172 |                 0.9851 |                 3194.66   |               0.1786 |          0    |                312 |             27.57 |            0.0813 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 19.0)                                             |          5 |         4 |         5 |         5   |            19   |
-| K-Means                |            6 |             0.3141 |                 1.0106 |                 3083.61   |               0.163  |          0    |                317 |             22.82 |            0.0901 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 28.0)                                             |          7 |         6 |         6 |         9   |            28   |
-| K-Means                |            7 |             0.3095 |                 0.9692 |                 2960.37   |               0.1719 |          0    |                219 |             20.51 |            0.1147 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 25.0)                                             |          8 |         3 |         8 |         6   |            25   |
-| K-Means                |            8 |             0.3012 |                 0.9944 |                 2824.33   |               0.1525 |          0    |                214 |             19.54 |            0.0918 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 35.0)                                             |          9 |         5 |         9 |        12   |            35   |
-| GMM                    |            2 |             0.2874 |                 1.0662 |                 2307.42   |               0.158  |          0    |               1505 |             65.27 |            0.3229 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 50.0)                                             |         12 |        11 |        17 |        10   |            50   |
-| GMM                    |            3 |             0.2562 |                 1.2157 |                 2749.9    |               0.1406 |          0    |                864 |             45.34 |            0.2637 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 54.0)                                             |         13 |        16 |        11 |        14   |            54   |
-| GMM                    |            4 |             0.1752 |                 1.7079 |                 2167.59   |               0.0885 |          0    |                831 |             34.73 |            0.383  | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 76.0)                                             |         19 |        19 |        19 |        19   |            76   |
-| GMM                    |            5 |             0.152  |                 1.7655 |                 1880.24   |               0.0764 |          0    |                185 |             34.7  |            0.3315 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 80.0)                                             |         20 |        20 |        20 |        20   |            80   |
-| GMM                    |            6 |             0.1164 |                 2.2668 |                 1454.54   |               0.0546 |          0    |                110 |             34.7  |            0.7202 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 84.0)                                             |         21 |        21 |        21 |        21   |            84   |
-| GMM                    |            7 |             0.1019 |                 2.5613 |                 1271.32   |               0.046  |          0    |                 81 |             34.7  |            0.7187 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 90.0)                                             |         22 |        23 |        23 |        22   |            90   |
-| GMM                    |            8 |             0.0681 |                 2.2984 |                 1279.12   |               0.0454 |          0    |                 72 |             34.7  |            0.765  | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 90.0)                                             |         23 |        22 |        22 |        23   |            90   |
-| Agglomerative(ward)    |            2 |             0.4232 |                 0.9064 |                 4227.37   |               0.2048 |          0    |               1726 |             60.18 |            0.7933 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 10.0)                                             |          2 |         2 |         2 |         4   |            10   |
-| Agglomerative(ward)    |            3 |             0.3146 |                 1.1509 |                 3040.26   |               0.1694 |          0    |                633 |             60.18 |            0.6623 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 34.0)                                             |          6 |        14 |         7 |         7   |            34   |
-| Agglomerative(ward)    |            4 |             0.2428 |                 1.2255 |                 2780.1    |               0.1244 |          0    |                633 |             37.54 |            0.7238 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 59.0)                                             |         16 |        17 |        10 |        16   |            59   |
-| Agglomerative(ward)    |            5 |             0.2385 |                 1.2431 |                 2551.43   |               0.1177 |          0    |                633 |             25.22 |            0.7833 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 64.5)                                             |         17 |        18 |        12 |        17.5 |            64.5 |
-| Agglomerative(ward)    |            6 |             0.2447 |                 1.1518 |                 2439.17   |               0.1177 |          0    |                474 |             22.63 |            0.7504 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 60.5)                                             |         15 |        15 |        13 |        17.5 |            60.5 |
-| Agglomerative(ward)    |            7 |             0.2489 |                 1.1215 |                 2405.87   |               0.1526 |          0    |                101 |             22.63 |            0.7274 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 54.0)                                             |         14 |        13 |        16 |        11   |            54   |
-| Agglomerative(ward)    |            8 |             0.2252 |                 1.0852 |                 2281.43   |               0.1315 |          0    |                101 |             22.63 |            0.7045 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 63.0)                                             |         18 |        12 |        18 |        15   |            63   |
-| DBSCAN(eps=0.3,min=5)  |            8 |             0.0632 |                 1.5042 |                  837.295  |               0.0949 |          5.7  |                  7 |             33.87 |            0.0757 | False         | False         | Trivial cluster size: smallest cluster has 7 < 10 samples                                                                                  | Ineligible: Trivial cluster size: smallest cluster has 7 < 10 samples                 |        nan |       nan |       nan |       nan   |           nan   |
-| DBSCAN(eps=0.5,min=5)  |            2 |             0.2946 |                 1.0626 |                 2408.38   |               0.2419 |          1.32 |               1496 |             64.17 |            0.1372 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 37.0)                                             |         11 |        10 |        15 |         1   |            37   |
-| DBSCAN(eps=0.7,min=5)  |            2 |             0.5659 |                 0.3483 |                   49.9624 |               0.477  |          0.55 |                  5 |             99.33 |            0.1799 | False         | False         | Degenerate cluster: largest cluster has 99.3% >= 90%; Trivial cluster size: smallest cluster has 5 < 10 samples                            | Ineligible: Degenerate cluster: largest cluster has 99.3% >= 90%                      |        nan |       nan |       nan |       nan   |           nan   |
-| DBSCAN(eps=1.0,min=5)  |            1 |           nan      |               nan      |                  nan      |             nan      |          0.23 |               4324 |             99.77 |            0.2685 | False         | False         | Silhouette score is NaN (single cluster or pure noise); Fewer than 2 clusters formed; Degenerate cluster: largest cluster has 99.8% >= 90% | Ineligible: Silhouette score is NaN (single cluster or pure noise)                    |        nan |       nan |       nan |       nan   |           nan   |
-| DBSCAN(eps=0.5,min=10) |            2 |             0.2961 |                 1.0613 |                 2416.07   |               0.2403 |          1.78 |               1492 |             63.8  |            0.1116 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 35.0)                                             |         10 |         9 |        14 |         2   |            35   |
+| K-Means                |            2 |             0.433  |                 0.8917 |                 4364.61   |               0.2093 |          0    |               1662 |             61.65 |            0.0804 | True          | True          | nan                                                                                                                                        | Silhouette=0.4330; DB=0.8917; Best combined ranking across Silhouette, DB, CH metrics |          1 |         1 |         1 |         3   |             6   |
+| K-Means                |            3 |             0.3375 |                 1.0462 |                 3626.28   |               0.1669 |          0    |                763 |             43.22 |            0.045  | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 23.0)                                             |          4 |         8 |         3 |         8   |            23   |
+| K-Means                |            4 |             0.3381 |                 1.0131 |                 3329.68   |               0.1506 |          0    |                686 |             37.75 |            0.0752 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 27.0)                                             |          3 |         7 |         4 |        13   |            27   |
+| K-Means                |            5 |             0.3172 |                 0.9851 |                 3194.66   |               0.1786 |          0    |                312 |             27.57 |            0.0784 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 19.0)                                             |          5 |         4 |         5 |         5   |            19   |
+| K-Means                |            6 |             0.3141 |                 1.0106 |                 3083.61   |               0.163  |          0    |                317 |             22.82 |            0.0854 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 28.0)                                             |          7 |         6 |         6 |         9   |            28   |
+| K-Means                |            7 |             0.3095 |                 0.9692 |                 2960.37   |               0.1719 |          0    |                219 |             20.51 |            0.123  | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 25.0)                                             |          8 |         3 |         8 |         6   |            25   |
+| K-Means                |            8 |             0.3012 |                 0.9944 |                 2824.33   |               0.1525 |          0    |                214 |             19.54 |            0.0958 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 35.0)                                             |          9 |         5 |         9 |        12   |            35   |
+| GMM                    |            2 |             0.2874 |                 1.0662 |                 2307.42   |               0.158  |          0    |               1505 |             65.27 |            0.3179 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 50.0)                                             |         12 |        11 |        17 |        10   |            50   |
+| GMM                    |            3 |             0.2562 |                 1.2157 |                 2749.9    |               0.1406 |          0    |                864 |             45.34 |            0.257  | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 54.0)                                             |         13 |        16 |        11 |        14   |            54   |
+| GMM                    |            4 |             0.1752 |                 1.7079 |                 2167.59   |               0.0885 |          0    |                831 |             34.73 |            0.377  | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 76.0)                                             |         19 |        19 |        19 |        19   |            76   |
+| GMM                    |            5 |             0.152  |                 1.7655 |                 1880.24   |               0.0764 |          0    |                185 |             34.7  |            0.3631 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 80.0)                                             |         20 |        20 |        20 |        20   |            80   |
+| GMM                    |            6 |             0.1164 |                 2.2668 |                 1454.54   |               0.0546 |          0    |                110 |             34.7  |            0.6676 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 84.0)                                             |         21 |        21 |        21 |        21   |            84   |
+| GMM                    |            7 |             0.1019 |                 2.5613 |                 1271.32   |               0.046  |          0    |                 81 |             34.7  |            0.6933 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 90.0)                                             |         22 |        23 |        23 |        22   |            90   |
+| GMM                    |            8 |             0.0681 |                 2.2984 |                 1279.12   |               0.0454 |          0    |                 72 |             34.7  |            0.7594 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 90.0)                                             |         23 |        22 |        22 |        23   |            90   |
+| Agglomerative(ward)    |            2 |             0.4232 |                 0.9064 |                 4227.37   |               0.2048 |          0    |               1726 |             60.18 |            0.7592 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 10.0)                                             |          2 |         2 |         2 |         4   |            10   |
+| Agglomerative(ward)    |            3 |             0.3146 |                 1.1509 |                 3040.26   |               0.1694 |          0    |                633 |             60.18 |            0.6665 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 34.0)                                             |          6 |        14 |         7 |         7   |            34   |
+| Agglomerative(ward)    |            4 |             0.2428 |                 1.2255 |                 2780.1    |               0.1244 |          0    |                633 |             37.54 |            0.715  | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 59.0)                                             |         16 |        17 |        10 |        16   |            59   |
+| Agglomerative(ward)    |            5 |             0.2385 |                 1.2431 |                 2551.43   |               0.1177 |          0    |                633 |             25.22 |            0.8049 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 64.5)                                             |         17 |        18 |        12 |        17.5 |            64.5 |
+| Agglomerative(ward)    |            6 |             0.2447 |                 1.1518 |                 2439.17   |               0.1177 |          0    |                474 |             22.63 |            0.6931 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 60.5)                                             |         15 |        15 |        13 |        17.5 |            60.5 |
+| Agglomerative(ward)    |            7 |             0.2489 |                 1.1215 |                 2405.87   |               0.1526 |          0    |                101 |             22.63 |            0.6631 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 54.0)                                             |         14 |        13 |        16 |        11   |            54   |
+| Agglomerative(ward)    |            8 |             0.2252 |                 1.0852 |                 2281.43   |               0.1315 |          0    |                101 |             22.63 |            0.7821 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 63.0)                                             |         18 |        12 |        18 |        15   |            63   |
+| DBSCAN(eps=0.3,min=5)  |            8 |             0.0632 |                 1.5042 |                  837.295  |               0.0949 |          5.7  |                  7 |             33.87 |            0.0832 | False         | False         | Trivial cluster size: smallest cluster has 7 < 10 samples                                                                                  | Ineligible: Trivial cluster size: smallest cluster has 7 < 10 samples                 |        nan |       nan |       nan |       nan   |           nan   |
+| DBSCAN(eps=0.5,min=5)  |            2 |             0.2946 |                 1.0626 |                 2408.38   |               0.2419 |          1.32 |               1496 |             64.17 |            0.1832 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 37.0)                                             |         11 |        10 |        15 |         1   |            37   |
+| DBSCAN(eps=0.7,min=5)  |            2 |             0.5659 |                 0.3483 |                   49.9624 |               0.477  |          0.55 |                  5 |             99.33 |            0.2024 | False         | False         | Degenerate cluster: largest cluster has 99.3% >= 90%; Trivial cluster size: smallest cluster has 5 < 10 samples                            | Ineligible: Degenerate cluster: largest cluster has 99.3% >= 90%                      |        nan |       nan |       nan |       nan   |           nan   |
+| DBSCAN(eps=1.0,min=5)  |            1 |           nan      |               nan      |                  nan      |             nan      |          0.23 |               4324 |             99.77 |            0.3597 | False         | False         | Silhouette score is NaN (single cluster or pure noise); Fewer than 2 clusters formed; Degenerate cluster: largest cluster has 99.8% >= 90% | Ineligible: Silhouette score is NaN (single cluster or pure noise)                    |        nan |       nan |       nan |       nan   |           nan   |
+| DBSCAN(eps=0.5,min=10) |            2 |             0.2961 |                 1.0613 |                 2416.07   |               0.2403 |          1.78 |               1492 |             63.8  |            0.1421 | False         | True          | nan                                                                                                                                        | Eligible candidate (Combined Rank = 35.0)                                             |         10 |         9 |        14 |         2   |            35   |
 
 ### 2.2 Classification Model Comparison
 | model              |   cv_f1_mean |   cv_f1_std |   cv_roc_auc_mean |   cv_average_precision_mean |   test_accuracy |   test_balanced_accuracy |   test_precision |   test_recall |   test_f1 |   test_roc_auc |   test_average_precision |   test_specificity |   tn |   fp |   fn |   tp |   runtime_seconds | selected   |   random_state | is_selected   | selection_reason                                                                                                                                         |   specificity |
 |:-------------------|-------------:|------------:|------------------:|----------------------------:|----------------:|-------------------------:|-----------------:|--------------:|----------:|---------------:|-------------------------:|-------------------:|-----:|-----:|-----:|-----:|------------------:|:-----------|---------------:|:--------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------|--------------:|
-| DummyClassifier    |       0.7259 |      0.0003 |            0.5    |                      0.5698 |          0.5697 |                   0.5    |           0.5697 |        1      |    0.7259 |         0.5    |                   0.5697 |             0      |    0 |  290 |    0 |  384 |            0.0297 | False      |             42 | False         | Baseline classifier predicting majority class                                                                                                            |        0      |
-| LogisticRegression |       0.665  |      0.015  |            0.7323 |                      0.801  |          0.6973 |                   0.7078 |           0.7941 |        0.6328 |    0.7043 |         0.7763 |                   0.8366 |             0.7828 |  227 |   63 |  141 |  243 |            0.0298 | False      |             42 | False         | Candidate learned model                                                                                                                                  |        0.7828 |
-| DecisionTree       |       0.6502 |      0.0162 |            0.6375 |                      0.6817 |          0.6558 |                   0.6557 |           0.7159 |        0.6562 |    0.6848 |         0.6828 |                   0.7325 |             0.6552 |  190 |  100 |  132 |  252 |            0.032  | False      |             42 | False         | Candidate learned model                                                                                                                                  |        0.6552 |
-| RandomForest       |       0.6726 |      0.0191 |            0.6991 |                      0.785  |          0.6766 |                   0.6744 |           0.728  |        0.6901 |    0.7086 |         0.7438 |                   0.8113 |             0.6586 |  191 |   99 |  119 |  265 |            0.2478 | True       |             42 | True          | Highest Stratified K-Fold CV F1-score (0.6726) among candidate learned models. Selection performed strictly on CV metrics without test set data leakage. |        0.6586 |
+| DummyClassifier    |       0.7259 |      0.0003 |            0.5    |                      0.5698 |          0.5697 |                   0.5    |           0.5697 |        1      |    0.7259 |         0.5    |                   0.5697 |             0      |    0 |  290 |    0 |  384 |            0.0186 | False      |             42 | False         | Baseline classifier predicting majority class                                                                                                            |        0      |
+| LogisticRegression |       0.7069 |      0.0206 |            0.7324 |                      0.801  |          0.7136 |                   0.709  |           0.752  |        0.7422 |    0.7471 |         0.7761 |                   0.8362 |             0.6759 |  196 |   94 |   99 |  285 |            0.0192 | False      |             42 | False         | Candidate learned model                                                                                                                                  |        0.6759 |
+| DecisionTree       |       0.6957 |      0.0237 |            0.7068 |                      0.7589 |          0.6929 |                   0.6933 |           0.7507 |        0.6901 |    0.7191 |         0.744  |                   0.797  |             0.6966 |  202 |   88 |  119 |  265 |            0.0191 | False      |             42 | False         | Candidate learned model                                                                                                                                  |        0.6966 |
+| RandomForest       |       0.7102 |      0.0175 |            0.7372 |                      0.8099 |          0.7033 |                   0.6986 |           0.7434 |        0.7318 |    0.7375 |         0.7756 |                   0.8396 |             0.6655 |  193 |   97 |  103 |  281 |            0.0812 | True       |             42 | True          | Highest Stratified K-Fold CV F1-score (0.7102) among candidate learned models. Selection performed strictly on CV metrics without test set data leakage. |        0.6655 |
 
 ### 2.3 Association Rules Algorithm Comparison
-| algorithm   |   min_support |   min_confidence |   runtime_seconds |   frequent_itemset_count |   rule_count |   valid_rule_count |   max_itemset_size |   max_rule_lift | is_selected   | selection_reason                                                                                                                                                    |
-|:------------|--------------:|-----------------:|------------------:|-------------------------:|-------------:|-------------------:|-------------------:|----------------:|:--------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Apriori     |          0.02 |              0.5 |              4.12 |                      389 |           61 |                 61 |                  3 |         18.2311 | False         |                                                                                                                                                                     |
-| FP-Growth   |          0.02 |              0.5 |              3.61 |                      389 |           61 |                 61 |                  3 |         18.2311 | True          | Apriori and FP-Growth produce mathematically identical rule sets (61 valid rules). Selected FP-Growth for faster execution runtime (3.61s vs 4.12s, 12.4% speedup). |
+| algorithm   |   min_support |   min_confidence |   runtime_seconds |   frequent_itemset_count |   rule_count |   valid_rule_count |   max_itemset_size |   max_rule_lift | is_selected   | selection_reason                                                                                                                                                   |
+|:------------|--------------:|-----------------:|------------------:|-------------------------:|-------------:|-------------------:|-------------------:|----------------:|:--------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Apriori     |          0.02 |              0.5 |            7.6363 |                      389 |           61 |                 61 |                  3 |         18.2311 | False         |                                                                                                                                                                    |
+| FP-Growth   |          0.02 |              0.5 |            7.1299 |                      389 |           61 |                 61 |                  3 |         18.2311 | True          | Apriori and FP-Growth produce mathematically identical rule sets (61 valid rules). Selected FP-Growth for faster execution runtime (7.13s vs 7.64s, 6.6% speedup). |
 
 ---
 
-## 3. Customer Segment Profiles & Strategic Action Plan (PhÃ¢n khÃºc & Káº¿ hoáº¡ch hÃ nh Ä‘á»™ng)
+## 3. Customer Segment Profiles & Strategic Action Plan (Phân khúc & Kế hoạch hành động)
 
-### 3.1 Segment Profiles (Há»“ sÆ¡ phÃ¢n khÃºc)
+### 3.1 Segment Profiles (Hồ sơ phân khúc)
 |   cluster_id | business_segment_name   |   customer_count |   customer_percentage |   eligible_labeled_customers |   repeat_customers |   unlabeled_customers |   cohort_coverage_pct |   recency_mean |   recency_median |   frequency_mean |   frequency_median |   monetary_mean |   monetary_median |   average_order_value |   repeat_purchase_rate | business_interpretation                                                                                                                                                                                                                                 | cohort_note                                                                      | evidence_source                                                                                 |
 |-------------:|:------------------------|-----------------:|----------------------:|-----------------------------:|-------------------:|----------------------:|----------------------:|---------------:|-----------------:|-----------------:|-------------------:|----------------:|------------------:|----------------------:|-----------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------|
 |            0 | Best Customers          |             1662 |                 38.35 |                         1487 |               1423 |                   175 |                 89.47 |           25.8 |               16 |              8.4 |                  6 |         4464.19 |           2041.33 |                565.22 |                 0.957  | Khách hàng mua hàng rất gần đây (Recency trung bình 26 ngày). tần suất đặt hàng cao (8.4 đơn). giá trị chi tiêu rất lớn (doanh thu trung bình £4,464). Tỷ lệ mua lại 90 ngày sau cutoff đạt 95.7%. Chiếm 38.3% tổng số khách hàng (1,662 khách hàng).   | Repeat rate is evaluated retrospectively on customers active before cutoff date. | data/processed/customer_clusters.csv + rfm_customer_features.csv + repeat_purchase_features.csv |
 |            1 | Lost Customers          |             2672 |                 61.65 |                         1881 |                496 |                   791 |                 70.4  |          134.3 |               96 |              1.7 |                  1 |          493.17 |            356.92 |                322.34 |                 0.2637 | Khách hàng giao dịch mức độ vừa phải (Recency trung bình 134 ngày). tần suất đặt hàng thấp (1.7 đơn). giá trị chi tiêu thấp (doanh thu trung bình £493). Tỷ lệ mua lại 90 ngày sau cutoff đạt 26.4%. Chiếm 61.7% tổng số khách hàng (2,672 khách hàng). | Repeat rate is evaluated retrospectively on customers active before cutoff date. | data/processed/customer_clusters.csv + rfm_customer_features.csv + repeat_purchase_features.csv |
 
-### 3.2 Strategic Action Plan (Káº¿ hoáº¡ch hÃ nh Ä‘á»™ng chiáº¿n lÆ°á»£c)
+### 3.2 Strategic Action Plan (Kế hoạch hành động chiến lược)
 |   cluster_id | business_segment_name   |   customer_count |   customer_percentage | strategy                           | recommended_action                                                                                  | evidence                                                             | target_kpi                                                          | verification_method                                                     | limitations                                                         |
 |-------------:|:------------------------|-----------------:|----------------------:|:-----------------------------------|:----------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------|:--------------------------------------------------------------------|:------------------------------------------------------------------------|:--------------------------------------------------------------------|
 |            0 | Best Customers          |             1662 |                 38.35 | Retention & VIP Loyalty            | Triển khai chương trình khách hàng thân thiết VIP (ưu tiên giao hàng, quyền mua sớm bộ sưu tập mới) | Recency trung bình = 26 ngày, Tần suất = 8.4 đơn, Doanh thu = £4,464 | Tỷ lệ duy trì đơn hàng (Retention Rate) ≥ 80% trong 6 tháng kế tiếp | Theo dõi tỷ lệ quay lại tự nhiên so với các quý trước (Cohort analysis) | Chi phí vận hành chương trình tích điểm/ưu đãi thành viên           |
@@ -583,7 +578,7 @@ BÃ¡o cÃ¡o nÃ y tá»•ng há»£p toÃ n diá»‡n káº¿t quáº£ t�
 
 ---
 
-## 4. Product Co-Purchase Association Rules (Top 10 Luáº­t káº¿t há»£p hÃ ng Ä‘áº§u)
+## 4. Product Co-Purchase Association Rules (Top 10 Luật kết hợp hàng đầu)
 | antecedents                                                      | consequents                                                      |   support |   confidence |   lift |   conviction | evidence_quality   | business_interpretation                                                                                                                                                                                                                                                | recommended_action                                                                                                                                                                                                                  | limitations                                                                                                                                     |
 |:-----------------------------------------------------------------|:-----------------------------------------------------------------|----------:|-------------:|-------:|-------------:|:-------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------|
 | PINK REGENCY TEACUP AND SAUCER                                   | GREEN REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER |    0.0274 |       0.7072 |  18.23 |       3.2827 | Moderate           | Khách hàng mua 'PINK REGENCY TEACUP AND SAUCER' có khả năng cao cũng mua 'GREEN REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER ' (xác suất cao gấp 18.2 lần so với khi hai sản phẩm xuất hiện độc lập). Mô hình này xuất hiện trong 2.7% tổng số giỏ hàng. | Đề xuất gợi ý chéo 'GREEN REGENCY TEACUP AND SAUCER, ROSES REGENCY TEACUP AND SAUCER ' khi khách hàng đưa 'PINK REGENCY TEACUP AND SAUCER' vào giỏ hàng. Mức độ liên kết rất mạnh — có thể tạo combo đóng gói sẵn (product bundle). | Quan hệ đồng xuất hiện tương quan, không chứng minh quan hệ nhân quả (causality)                                                                |
@@ -599,23 +594,23 @@ BÃ¡o cÃ¡o nÃ y tá»•ng há»£p toÃ n diá»‡n káº¿t quáº£ t�
 
 ---
 
-## 5. Predictive Feature Importance (Táº§m quan trá»ng cá»§a Ä‘áº·c trÆ°ng dá»± Ä‘oÃ¡n)
+## 5. Predictive Feature Importance (Tầm quan trọng của đặc trưng dự đoán)
 | feature                |   importance |   rank | source_model   | feature_group   | interpretation                                                                                                                                                                                                                       | limitations                                                                                                             |
 |:-----------------------|-------------:|-------:|:---------------|:----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------|
-| Recency                |   0.139253   |      1 | RandomForest   | RFM             | Top-3 biến quan trọng nhất (tầm quan trọng = 0.1393). Biến này có đóng góp phân tách mạnh nhất đối với dự đoán mua lại trong mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả. | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
-| Monetary               |   0.136043   |      2 | RandomForest   | RFM             | Top-3 biến quan trọng nhất (tầm quan trọng = 0.1360). Biến này có đóng góp phân tách mạnh nhất đối với dự đoán mua lại trong mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả. | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
-| UniqueProducts         |   0.129772   |      3 | RandomForest   | Behavioral      | Top-3 biến quan trọng nhất (tầm quan trọng = 0.1298). Biến này có đóng góp phân tách mạnh nhất đối với dự đoán mua lại trong mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả. | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
-| TotalItems             |   0.127866   |      4 | RandomForest   | Behavioral      | Biến quan trọng mức trung bình (tầm quan trọng = 0.1279). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
-| AverageOrderValue      |   0.123478   |      5 | RandomForest   | Behavioral      | Biến quan trọng mức trung bình (tầm quan trọng = 0.1235). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
-| AverageItemsPerInvoice |   0.117268   |      6 | RandomForest   | Behavioral      | Biến quan trọng mức trung bình (tầm quan trọng = 0.1173). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
-| CustomerLifetimeDays   |   0.081577   |      7 | RandomForest   | Behavioral      | Biến quan trọng mức trung bình (tầm quan trọng = 0.0816). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
-| Frequency              |   0.0576431  |      8 | RandomForest   | RFM             | Biến quan trọng mức trung bình (tầm quan trọng = 0.0576). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
-| ActiveDays             |   0.0566452  |      9 | RandomForest   | Behavioral      | Biến quan trọng mức trung bình (tầm quan trọng = 0.0566). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
-| Country_United Kingdom |   0.00740603 |     10 | RandomForest   | Geographic      | Biến quan trọng mức trung bình (tầm quan trọng = 0.0074). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| Frequency              |   0.189034   |      1 | RandomForest   | RFM             | Top-3 biến quan trọng nhất (tầm quan trọng = 0.1890). Biến này có đóng góp phân tách mạnh nhất đối với dự đoán mua lại trong mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả. | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| ActiveDays             |   0.177873   |      2 | RandomForest   | Behavioral      | Top-3 biến quan trọng nhất (tầm quan trọng = 0.1779). Biến này có đóng góp phân tách mạnh nhất đối với dự đoán mua lại trong mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả. | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| CustomerLifetimeDays   |   0.129228   |      3 | RandomForest   | Behavioral      | Top-3 biến quan trọng nhất (tầm quan trọng = 0.1292). Biến này có đóng góp phân tách mạnh nhất đối với dự đoán mua lại trong mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả. | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| UniqueProducts         |   0.122418   |      4 | RandomForest   | Behavioral      | Biến quan trọng mức trung bình (tầm quan trọng = 0.1224). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| Monetary               |   0.110082   |      5 | RandomForest   | RFM             | Biến quan trọng mức trung bình (tầm quan trọng = 0.1101). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| TotalItems             |   0.095898   |      6 | RandomForest   | Behavioral      | Biến quan trọng mức trung bình (tầm quan trọng = 0.0959). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| Recency                |   0.0783174  |      7 | RandomForest   | RFM             | Biến quan trọng mức trung bình (tầm quan trọng = 0.0783). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| AverageOrderValue      |   0.0535118  |      8 | RandomForest   | Behavioral      | Biến quan trọng mức trung bình (tầm quan trọng = 0.0535). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| AverageItemsPerInvoice |   0.0370883  |      9 | RandomForest   | Behavioral      | Biến quan trọng mức trung bình (tầm quan trọng = 0.0371). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
+| Country_United Kingdom |   0.00260173 |     10 | RandomForest   | Geographic      | Biến quan trọng mức trung bình (tầm quan trọng = 0.0026). Biến này có mức đóng góp vừa phải vào các nút phân nhánh của mô hình RandomForest. Lưu ý: Tầm quan trọng phụ thuộc vào mô hình và không chứng minh quan hệ nhân quả.       | Feature importance phản ánh tỷ lệ giảm độ vẩn đục (Gini/Impurity) trong mô hình cây, không phải tác động biên nhân quả. |
 
 ---
 
-## 6. Generated Visualizations & Dashboards (Biá»ƒu Ä‘á»“ & Dashboard minh há»a)
+## 6. Generated Visualizations & Dashboards (Biểu đồ & Dashboard minh họa)
 - `clustering_model_comparison.png`
 - `classification_model_comparison.png`
 - `clustering_quality_metrics.png`
@@ -624,12 +619,12 @@ BÃ¡o cÃ¡o nÃ y tá»•ng há»£p toÃ n diá»‡n káº¿t quáº£ t�
 
 ---
 
-## 7. Limitations & Scientific Constraints (Giá»›i háº¡n & RÃ ng buá»™c phÆ°Æ¡ng phÃ¡p)
-1. **Single Retailer Scope:** Dá»¯ liá»‡u chá»‰ tá»« má»™t nhÃ  bÃ¡n láº» trá»±c tuyáº¿n táº¡i VÆ°Æ¡ng quá»‘c Anh (12/2010 - 12/2011), khÃ´ng tá»± Ä‘á»™ng suy rá»™ng ra toÃ n ngÃ nh e-commerce.
-2. **Missing CustomerID:** 24.93% giao dá»‹ch khÃ´ng cÃ³ CustomerID bá»‹ loáº¡i khá»i bÃ i toÃ¡n cáº¥p khÃ¡ch hÃ ng (selection bias).
-3. **Class Imbalance & Baseline:** Tá»· lá»‡ mua láº¡i 90 ngÃ y Ä‘áº¡t 58.4%, khiáº¿n Dummy Classifier cÃ³ F1 danh nghÄ©a cao; Random Forest lÃ  mÃ´ hÃ¬nh há»c phÃ¢n biá»‡t cÃ³ giÃ¡ trá»‹ thá»±c táº¿ nháº¥t.
-4. **Retrospective vs Predictive Segment Evaluation:** Tá»· lá»‡ mua láº¡i theo cá»¥m lÃ  phÃ¢n tÃ­ch há»“i cá»©u mÃ´ táº£ do cá»¥m RFM Ä‘Æ°á»£c xÃ¢y dá»±ng trÃªn toÃ n bá»™ l»‹ch sá»­ quan sÃ¡t.
-5. **Association vs Causation:** Luáº­t káº¿t há»£p (Lift > 1) chá»‰ biá»ƒu thá»‹ tÆ°Æ¡ng quan Ä‘á»“ng xuáº¥t hiá»‡n thá»‘ng kÃª, chÆ°a pháº£i quan há»‡ nhÃ¢n quáº£; cáº§n kiá»ƒm chá»©ng qua A/B testing trÆ°á»›c khi quyáº¿t Ä‘á»‹nh nháº­p hÃ ng combo.
+## 7. Limitations & Scientific Constraints (Giới hạn & Ràng buộc phương pháp)
+1. **Single Retailer Scope:** Dữ liệu chỉ từ một nhà bán lẻ trực tuyến tại Vương quốc Anh (12/2010 - 12/2011), không tự động suy rộng ra toàn ngành thương mại điện tử.
+2. **Missing CustomerID:** 24.93% giao dịch không có CustomerID bị loại khỏi bài toán cấp khách hàng (selection bias đã được phân tích và gắn cờ).
+3. **Class Imbalance & Baseline:** Tỷ lệ mua lại 90 ngày đạt mức đa số trong cohort, khiến Dummy Classifier có F1 danh nghĩa cao; Random Forest được chọn là mô hình học máy tối ưu F1 thực tế qua Cross-Validation trên tập train.
+4. **Retrospective vs Predictive Segment Evaluation:** Tỷ lệ mua lại theo cụm là phân tích hồi cứu mô tả do cụm RFM được xây dựng trên toàn bộ lịch sử quan sát.
+5. **Association vs Causation:** Luật kết hợp (Lift > 1) chỉ biểu thị tương quan đồng xuất hiện thống kê, chưa phải quan hệ nhân quả; cần kiểm chứng qua A/B testing trước khi quyết định nhập hàng combo.
 ```
 
 **Output (stdout):**
@@ -658,6 +653,10 @@ BÃ¡o cÃ¡o nÃ y tá»•ng há»£p toÃ n diá»‡n káº¿t quáº£ t�
 
 ```python
 # [Cell 22 - Execution Count: 11]
+manifest_data = json.loads((EVIDENCE_DIR / 'pipeline_manifest.json').read_text(encoding='utf-8'))
+if manifest_data.get('validation_status') != 'PASS':
+    raise RuntimeError(f"Step 07 FAILED: pipeline_manifest.json has validation_status='FAIL'!")
+
 print("=" * 60)
 print("  07. MODEL COMPARISON AND INSIGHTS — COMPLETE")
 print("=" * 60)

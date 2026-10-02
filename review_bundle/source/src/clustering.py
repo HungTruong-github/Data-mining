@@ -16,6 +16,7 @@ from sklearn.metrics import (
     silhouette_score,
     davies_bouldin_score,
     calinski_harabasz_score,
+    adjusted_rand_score,
 )
 from sklearn.decomposition import PCA
 from scipy.spatial.distance import cdist
@@ -410,6 +411,96 @@ def select_best_model(results, comparison_df):
             return labels, model, metrics
 
     return None, None, None
+
+
+# ====================================================================
+# 6b. CLUSTER STABILITY & PREPROCESSING COMPARISON
+# ====================================================================
+def evaluate_clustering_stability(X, algorithm='K-Means', n_clusters=2, seeds=None):
+    """
+    Evaluate cluster partition stability across multiple random seeds using Adjusted Rand Index (ARI).
+    
+    Returns dict with pairwise ARI scores, mean ARI, std ARI, and partition consensus.
+    """
+    if seeds is None:
+        seeds = [42, 123, 456, 789, 999]
+
+    label_runs = []
+    inertias = []
+    for s in seeds:
+        km = KMeans(n_clusters=n_clusters, random_state=s, n_init=10)
+        lbls = km.fit_predict(X)
+        label_runs.append(lbls)
+        inertias.append(km.inertia_)
+
+    pairwise_aris = []
+    for i in range(len(seeds)):
+        for j in range(i + 1, len(seeds)):
+            ari = adjusted_rand_score(label_runs[i], label_runs[j])
+            pairwise_aris.append(ari)
+
+    return {
+        'algorithm': algorithm,
+        'n_clusters': n_clusters,
+        'seeds_tested': seeds,
+        'mean_pairwise_ari': round(float(np.mean(pairwise_aris)), 4),
+        'min_pairwise_ari': round(float(np.min(pairwise_aris)), 4),
+        'std_pairwise_ari': round(float(np.std(pairwise_aris)), 4),
+        'inertia_cv': round(float(np.std(inertias) / np.mean(inertias)), 4),
+        'is_stable': bool(np.mean(pairwise_aris) > 0.95),
+    }
+
+
+def compare_preprocessing_impact(df, rfm_cols=None, n_clusters=2, random_state=RANDOM_STATE):
+    """
+    Compare clustering performance under (1) Standard Scaling only vs (2) Log1p + Standard Scaling
+    on the exact same customer cohort. Explains the necessity of log1p transformation for right-skewed RFM.
+    
+    Returns pd.DataFrame comparing silhouette, cluster share, and distribution balance.
+    """
+    if rfm_cols is None:
+        rfm_cols = ['Recency', 'Frequency', 'Monetary']
+
+    X_raw = df[rfm_cols].values.copy()
+    
+    # Preprocessing 1: StandardScaler on raw features
+    scaler_raw = StandardScaler()
+    X_scaled_only = scaler_raw.fit_transform(X_raw)
+    km_scaled = KMeans(n_clusters=n_clusters, random_state=random_state, n_init=10)
+    labels_scaled = km_scaled.fit_predict(X_scaled_only)
+    sil_scaled = silhouette_score(X_scaled_only, labels_scaled)
+    counts_scaled = pd.Series(labels_scaled).value_counts()
+
+    # Preprocessing 2: Log1p + StandardScaler
+    X_log = np.log1p(X_raw)
+    scaler_log = StandardScaler()
+    X_log_scaled = scaler_log.fit_transform(X_log)
+    km_log = KMeans(n_clusters=n_clusters, random_state=random_state, n_init=10)
+    labels_log = km_log.fit_predict(X_log_scaled)
+    sil_log = silhouette_score(X_log_scaled, labels_log)
+    counts_log = pd.Series(labels_log).value_counts()
+
+    rows = [
+        {
+            'preprocessing': 'StandardScaler_only (No Log)',
+            'n_clusters': n_clusters,
+            'silhouette_score': round(float(sil_scaled), 4),
+            'min_cluster_pct': round(float(counts_scaled.min() / len(df) * 100), 2),
+            'max_cluster_pct': round(float(counts_scaled.max() / len(df) * 100), 2),
+            'skewness_handled': False,
+            'interpretation': 'Vulnerable to extreme monetary outliers; creates heavily skewed/imbalanced clusters',
+        },
+        {
+            'preprocessing': 'Log1p + StandardScaler',
+            'n_clusters': n_clusters,
+            'silhouette_score': round(float(sil_log), 4),
+            'min_cluster_pct': round(float(counts_log.min() / len(df) * 100), 2),
+            'max_cluster_pct': round(float(counts_log.max() / len(df) * 100), 2),
+            'skewness_handled': True,
+            'interpretation': 'Compresses long tails, aligns features to Gaussian-like geometry, separates meaningful RFM tiers',
+        }
+    ]
+    return pd.DataFrame(rows)
 
 
 # ====================================================================
