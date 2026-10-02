@@ -7827,25 +7827,25 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Thiết lập môi trường và import thư viện</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="c1"># Đảm bảo đường dẫn gốc project được nhận diện</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s1">'..'</span><span class="p">)))</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">src.config</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">RAW_DATA_CSV</span><span class="p">,</span> <span class="n">INTERIM_DIR</span><span class="p">,</span>
     <span class="n">FIGURES_DATA_PREPARATION</span><span class="p">,</span> <span class="n">TABLES_DATA_PREPARATION</span><span class="p">,</span>
     <span class="n">NON_PRODUCT_STOCK_CODES</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.data_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_raw_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">src.data_loader</span> <span class="kn">import</span> <span class="n">load_raw_data</span>
+<span class="kn">from</span> <span class="nn">src.preprocessing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">standardize_dtypes</span><span class="p">,</span>
     <span class="n">add_transaction_flags</span><span class="p">,</span>
     <span class="n">classify_stock_codes</span><span class="p">,</span>
@@ -9211,7 +9211,7 @@ Trong thương mại điện tử, các giao dịch bán buôn (B2B) số lượ
 <div class="jp-InputPrompt jp-InputArea-prompt">In [14]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">display</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">display</span>
 
 <span class="n">figures</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">(</span><span class="s1">'1. Pipeline Làm sạch (Cleaning Funnel)'</span><span class="p">,</span> <span class="n">FIGURES_DATA_PREPARATION</span> <span class="o">/</span> <span class="s1">'cleaning_funnel.png'</span><span class="p">),</span>

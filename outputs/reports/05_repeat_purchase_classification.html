@@ -7821,24 +7821,24 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">'..'</span><span class="p">))</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">src.config</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">PROCESSED_DIR</span><span class="p">,</span> <span class="n">FIGURES_CLASSIFICATION</span><span class="p">,</span> <span class="n">TABLES_CLASSIFICATION</span><span class="p">,</span>
     <span class="n">MODELS_CLASSIFICATION_DIR</span><span class="p">,</span> <span class="n">RANDOM_STATE</span><span class="p">,</span> <span class="n">TEST_SIZE</span><span class="p">,</span> <span class="n">REPEAT_PURCHASE_WINDOW_DAYS</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.classification</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">src.classification</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">validate_classification_dataset</span><span class="p">,</span> <span class="n">split_classification_data</span><span class="p">,</span>
     <span class="n">build_preprocessor</span><span class="p">,</span> <span class="n">build_model_pipelines</span><span class="p">,</span> <span class="n">cross_validate_models</span><span class="p">,</span>
     <span class="n">select_best_model</span><span class="p">,</span> <span class="n">train_final_models</span><span class="p">,</span> <span class="n">evaluate_on_test</span><span class="p">,</span>
     <span class="n">get_feature_importance</span><span class="p">,</span> <span class="n">save_classification_artifacts</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">src.evaluation</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">plot_confusion_matrix</span><span class="p">,</span> <span class="n">plot_roc_curves</span><span class="p">,</span> <span class="n">plot_precision_recall_curves</span><span class="p">,</span>
     <span class="n">plot_model_comparison</span><span class="p">,</span> <span class="n">plot_feature_importance</span><span class="p">,</span> <span class="n">save_classification_report_csv</span>
 <span class="p">)</span>
@@ -8511,7 +8511,7 @@ Test set CHƯA được sử dụng ở bước này.</p>
 <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">summary</span><span class="p">])</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">TABLES_CLASSIFICATION</span> <span class="o">/</span> <span class="s1">'classification_data_summary.csv'</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="c1"># Save models</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">'target_col'</span><span class="p">:</span> <span class="n">TARGET_COL</span><span class="p">,</span> <span class="s1">'feature_columns'</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">X_train</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span>
     <span class="s1">'numeric_features'</span><span class="p">:</span> <span class="n">numeric_features</span><span class="p">,</span> <span class="s1">'categorical_features'</span><span class="p">:</span> <span class="n">categorical_features</span><span class="p">,</span>

@@ -89,7 +89,9 @@ def main():
             "outputs": [
                 "data/processed/customer_clusters.csv",
                 "outputs/tables/clustering/clustering_algorithm_comparison.csv",
-                "models/clustering/clustering_model.pkl"
+                "outputs/tables/clustering/cluster_profiles.csv",
+                "models/clustering/clustering_model.pkl",
+                "models/clustering/clustering_config.pkl"
             ]
         },
         {
@@ -97,6 +99,9 @@ def main():
             "script": "notebooks/run_05_repeat_purchase_classification.py",
             "outputs": [
                 "outputs/tables/classification/model_comparison.csv",
+                "outputs/tables/classification/cv_results.csv",
+                "outputs/tables/classification/test_predictions.csv",
+                "outputs/tables/classification/feature_importance.csv",
                 "models/classification/best_classifier_pipeline.joblib",
                 "models/classification/classification_metadata.json"
             ]
@@ -105,7 +110,7 @@ def main():
             "name": "06. Association Rules",
             "script": "notebooks/run_06_association_rules.py",
             "outputs": [
-                "outputs/tables/association_rules/association_rules/selected_association_rules.csv",
+                "outputs/tables/association_rules/association_algorithm_comparison.csv",
                 "outputs/tables/association_rules/association_business_insights.csv"
             ]
         },
@@ -116,6 +121,10 @@ def main():
                 "outputs/tables/model_comparison/clustering_model_comparison.csv",
                 "outputs/tables/model_comparison/classification_model_comparison.csv",
                 "outputs/tables/model_comparison/association_rules_comparison.csv",
+                "outputs/tables/insights/customer_segment_insights.csv",
+                "outputs/tables/insights/customer_segment_action_plan.csv",
+                "outputs/tables/insights/product_association_insights.csv",
+                "outputs/tables/insights/classification_feature_insights.csv",
                 "outputs/reports/07_model_comparison_and_insights.md",
                 "outputs/reports/07_model_comparison_and_insights_summary.json",
                 "outputs/evidence/pipeline_manifest.json"

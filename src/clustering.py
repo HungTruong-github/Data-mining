@@ -315,45 +315,90 @@ def build_comparison_table(results):
 # ====================================================================
 def select_best_model(results, comparison_df):
     """
-    Select best model using multi-criteria ranking.
-    Filters: n_clusters >= 2, max_cluster_pct < 90%, min_cluster_size >= 10.
-    Ranks by: silhouette (desc), davies_bouldin (asc), calinski_harabasz (desc).
+    Select best model using multi-criteria ranking and update comparison_df in-place.
+    Filters: n_clusters >= 2, max_cluster_pct < 90%, min_cluster_size >= 10, silhouette notna.
+    Ranks by: silhouette (desc), davies_bouldin (asc), calinski_harabasz (desc), dunn_approximation (desc).
+
+    Updates comparison_df with:
+      - is_selected: bool (True for exactly one winner)
+      - is_eligible: bool
+      - rejection_reason: str
+      - rank_sil, rank_db, rank_ch, rank_dunn, combined_rank: float
+      - selection_reason: str
     """
-    df = comparison_df.copy()
+    # Initialize evaluation tracking columns
+    comparison_df['is_selected'] = False
+    comparison_df['is_eligible'] = True
+    comparison_df['rejection_reason'] = ""
+    comparison_df['selection_reason'] = ""
+    comparison_df['rank_sil'] = np.nan
+    comparison_df['rank_db'] = np.nan
+    comparison_df['rank_ch'] = np.nan
+    comparison_df['rank_dunn'] = np.nan
+    comparison_df['combined_rank'] = np.nan
 
-    # Filter valid configurations
-    valid = df[
-        (df['n_clusters'] >= 2) &
-        (df['max_cluster_pct'] < 90) &
-        (df['min_cluster_size'] >= 10) &
-        (df['silhouette_score'].notna())
-    ].copy()
+    # Check eligibility for each configuration
+    for idx, row in comparison_df.iterrows():
+        reasons = []
+        if pd.isna(row['silhouette_score']):
+            reasons.append("Silhouette score is NaN (single cluster or pure noise)")
+        if row['n_clusters'] < 2:
+            reasons.append("Fewer than 2 clusters formed")
+        if row['max_cluster_pct'] >= 90.0:
+            reasons.append(f"Degenerate cluster: largest cluster has {row['max_cluster_pct']:.1f}% >= 90%")
+        if row['min_cluster_size'] < 10:
+            reasons.append(f"Trivial cluster size: smallest cluster has {int(row['min_cluster_size'])} < 10 samples")
 
-    if valid.empty:
-        # Fallback: relax constraints
-        valid = df[
-            (df['n_clusters'] >= 2) &
-            (df['silhouette_score'].notna())
-        ].copy()
+        if reasons:
+            comparison_df.loc[idx, 'is_eligible'] = False
+            comparison_df.loc[idx, 'rejection_reason'] = "; ".join(reasons)
+            comparison_df.loc[idx, 'selection_reason'] = f"Ineligible: {reasons[0]}"
 
-    if valid.empty:
-        print("WARNING: No valid configurations found!")
-        return None, None, None
+    valid_mask = comparison_df['is_eligible']
+    if not valid_mask.any():
+        # Fallback: relax min_cluster_size / max_pct if no candidates
+        fallback_mask = (comparison_df['n_clusters'] >= 2) & comparison_df['silhouette_score'].notna()
+        if fallback_mask.any():
+            comparison_df.loc[fallback_mask, 'is_eligible'] = True
+            comparison_df.loc[fallback_mask, 'rejection_reason'] = "Relaxed constraints (fallback mode)"
+            valid_mask = fallback_mask
+        else:
+            print("WARNING: No valid configurations found in clustering comparison!")
+            return None, None, None
 
-    # Rank each metric
-    valid['rank_sil'] = valid['silhouette_score'].rank(ascending=False)
-    valid['rank_db'] = valid['davies_bouldin_score'].rank(ascending=True)
-    valid['rank_ch'] = valid['calinski_harabasz_score'].rank(ascending=False)
-    valid['rank_dunn'] = valid['dunn_approximation'].rank(ascending=False)
+    valid_indices = comparison_df[valid_mask].index
 
-    # Combined rank (lower is better)
-    valid['combined_rank'] = valid['rank_sil'] + valid['rank_db'] + valid['rank_ch'] + valid['rank_dunn']
+    # Rank metrics for eligible configurations
+    comparison_df.loc[valid_indices, 'rank_sil'] = comparison_df.loc[valid_indices, 'silhouette_score'].rank(ascending=False)
+    comparison_df.loc[valid_indices, 'rank_db'] = comparison_df.loc[valid_indices, 'davies_bouldin_score'].rank(ascending=True)
+    comparison_df.loc[valid_indices, 'rank_ch'] = comparison_df.loc[valid_indices, 'calinski_harabasz_score'].rank(ascending=False)
+    comparison_df.loc[valid_indices, 'rank_dunn'] = comparison_df.loc[valid_indices, 'dunn_approximation'].rank(ascending=False)
 
-    # Sort by combined rank
-    valid = valid.sort_values('combined_rank')
-    best_idx = valid.index[0]
+    comparison_df.loc[valid_indices, 'combined_rank'] = (
+        comparison_df.loc[valid_indices, 'rank_sil'] +
+        comparison_df.loc[valid_indices, 'rank_db'] +
+        comparison_df.loc[valid_indices, 'rank_ch'] +
+        comparison_df.loc[valid_indices, 'rank_dunn']
+    )
 
-    # Find the corresponding result
+    # Pick top candidate by combined rank, break ties by silhouette score descending
+    best_idx = comparison_df.loc[valid_indices].sort_values(['combined_rank', 'silhouette_score'], ascending=[True, False]).index[0]
+
+    # Update selection markers
+    comparison_df.loc[best_idx, 'is_selected'] = True
+    best_sil = comparison_df.loc[best_idx, 'silhouette_score']
+    best_db = comparison_df.loc[best_idx, 'davies_bouldin_score']
+    best_rank = comparison_df.loc[best_idx, 'combined_rank']
+    comparison_df.loc[best_idx, 'selection_reason'] = (
+        f"Selected as top configuration (Combined Rank = {best_rank:.1f}, "
+        f"Silhouette = {best_sil:.4f}, Davies-Bouldin = {best_db:.4f})"
+    )
+
+    for idx in valid_indices:
+        if idx != best_idx:
+            c_rank = comparison_df.loc[idx, 'combined_rank']
+            comparison_df.loc[idx, 'selection_reason'] = f"Eligible candidate (Combined Rank = {c_rank:.1f})"
+
     best_row = comparison_df.loc[best_idx]
     best_algo = best_row['algorithm']
     best_k = int(best_row['n_clusters'])
@@ -361,6 +406,7 @@ def select_best_model(results, comparison_df):
     # Find matching result tuple
     for algo_name, k, labels, model, metrics in results:
         if metrics.get('algorithm', algo_name) == best_algo and metrics['n_clusters'] == best_k:
+            metrics['is_selected'] = True
             return labels, model, metrics
 
     return None, None, None

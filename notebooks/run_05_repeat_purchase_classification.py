@@ -128,6 +128,8 @@ def main():
         y_proba_best = np.full(len(y_pred_best), np.nan)
 
     pred_df = X_test.copy()
+    if 'CustomerID' in df.columns:
+        pred_df.insert(0, 'CustomerID', df.loc[X_test.index, 'CustomerID'].values)
     pred_df[TARGET_COL + '_actual'] = y_test.values
     pred_df[TARGET_COL + '_predicted'] = y_pred_best
     pred_df[TARGET_COL + '_probability'] = y_proba_best

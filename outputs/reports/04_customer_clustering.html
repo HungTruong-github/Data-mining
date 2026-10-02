@@ -7820,19 +7820,19 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [1]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">'..'</span><span class="p">))</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">PROCESSED_DIR</span><span class="p">,</span> <span class="n">TABLES_CLUSTERING</span><span class="p">,</span> <span class="n">MODELS_CLUSTERING_DIR</span><span class="p">,</span> <span class="n">FIGURES_CLUSTERING</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.clustering</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">src.config</span> <span class="kn">import</span> <span class="n">PROCESSED_DIR</span><span class="p">,</span> <span class="n">TABLES_CLUSTERING</span><span class="p">,</span> <span class="n">MODELS_CLUSTERING_DIR</span><span class="p">,</span> <span class="n">FIGURES_CLUSTERING</span>
+<span class="kn">from</span> <span class="nn">src.clustering</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">prepare_clustering_features</span><span class="p">,</span> <span class="n">run_kmeans</span><span class="p">,</span> <span class="n">run_gmm</span><span class="p">,</span> <span class="n">run_agglomerative</span><span class="p">,</span> <span class="n">run_dbscan</span><span class="p">,</span>
     <span class="n">build_comparison_table</span><span class="p">,</span> <span class="n">select_best_model</span><span class="p">,</span> <span class="n">create_cluster_profiles</span><span class="p">,</span> <span class="n">assign_business_names</span><span class="p">,</span>
     <span class="n">save_clustering_results</span><span class="p">,</span> <span class="n">pca_2d</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.visualization</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">src.visualization</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">plot_elbow_curve</span><span class="p">,</span> <span class="n">plot_silhouette_comparison</span><span class="p">,</span> <span class="n">plot_metrics_comparison</span><span class="p">,</span>
     <span class="n">plot_cluster_distribution</span><span class="p">,</span> <span class="n">plot_cluster_rfm_boxplots</span><span class="p">,</span> <span class="n">plot_pca_2d</span><span class="p">,</span> <span class="n">plot_rfm_heatmap</span>
 <span class="p">)</span>

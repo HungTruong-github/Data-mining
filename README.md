@@ -82,11 +82,12 @@ Data-mining/
 │   ├── references.md
 │   └── rubric_evidence_matrix.md
 │
-├── tests/                                # Unit tests
+├── tests/                                # Unit tests (34 tests, 100% pass)
 │   ├── test_preprocessing.py
 │   ├── test_feature_engineering.py
 │   ├── test_classification.py
-│   └── test_model_comparison.py
+│   ├── test_model_comparison.py
+│   └── test_app_smoke.py
 │
 ├── run_pipeline.py                       # Pipeline đầu–cuối (01→07)
 ├── requirements.txt

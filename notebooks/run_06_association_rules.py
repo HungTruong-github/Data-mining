@@ -80,9 +80,21 @@ def main():
         if 'conviction' in df.columns: cols.append('conviction')
         df[cols].to_csv(filepath, index=False)
 
+    # Dynamic selection of algorithm based on benchmark runtime
+    if apriori_time <= fpgrowth_time:
+        selected_rules = apriori_lift
+        selected_algo = 'Apriori'
+    else:
+        selected_rules = fpgrowth_lift
+        selected_algo = 'FP-Growth'
+
+    # Save to both primary and nested directory for consumer compatibility
+    save_rules_csv(apriori_lift, 'Apriori', TABLES_ASSOCIATION / 'apriori_rules.csv')
     save_rules_csv(apriori_lift, 'Apriori', RULES_TBL_DIR / 'apriori_rules.csv')
+    save_rules_csv(fpgrowth_lift, 'FP-Growth', TABLES_ASSOCIATION / 'fpgrowth_rules.csv')
     save_rules_csv(fpgrowth_lift, 'FP-Growth', RULES_TBL_DIR / 'fpgrowth_rules.csv')
-    save_rules_csv(fpgrowth_lift, 'FP-Growth', RULES_TBL_DIR / 'selected_association_rules.csv')
+    save_rules_csv(selected_rules, selected_algo, TABLES_ASSOCIATION / 'selected_association_rules.csv')
+    save_rules_csv(selected_rules, selected_algo, RULES_TBL_DIR / 'selected_association_rules.csv')
 
     top_rules = fpgrowth_lift.copy()
     top_rules['quality'] = top_rules['lift'] * top_rules['confidence']

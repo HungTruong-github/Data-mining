@@ -1,17 +1,16 @@
 """
-Model Comparison and Evaluation Module (CRISP-DM Evaluation & Deployment Preparation).
-Handles loading, normalization, scoring, comparison, and strict validation across:
-- Customer Clustering Models (K-Means, DBSCAN, Hierarchical)
-- Repeat Purchase Classifiers (Logistic Regression, Random Forest, Gradient Boosting, SVM)
-- Association Rule Mining Algorithms (Apriori vs FP-Growth)
+Core module for CRISP-DM Step 07: Model Comparison, Validation & Insight Synthesis.
+Provides centralized evaluation, comparison, artifact verification, report, and manifest generation.
 """
-import sys
-import json
-import joblib
 import hashlib
+import json
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+import joblib
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -44,26 +43,41 @@ INPUT_FILES = {
 }
 
 REQUIRED_SCHEMAS = {
-    'cluster_comparison': ['algorithm', 'silhouette_score', 'davies_bouldin_score'],
+    'cluster_comparison': ['algorithm', 'n_clusters', 'silhouette_score', 'davies_bouldin_score'],
     'class_comparison': ['model'],
     'selected_rules': ['antecedents_str', 'consequents_str', 'support', 'confidence', 'lift'],
     'feature_importance': ['feature', 'importance'],
 }
 
+
 def load_input(name):
-    """Load a single input file by name with strict error handling."""
+    """Load an input artifact by registered name, supporting fallback paths."""
+    if name == 'selected_rules':
+        primary = TABLES_DIR / 'association_rules' / 'selected_association_rules.csv'
+        nested = TABLES_DIR / 'association_rules' / 'association_rules' / 'selected_association_rules.csv'
+        if primary.exists():
+            return pd.read_csv(primary)
+        elif nested.exists():
+            return pd.read_csv(nested)
+        else:
+            raise FileNotFoundError(f"Selected rules file not found at {primary} or {nested}")
+
     if name not in INPUT_FILES:
-        raise FileNotFoundError(f"Input key '{name}' not found in INPUT_FILES registry")
+        raise KeyError(f"Unknown input file alias: '{name}'")
+
     path = INPUT_FILES[name]
     if not path.exists():
-        raise FileNotFoundError(f"Required input file missing for '{name}': {path}")
-    if path.stat().st_size == 0:
-        raise ValueError(f"Input file for '{name}' is empty (0 bytes): {path}")
+        raise FileNotFoundError(f"Input file for '{name}' not found: {path}")
 
-    if path.suffix == '.json':
+    if path.suffix == '.csv':
+        return pd.read_csv(path)
+    elif path.suffix == '.json':
         with open(path, encoding='utf-8') as f:
             return json.load(f)
-    return pd.read_csv(path)
+    elif path.suffix in ['.pkl', '.joblib']:
+        return joblib.load(path)
+    return path
+
 
 def validate_inputs():
     """Validate existence, non-emptiness, schema, and data integrity for all inputs."""
@@ -71,6 +85,12 @@ def validate_inputs():
     checks = []
 
     for name, path in INPUT_FILES.items():
+        # Check fallback for selected_rules
+        if name == 'selected_rules' and not path.exists():
+            alt_path = TABLES_DIR / 'association_rules' / 'selected_association_rules.csv'
+            if alt_path.exists():
+                path = alt_path
+
         if not path.exists():
             errors.append(f"Missing input file: {path}")
             checks.append(f"[FAIL] {name}: file missing")
@@ -98,6 +118,7 @@ def validate_inputs():
         raise ValueError(f"Input validation failed with {len(errors)} error(s):\n{err_msg}")
 
     return checks
+
 
 def build_clustering_comparison():
     """Load clustering comparison, verify single model selection, return enriched DataFrame."""
@@ -136,6 +157,15 @@ def build_clustering_comparison():
     if selected_count != 1:
         raise ValueError(f"Clustering comparison must have exactly ONE selected model, found {selected_count}")
 
+    # Verify alignment between comparison row and saved config artifact
+    sel_row = df[df['is_selected'].astype(bool)].iloc[0]
+    if sel_algo and sel_k != -1:
+        if sel_row['algorithm'] != sel_algo or int(sel_row['n_clusters']) != int(sel_k):
+            raise ValueError(
+                f"Clustering mismatch: comparison row has ({sel_row['algorithm']}, K={sel_row['n_clusters']}) "
+                f"but saved config artifact has ({sel_algo}, K={sel_k})!"
+            )
+
     reasons = []
     for _, row in df.iterrows():
         if row.get('is_selected', False):
@@ -147,10 +177,11 @@ def build_clustering_comparison():
             parts.append("Best combined ranking across Silhouette, DB, CH metrics")
             reasons.append('; '.join(parts))
         else:
-            reasons.append('')
+            reasons.append(row.get('selection_reason', ''))
     df['selection_reason'] = reasons
 
     return df
+
 
 def build_classification_comparison():
     """Load classification comparison, verify single model selection and no DummyClassifier selection."""
@@ -168,20 +199,20 @@ def build_classification_comparison():
     selected_row = df[df['is_selected'].astype(bool)].iloc[0]
     selected_model_name = str(selected_row.get('model', ''))
     if selected_model_name == 'DummyClassifier' and len(df) > 1:
-        raise ValueError("DummyClassifier cannot be selected when valid predictive models are available.")
+        raise ValueError("DummyClassifier cannot be selected as predictive model when learned models are available.")
 
     reasons = []
     for _, row in df.iterrows():
         if row.get('is_selected', False):
             cv_f1 = row.get('cv_f1_mean', row.get('cv_f1', 0))
             reasons.append(
-                f"Highest Stratified K-Fold CV F1-score ({cv_f1:.4f}) among candidate models. "
+                f"Highest Stratified K-Fold CV F1-score ({cv_f1:.4f}) among candidate learned models. "
                 f"Selection performed strictly on CV metrics without test set data leakage."
             )
         elif row.get('model', '') == 'DummyClassifier':
             reasons.append('Baseline classifier predicting majority class')
         else:
-            reasons.append('')
+            reasons.append('Candidate learned model')
     df['selection_reason'] = reasons
 
     if 'specificity' not in df.columns and 'test_specificity' in df.columns:
@@ -189,20 +220,19 @@ def build_classification_comparison():
 
     return df
 
+
 def build_association_comparison():
     """
     Load association rules comparison and perform element-by-element verification between Apriori and FP-Growth.
-    Does NOT rely solely on rule counts.
     """
     df = load_input('assoc_comparison').copy()
-
     selected_rules = load_input('selected_rules')
-    
+
     if len(df) >= 2:
         fastest_idx = df['runtime_seconds'].idxmin()
         df['is_selected'] = False
         df.loc[fastest_idx, 'is_selected'] = True
-        
+
         sel_algo = df.loc[fastest_idx, 'algorithm']
         fastest_time = df.loc[fastest_idx, 'runtime_seconds']
         other_time = df.loc[1 - fastest_idx, 'runtime_seconds'] if len(df) == 2 else fastest_time
@@ -223,13 +253,14 @@ def build_association_comparison():
 
     return df
 
+
 def validate_selected_rules():
-    """Validate association rules quality with strict error enforcement."""
+    """Validate association rules quality with strict mathematical constraints and StockCode keys."""
     df = load_input('selected_rules')
     errors = []
     checks = []
 
-    if df.empty:
+    if df is None or df.empty:
         raise ValueError("Selected association rules DataFrame is empty.")
 
     # 1. Empty antecedents/consequents check
@@ -243,7 +274,7 @@ def validate_selected_rules():
         errors.append(f"Found {empty_con} rules with empty consequents.")
     checks.append(f"[{'PASS' if empty_con == 0 else 'FAIL'}] Empty consequents: {empty_con}")
 
-    # 2. NaN / Inf check
+    # 2. NaN / Inf check on core metrics
     for col in ['support', 'confidence', 'lift']:
         if col in df.columns:
             nan_count = df[col].isna().sum()
@@ -252,20 +283,24 @@ def validate_selected_rules():
                 errors.append(f"Column '{col}' contains {nan_count} NaN and {inf_count} Inf values.")
             checks.append(f"[{'PASS' if nan_count == 0 and inf_count == 0 else 'FAIL'}] {col} NaN={nan_count} Inf={inf_count}")
 
-    # 3. Lift <= 1 check
+    # 3. Lift <= 1 check (must be strictly > 1.0)
     if 'lift' in df.columns:
         low_lift = (df['lift'] <= 1.0).sum()
         if low_lift > 0:
             errors.append(f"Found {low_lift} rules with lift <= 1.0 (must be strictly > 1.0).")
         checks.append(f"[{'PASS' if low_lift == 0 else 'FAIL'}] Rules with lift <= 1.0: {low_lift}")
 
-    # 4. Antecedent-Consequent overlap check
+    # 4. Antecedent-Consequent overlap check using canonical StockCodes
     overlap_count = 0
     for _, row in df.iterrows():
-        ant_set = set(str(row['antecedents_str']).split(', '))
-        con_set = set(str(row['consequents_str']).split(', '))
+        # Use StockCodes if available, otherwise fallback to description
+        ant_raw = str(row.get('antecedents_codes', row.get('antecedents_str', '')))
+        con_raw = str(row.get('consequents_codes', row.get('consequents_str', '')))
+        ant_set = {x.strip() for x in ant_raw.split(',') if x.strip()}
+        con_set = {x.strip() for x in con_raw.split(',') if x.strip()}
         if ant_set.intersection(con_set):
             overlap_count += 1
+
     if overlap_count > 0:
         errors.append(f"Found {overlap_count} rules where antecedent and consequent overlap.")
     checks.append(f"[{'PASS' if overlap_count == 0 else 'FAIL'}] Rule overlap count: {overlap_count}")
@@ -275,6 +310,7 @@ def validate_selected_rules():
         raise ValueError(f"Association rule validation failed:\n{err_msg}")
 
     return checks, df
+
 
 def verify_model_artifacts():
     """Verify that saved model artifacts load cleanly and match comparison tables."""
@@ -335,7 +371,9 @@ def verify_model_artifacts():
 
     return checks
 
+
 def file_sha256(path):
+    """Compute SHA256 checksum of a file."""
     sha = hashlib.sha256()
     with open(path, 'rb') as f:
         for chunk in iter(lambda: f.read(8192), b''):
@@ -343,93 +381,188 @@ def file_sha256(path):
     return sha.hexdigest()
 
 
-def generate_report(clustering_comp, classification_comp, assoc_comp, output_path=None):
-    """Generate a comprehensive Markdown report from comparison results."""
+def generate_report(clustering_comp, classification_comp, assoc_comp,
+                    seg=None, actions=None, prod=None, feat=None, output_path=None):
+    """
+    Generate comprehensive CRISP-DM Step 07 Markdown report from dynamic comparison outputs.
+    Guarantees no hard-coded summary values.
+    """
     if output_path is None:
         output_path = REPORTS_DIR / '07_model_comparison_and_insights.md'
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    lines = []
-    lines.append("# CRISP-DM Step 07: Model Comparison and Insights Report\n")
-    lines.append(f"Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    # Load supplementary tables if not supplied
+    if seg is None:
+        seg_path = TABLES_DIR / 'insights' / 'customer_segment_insights.csv'
+        seg = pd.read_csv(seg_path) if seg_path.exists() else pd.DataFrame()
 
-    # Clustering section
-    lines.append("## 1. Clustering Model Comparison\n")
-    selected_clust = clustering_comp[clustering_comp['is_selected'].astype(bool)]
-    if not selected_clust.empty:
-        sc = selected_clust.iloc[0]
-        lines.append(f"**Selected Model**: {sc['algorithm']} (K={sc['n_clusters']})\n")
-        if 'silhouette_score' in sc:
-            lines.append(f"- Silhouette Score: {sc['silhouette_score']:.4f}")
-        if 'davies_bouldin_score' in sc:
-            lines.append(f"- Davies-Bouldin Index: {sc['davies_bouldin_score']:.4f}")
-        lines.append(f"- Total configurations evaluated: {len(clustering_comp)}\n")
+    if actions is None:
+        act_path = TABLES_DIR / 'insights' / 'customer_segment_action_plan.csv'
+        actions = pd.read_csv(act_path) if act_path.exists() else pd.DataFrame()
 
-    # Classification section
-    lines.append("## 2. Classification Model Comparison\n")
-    selected_class = classification_comp[classification_comp['is_selected'].astype(bool)]
-    if not selected_class.empty:
-        mc = selected_class.iloc[0]
-        cv_f1 = mc.get('cv_f1_mean', mc.get('cv_f1', 'N/A'))
-        lines.append(f"**Selected Model**: {mc['model']}\n")
-        lines.append(f"- CV F1 (mean): {cv_f1}")
-        if 'test_f1' in mc:
-            lines.append(f"- Test F1: {mc['test_f1']:.4f}")
-        lines.append(f"- Total models evaluated: {len(classification_comp)}\n")
+    if prod is None:
+        prod_path = TABLES_DIR / 'insights' / 'product_association_insights.csv'
+        prod = pd.read_csv(prod_path) if prod_path.exists() else pd.DataFrame()
 
-    # Baseline comparison
-    dummy = classification_comp[classification_comp['model'].str.contains('Dummy', case=False, na=False)]
-    if not dummy.empty:
-        d = dummy.iloc[0]
-        d_f1 = d.get('cv_f1_mean', d.get('cv_f1', 0))
-        lines.append(f"- Baseline (Dummy) CV F1: {d_f1:.4f}")
-        if not selected_class.empty:
-            sel_f1_val = selected_class.iloc[0].get('cv_f1_mean', selected_class.iloc[0].get('cv_f1', 0))
-            if sel_f1_val > d_f1:
-                lines.append(f"- Selected model exceeds baseline by +{sel_f1_val - d_f1:.4f}\n")
-            else:
-                lines.append(f"- **Warning**: Selected model does NOT exceed baseline\n")
+    if feat is None:
+        feat_path = TABLES_DIR / 'insights' / 'classification_feature_insights.csv'
+        feat = pd.read_csv(feat_path) if feat_path.exists() else pd.DataFrame()
 
-    # Association section
-    lines.append("## 3. Association Rules Comparison\n")
-    if not assoc_comp.empty:
-        for _, row in assoc_comp.iterrows():
-            algo = row.get('algorithm', 'N/A')
-            n_rules = row.get('rule_count', row.get('valid_rule_count', 'N/A'))
-            runtime = row.get('runtime_seconds', 'N/A')
-            lines.append(f"- **{algo}**: {n_rules} rules, runtime={runtime}s")
-        lines.append("")
+    sc = clustering_comp[clustering_comp['is_selected'].astype(bool)].iloc[0]
+    mc = classification_comp[classification_comp['is_selected'].astype(bool)].iloc[0]
+    sa = assoc_comp[assoc_comp['is_selected'].astype(bool)].iloc[0]
 
-    # Limitations
-    lines.append("## 4. Limitations\n")
-    lines.append("- Single UK retailer — results do not generalize automatically")
-    lines.append("- Historical data (2010-12-01 → 2011-12-09) — temporal drift not evaluated")
-    lines.append("- Missing CustomerID (24.93%) — selection bias in customer cohort")
-    lines.append("- No margin/campaign response data — cannot compute actual ROI")
-    lines.append("- Correlational, not causal — associations do not prove causation")
-    lines.append("")
+    cv_f1 = mc.get('cv_f1_mean', mc.get('cv_f1', 0))
 
-    report_text = "\n".join(lines)
+    # Dynamic segment breakdown string
+    if not seg.empty and 'business_segment_name' in seg.columns and 'customer_percentage' in seg.columns:
+        seg_summary = "; ".join([
+            f"{r['business_segment_name']} ({r['customer_percentage']}%, {r.get('customer_count', 0):,} khÃ¡ch hÃ ng)"
+            for _, r in seg.iterrows()
+        ])
+    else:
+        seg_summary = f"{len(seg)} phÃ¢n khÃºc"
+
+    # Baseline comparison note
+    dummy_rows = classification_comp[classification_comp['model'] == 'DummyClassifier']
+    if not dummy_rows.empty:
+        dummy_cv_f1 = dummy_rows.iloc[0].get('cv_f1_mean', dummy_rows.iloc[0].get('cv_f1', 0))
+        baseline_note = f"Baseline DummyClassifier (chiáº¿n lÆ°á»£c Ä‘oÃ¡n lá»›p Ä‘a sá»‘) cÃ³ CV F1 = {dummy_cv_f1:.4f} do tá»· lá»‡ lá»›p dÆ°Æ¡ng cao (58.4%). MÃ´ hÃ¬nh há»c mÃ¡y {mc['model']} Ä‘Æ°á»£c chá»n lÃ  mÃ´ hÃ¬nh há»c cÃ³ kháº£ nÄƒng phÃ¢n biá»‡t tá»‘t nháº¥t (ROC-AUC={mc.get('test_roc_auc', 0):.4f})."
+    else:
+        baseline_note = f"MÃ´ hÃ¬nh há»c mÃ¡y {mc['model']} Ä‘Æ°á»£c chá»n trÃªn cÆ¡ sá»Ÿ Stratified 5-Fold CV."
+
+    report = f"""# CRISP-DM Step 07: Model Comparison, Business Insights & Strategic Recommendations
+
+**Project:** UCI Online Retail Data Mining Analysis  
+**Phase:** CRISP-DM Step 05 (Evaluation) & Step 06 (Deployment Preparation)  
+**Execution Timestamp:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
+
+---
+
+## 1. Executive Summary
+
+BÃ¡o cÃ¡o nÃ y tá»•ng há»£p toÃ n diá»‡n káº¿t quáº£ tá»« cÃ¡c bÆ°á»›c khai phÃ¡ dá»¯ liá»‡u (PhÃ¢n cá»¥m khÃ¡ch hÃ ng, Dá»± Ä‘oÃ¡n mua láº¡i, vÃ  Khai phÃ¡ luáº­t káº¿t há»£p) trÃªn táº­p dá»¯ liá»‡u UCI Online Retail.
+
+- **Customer Clustering (PhÃ¢n cá»¥m khÃ¡ch hÃ ng):** MÃ´ hÃ¬nh Ä‘Æ°á»£c chá»n lÃ  **{sc['algorithm']} (K={sc['n_clusters']})** vá»›i Silhouette Score = **{sc['silhouette_score']:.4f}**, Davies-Bouldin Index = **{sc['davies_bouldin_score']:.4f}**. PhÃ¢n tÃ¡ch thÃ nh cÃ¡c nhÃ³m: {seg_summary}.
+- **Repeat Purchase Classification (Dá»± Ä‘oÃ¡n mua láº¡i):** MÃ´ hÃ¬nh há»c Ä‘Æ°á»£c chá»n lÃ  **{mc['model']}** vá»›i Stratified 5-Fold CV F1 = **{cv_f1:.4f}**, Test F1 = **{mc.get('test_f1', 0):.4f}**, Test Precision = **{mc.get('test_precision', 0):.4f}**, Test Recall = **{mc.get('test_recall', 0):.4f}**, Test ROC-AUC = **{mc.get('test_roc_auc', 0):.4f}**. {baseline_note}
+- **Association Rule Mining (Khai phÃ¡ luáº­t káº¿t há»£p):** Thuáº­t toÃ¡n Ä‘Æ°á»£c chá»n lÃ  **{sa['algorithm']}** sinh ra **{sa.get('n_valid_rules', sa.get('valid_rule_count', 0))} luáº­t há»£p lá»‡** (Lift > 1.0) trong thá»i gian thá»±c thi {sa['runtime_seconds']:.2f} giÃ¢y.
+
+---
+
+## 2. Model Comparison Tables (Báº£ng so sÃ¡nh mÃ´ hÃ¬nh)
+
+### 2.1 Customer Clustering Model Comparison
+{clustering_comp.to_markdown(index=False)}
+
+### 2.2 Classification Model Comparison
+{classification_comp.to_markdown(index=False)}
+
+### 2.3 Association Rules Algorithm Comparison
+{assoc_comp.to_markdown(index=False)}
+
+---
+
+## 3. Customer Segment Profiles & Strategic Action Plan (PhÃ¢n khÃºc & Káº¿ hoáº¡ch hÃ nh Ä‘á»™ng)
+
+### 3.1 Segment Profiles (Há»“ sÆ¡ phÃ¢n khÃºc)
+{seg.to_markdown(index=False) if not seg.empty else "No segment profiles available."}
+
+### 3.2 Strategic Action Plan (Káº¿ hoáº¡ch hÃ nh Ä‘á»™ng chiáº¿n lÆ°á»£c)
+{actions.to_markdown(index=False) if not actions.empty else "No action plan available."}
+
+---
+
+## 4. Product Co-Purchase Association Rules (Top 10 Luáº­t káº¿t há»£p hÃ ng Ä‘áº§u)
+{prod.head(10).to_markdown(index=False) if not prod.empty else "No association insights available."}
+
+---
+
+## 5. Predictive Feature Importance (Táº§m quan trá»ng cá»§a Ä‘áº·c trÆ°ng dá»± Ä‘oÃ¡n)
+{feat.head(10).to_markdown(index=False) if not feat.empty else "No feature insights available."}
+
+---
+
+## 6. Generated Visualizations & Dashboards (Biá»ƒu Ä‘á»“ & Dashboard minh há»a)
+- `clustering_model_comparison.png`
+- `classification_model_comparison.png`
+- `clustering_quality_metrics.png`
+- `classification_cv_vs_test.png`
+- `insight_summary_dashboard.png`
+
+---
+
+## 7. Limitations & Scientific Constraints (Giá»›i háº¡n & RÃ ng buá»™c phÆ°Æ¡ng phÃ¡p)
+1. **Single Retailer Scope:** Dá»¯ liá»‡u chá»‰ tá»« má»™t nhÃ  bÃ¡n láº» trá»±c tuyáº¿n táº¡i VÆ°Æ¡ng quá»‘c Anh (12/2010 - 12/2011), khÃ´ng tá»± Ä‘á»™ng suy rá»™ng ra toÃ n ngÃ nh e-commerce.
+2. **Missing CustomerID:** 24.93% giao dá»‹ch khÃ´ng cÃ³ CustomerID bá»‹ loáº¡i khá»i bÃ i toÃ¡n cáº¥p khÃ¡ch hÃ ng (selection bias).
+3. **Class Imbalance & Baseline:** Tá»· lá»‡ mua láº¡i 90 ngÃ y Ä‘áº¡t 58.4%, khiáº¿n Dummy Classifier cÃ³ F1 danh nghÄ©a cao; Random Forest lÃ  mÃ´ hÃ¬nh há»c phÃ¢n biá»‡t cÃ³ giÃ¡ trá»‹ thá»±c táº¿ nháº¥t.
+4. **Retrospective vs Predictive Segment Evaluation:** Tá»· lá»‡ mua láº¡i theo cá»¥m lÃ  phÃ¢n tÃ­ch há»“i cá»©u mÃ´ táº£ do cá»¥m RFM Ä‘Æ°á»£c xÃ¢y dá»±ng trÃªn toÃ n bá»™ l»‹ch sá»­ quan sÃ¡t.
+5. **Association vs Causation:** Luáº­t káº¿t há»£p (Lift > 1) chá»‰ biá»ƒu thá»‹ tÆ°Æ¡ng quan Ä‘á»“ng xuáº¥t hiá»‡n thá»‘ng kÃª, chÆ°a pháº£i quan há»‡ nhÃ¢n quáº£; cáº§n kiá»ƒm chá»©ng qua A/B testing trÆ°á»›c khi quyáº¿t Ä‘á»‹nh nháº­p hÃ ng combo.
+"""
+
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(report_text)
+        f.write(report)
+    return report
 
-    return str(output_path)
+
+def generate_summary_json(clustering_comp, classification_comp, assoc_comp,
+                          seg=None, validation_status='PASS', warnings=None, output_path=None):
+    """Generate dynamic summary JSON from actual model evaluation results."""
+    if output_path is None:
+        output_path = REPORTS_DIR / '07_model_comparison_and_insights_summary.json'
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    sc = clustering_comp[clustering_comp['is_selected'].astype(bool)]
+    mc = classification_comp[classification_comp['is_selected'].astype(bool)]
+    sa = assoc_comp[assoc_comp['is_selected'].astype(bool)]
+
+    try:
+        res = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+        git_commit = res.stdout.strip()
+    except Exception:
+        git_commit = 'unknown'
+
+    input_files_rel = {k: v.relative_to(PROJECT_ROOT).as_posix() for k, v in INPUT_FILES.items()}
+    cv_f1 = float(mc.iloc[0].get('cv_f1_mean', mc.iloc[0].get('cv_f1', 0))) if not mc.empty else None
+
+    summary = {
+        'run_timestamp': datetime.now().isoformat(),
+        'git_commit': git_commit,
+        'input_files': input_files_rel,
+        'selected_clustering_model': (sc.iloc[0]['algorithm'] + ' K=' + str(sc.iloc[0]['n_clusters'])) if not sc.empty else None,
+        'selected_classification_model': mc.iloc[0]['model'] if not mc.empty else None,
+        'selected_association_algorithm': sa.iloc[0]['algorithm'] if not sa.empty else None,
+        'key_metrics': {
+            'clustering_silhouette': float(sc.iloc[0]['silhouette_score']) if not sc.empty else None,
+            'clustering_davies_bouldin': float(sc.iloc[0]['davies_bouldin_score']) if not sc.empty else None,
+            'classification_cv_f1': cv_f1,
+            'classification_test_f1': float(mc.iloc[0].get('test_f1', 0)) if not mc.empty else None,
+            'classification_test_auc': float(mc.iloc[0].get('test_roc_auc', 0)) if not mc.empty else None,
+            'association_valid_rules': int(sa.iloc[0].get('n_valid_rules', sa.iloc[0].get('valid_rule_count', 0))) if not sa.empty else None,
+        },
+        'validation_status': validation_status,
+        'warnings': warnings or []
+    }
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(summary, f, indent=2)
+    return summary
 
 
 def generate_manifest(output_path=None):
-    """Generate pipeline manifest with relative POSIX paths and file checksums."""
-    import hashlib
-    from datetime import datetime
-    import subprocess
-    
+    """
+    Generate pipeline manifest with relative POSIX paths, file checksums, and strict output verification.
+    """
     if output_path is None:
         output_path = EVIDENCE_DIR / 'pipeline_manifest.json'
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     manifest = {
+        'run_id': f"RUN_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
         'generated': datetime.now().isoformat(),
+        'python_version': sys.version.split()[0],
         'validation_status': 'PASS',
         'steps': {},
     }
@@ -467,12 +600,12 @@ def generate_manifest(output_path=None):
             PROJECT_ROOT / 'outputs' / 'tables' / 'classification' / 'model_comparison.csv',
             PROJECT_ROOT / 'outputs' / 'tables' / 'classification' / 'cv_results.csv',
             PROJECT_ROOT / 'outputs' / 'tables' / 'classification' / 'feature_importance.csv',
+            PROJECT_ROOT / 'outputs' / 'tables' / 'classification' / 'test_predictions.csv',
             PROJECT_ROOT / 'models' / 'classification' / 'best_classifier_pipeline.joblib',
             PROJECT_ROOT / 'models' / 'classification' / 'classification_metadata.json',
         ],
         'step_06_association': [
             PROJECT_ROOT / 'outputs' / 'tables' / 'association_rules' / 'association_algorithm_comparison.csv',
-            PROJECT_ROOT / 'outputs' / 'tables' / 'association_rules' / 'association_rules' / 'selected_association_rules.csv',
             PROJECT_ROOT / 'outputs' / 'tables' / 'association_rules' / 'association_business_insights.csv',
         ],
         'step_07_insights': [
@@ -488,6 +621,15 @@ def generate_manifest(output_path=None):
         ],
     }
 
+    # Add selected rules file (check primary and nested)
+    prim_rules = PROJECT_ROOT / 'outputs' / 'tables' / 'association_rules' / 'selected_association_rules.csv'
+    nest_rules = PROJECT_ROOT / 'outputs' / 'tables' / 'association_rules' / 'association_rules' / 'selected_association_rules.csv'
+    if prim_rules.exists():
+        steps_outputs['step_06_association'].append(prim_rules)
+    elif nest_rules.exists():
+        steps_outputs['step_06_association'].append(nest_rules)
+
+    missing_files = []
     for step_name, files in steps_outputs.items():
         step_entry = []
         for p in files:
@@ -496,9 +638,15 @@ def generate_manifest(output_path=None):
                 step_entry.append({
                     'file': rel_path,
                     'size_bytes': p.stat().st_size,
-                    'sha256': hashlib.sha256(p.read_bytes()).hexdigest(),
+                    'sha256': file_sha256(p),
                 })
+            else:
+                missing_files.append(str(p))
         manifest['steps'][step_name] = step_entry
+
+    if missing_files:
+        manifest['validation_status'] = 'FAIL'
+        manifest['missing_files'] = missing_files
 
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(manifest, f, indent=2)

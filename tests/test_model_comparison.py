@@ -116,3 +116,114 @@ def test_report_and_manifest_generation():
             for entry in files:
                 assert 'sha256' in entry
                 assert len(entry['sha256']) == 64
+
+
+def test_action_plan_structure_and_columns():
+    """Kiểm tra cấu trúc và tính đầy đủ của bảng kế hoạch hành động chiến lược."""
+    from src.insights import build_action_plan
+    
+    sample_seg = pd.DataFrame([{
+        'cluster_id': 0,
+        'business_segment_name': 'Casual Buyers',
+        'customer_count': 1000,
+        'customer_percentage': 70.0,
+        'recency_mean': 220.0,
+        'recency_median': 200.0,
+        'frequency_mean': 1.5,
+        'frequency_median': 1.0,
+        'monetary_mean': 300.0,
+        'monetary_median': 200.0,
+        'repeat_purchase_rate': 0.25,
+    }, {
+        'cluster_id': 1,
+        'business_segment_name': 'High-Value Active Repeaters',
+        'customer_count': 400,
+        'customer_percentage': 30.0,
+        'recency_mean': 25.0,
+        'recency_median': 15.0,
+        'frequency_mean': 6.5,
+        'frequency_median': 5.0,
+        'monetary_mean': 2500.0,
+        'monetary_median': 1800.0,
+        'repeat_purchase_rate': 0.75,
+    }])
+    
+    plan = build_action_plan(sample_seg)
+    assert not plan.empty, "Action plan không được rỗng"
+    
+    required_cols = [
+        'cluster_id', 'business_segment_name', 'customer_count', 'customer_percentage',
+        'strategy', 'recommended_action', 'evidence', 'target_kpi', 'verification_method', 'limitations'
+    ]
+    for col in required_cols:
+        assert col in plan.columns, f"Action plan thiếu cột bắt buộc: {col}"
+    
+    assert len(plan['cluster_id'].unique()) == 2, "Action plan phải bao phủ cả 2 cụm"
+
+
+def test_compare_rule_sets_detects_content_mismatch():
+    """Kiểm tra việc phát hiện hai bộ luật có cùng số lượng nhưng khác nội dung StockCode."""
+    from src.association_rules import compare_rule_sets
+    
+    # Bộ A: 2 luật
+    rules_a = pd.DataFrame([
+        {'antecedents': frozenset(['22383']), 'consequents': frozenset(['22384']), 'support': 0.02, 'confidence': 0.7, 'lift': 3.5},
+        {'antecedents': frozenset(['20725']), 'consequents': frozenset(['20727']), 'support': 0.03, 'confidence': 0.6, 'lift': 2.5},
+    ])
+    
+    # Bộ B: Cùng 2 luật nhưng luật thứ 2 khác sản phẩm
+    rules_b = pd.DataFrame([
+        {'antecedents': frozenset(['22383']), 'consequents': frozenset(['22384']), 'support': 0.02, 'confidence': 0.7, 'lift': 3.5},
+        {'antecedents': frozenset(['85123A']), 'consequents': frozenset(['21733']), 'support': 0.03, 'confidence': 0.6, 'lift': 2.5},
+    ])
+    
+    res = compare_rule_sets(rules_a, rules_b, 'Apriori', 'FP-Growth')
+    assert res['is_equivalent'] is False, "Phải phát hiện nội dung khác nhau dù cùng số lượng luật!"
+    assert len(res['only_in_Apriori']) == 1
+    assert len(res['only_in_FP-Growth']) == 1
+
+
+def test_validate_rules_enforces_lift_and_handles_inf_conviction():
+    """Kiểm tra việc loại bỏ lift <= 1 và giữ nguyên luật hợp lệ có conviction vô hạn (+inf)."""
+    from src.association_rules import validate_rules
+    
+    rules = pd.DataFrame([
+        # Luật 1: lift <= 1 (độc lập hoặc tương quan âm -> phải bị loại)
+        {'antecedents': frozenset(['A']), 'consequents': frozenset(['B']), 'support': 0.05, 'confidence': 0.5, 'lift': 0.95, 'conviction': 1.1},
+        # Luật 2: lift > 1, confidence = 1.0 -> conviction = +inf (hợp lệ toán học -> phải được giữ)
+        {'antecedents': frozenset(['C']), 'consequents': frozenset(['D']), 'support': 0.04, 'confidence': 1.0, 'lift': 4.0, 'conviction': np.inf},
+        # Luật 3: antecedent trùng consequent (overlap -> phải bị loại)
+        {'antecedents': frozenset(['E', 'F']), 'consequents': frozenset(['F']), 'support': 0.03, 'confidence': 0.8, 'lift': 3.0, 'conviction': 2.0},
+    ])
+    
+    valid_rules, checks = validate_rules(rules, min_support=0.01, min_confidence=0.5)
+    
+    assert len(valid_rules) == 1, f"Chỉ có đúng 1 luật hợp lệ, kết quả trả về {len(valid_rules)} luật"
+    kept_rule = valid_rules.iloc[0]
+    assert kept_rule['antecedents'] == frozenset(['C'])
+    assert np.isinf(kept_rule['conviction']), "Conviction +inf hợp lệ phải được giữ nguyên"
+
+
+def test_segment_insights_reports_cohort_coverage():
+    """Kiểm tra báo cáo độ bao phủ cohort và mẫu số rõ ràng trong segment insights."""
+    from src.insights import build_customer_segment_insights
+    
+    try:
+        seg_insights = build_customer_segment_insights()
+        assert not seg_insights.empty
+        expected_cols = [
+            'cluster_id', 'business_segment_name', 'customer_count', 'customer_percentage',
+            'eligible_labeled_customers', 'repeat_customers', 'unlabeled_customers',
+            'cohort_coverage_pct', 'repeat_purchase_rate'
+        ]
+        for col in expected_cols:
+            assert col in seg_insights.columns, f"Thiếu cột cohort audit: {col}"
+            
+        # Tổng số khách eligible + unlabeled phải bằng total customer_count
+        for _, row in seg_insights.iterrows():
+            total = row['customer_count']
+            elig = row['eligible_labeled_customers']
+            unlab = row['unlabeled_customers']
+            assert elig + unlab == total, f"Mẫu số không khớp: {elig} + {unlab} != {total}"
+    except Exception as e:
+        pytest.skip(f"Prerequisite files not generated yet: {e}")

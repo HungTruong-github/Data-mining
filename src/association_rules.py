@@ -147,58 +147,147 @@ def generate_rules(freq_itemsets, min_confidence=0.5, metric='confidence'):
 # ====================================================================
 def validate_rules(rules, min_support=0.02, min_confidence=0.5):
     """
-    Validate association rules quality.
-    Returns validated rules and list of check results.
+    Validate association rules quality and enforce mathematical constraints.
+    Returns validated rules and detailed check results.
+
+    Enforced criteria:
+    - support >= min_support
+    - confidence >= min_confidence
+    - lift > 1.0 (positive association only; lift <= 1 means independent or negative)
+    - Non-empty antecedent and consequent
+    - Disjoint antecedent and consequent (no overlap)
+    - Valid numeric values in core metrics (no NaN/Inf in support, confidence, lift)
+    - Mathematical preservation of valid +inf conviction (when confidence == 1.0)
+    - Unique rules (drop duplicates)
     """
     checks = []
     n_orig = len(rules)
 
-    if rules.empty:
-        checks.append('[WARN] No rules generated')
-        return rules, checks
+    if rules is None or rules.empty:
+        checks.append('[WARN] Empty rules input')
+        return pd.DataFrame(), checks
 
-    # Filter: support >= min_support
+    # 1. Enforce support threshold
     rules = rules[rules['support'] >= min_support].copy()
     checks.append(f'[OK] support >= {min_support}: {len(rules)}/{n_orig} rules')
 
-    # Filter: confidence >= min_confidence
+    # 2. Enforce confidence threshold
     rules = rules[rules['confidence'] >= min_confidence].copy()
     checks.append(f'[OK] confidence >= {min_confidence}: {len(rules)} rules')
 
-    # Filter: lift > 1
-    valid_lift = rules[rules['lift'] > 1].copy()
-    checks.append(f'[OK] lift > 1: {len(valid_lift)}/{len(rules)} rules')
+    # 3. Enforce lift > 1.0 (actually filter the returned rules!)
+    rules = rules[rules['lift'] > 1.0].copy()
+    checks.append(f'[OK] lift > 1.0 enforced: {len(rules)} rules')
 
-    # Check no empty antecedent/consequent
-    empty_ant = rules['antecedents'].apply(lambda x: len(x) == 0).sum()
-    empty_con = rules['consequents'].apply(lambda x: len(x) == 0).sum()
-    checks.append(f'[OK] Empty antecedent: {empty_ant}, Empty consequent: {empty_con}')
+    # 4. Filter empty antecedent / consequent
+    valid_ant = rules['antecedents'].apply(lambda x: len(x) > 0)
+    valid_con = rules['consequents'].apply(lambda x: len(x) > 0)
+    rules = rules[valid_ant & valid_con].copy()
+    checks.append(f'[OK] Non-empty antecedent and consequent: {len(rules)} rules')
 
-    # Check antecedent/consequent no intersection
-    overlap = rules.apply(
-        lambda r: len(r['antecedents'].intersection(r['consequents'])), axis=1
-    ).sum()
-    checks.append(f'[OK] Antecedent-consequent overlap: {overlap}')
+    # 5. Filter antecedent-consequent overlap (must be disjoint sets)
+    no_overlap = rules.apply(
+        lambda r: len(r['antecedents'].intersection(r['consequents'])) == 0, axis=1
+    )
+    rules = rules[no_overlap].copy()
+    checks.append(f'[OK] Disjoint antecedent and consequent (no overlap): {len(rules)} rules')
 
-    # Check for NaN/inf
-    nan_count = rules[['support', 'confidence', 'lift']].isna().sum().sum()
-    inf_count = np.isinf(rules[['support', 'confidence', 'lift']].select_dtypes(include=[np.number])).sum().sum()
-    checks.append(f'[OK] NaN in metrics: {nan_count}, Inf: {inf_count}')
+    # 6. Check core metrics for NaN / Inf
+    core_metrics = ['support', 'confidence', 'lift']
+    nan_count = rules[core_metrics].isna().sum().sum()
+    inf_count = np.isinf(rules[core_metrics].select_dtypes(include=[np.number])).sum().sum()
+    if nan_count > 0 or inf_count > 0:
+        rules = rules[~rules[core_metrics].isna().any(axis=1)].copy()
+        rules = rules[~np.isinf(rules[core_metrics]).any(axis=1)].copy()
+        checks.append(f'[WARN] Filtered {nan_count} NaNs and {inf_count} Infs from core metrics')
+    else:
+        checks.append('[OK] Core metrics are finite and non-null')
 
-    # Remove inf conviction rows
-    if 'conviction' in rules.columns:
-        rules = rules[~np.isinf(rules['conviction'])].copy()
-        rules['conviction'] = rules['conviction'].fillna(0)
+    # 7. Preserve valid +inf conviction mathematically without mechanical removal
+    # Conviction = (1 - sup(consequent)) / (1 - confidence). When confidence == 1, conviction is +inf.
+    # We do NOT drop these rules because confidence=1 is the strongest logical implication!
 
-    # Remove duplicates
+    # 8. Remove duplicate rules
     n_before = len(rules)
-    rules = rules.drop_duplicates(subset=['antecedents', 'consequents'])
-    checks.append(f'[OK] Duplicates removed: {n_before - len(rules)}')
+    # Ensure sets are hashable frozensets for deduplication
+    rules['ant_canonical'] = rules['antecedents'].apply(lambda x: ', '.join(sorted(x)))
+    rules['con_canonical'] = rules['consequents'].apply(lambda x: ', '.join(sorted(x)))
+    rules = rules.drop_duplicates(subset=['ant_canonical', 'con_canonical']).copy()
+    rules = rules.drop(columns=['ant_canonical', 'con_canonical'])
+    checks.append(f'[OK] Duplicates removed: {n_before - len(rules)} (Remaining: {len(rules)})')
 
-    # Sort by lift, confidence, support
-    rules = rules.sort_values(['lift', 'confidence', 'support'], ascending=[False, False, False])
+    # 9. Sort by lift, confidence, support descending
+    rules = rules.sort_values(['lift', 'confidence', 'support'], ascending=[False, False, False]).reset_index(drop=True)
 
     return rules, checks
+
+
+def canonical_rule_key(antecedents, consequents):
+    """Generate unambiguous canonical string key for a rule based on sorted StockCodes."""
+    ant_str = ', '.join(sorted(antecedents))
+    con_str = ', '.join(sorted(consequents))
+    return f"{{{ant_str}}} -> {{{con_str}}}"
+
+
+def compare_rule_sets(rules_a, rules_b, algo_a_name="Apriori", algo_b_name="FP-Growth", tolerance=1e-5):
+    """
+    Compare two sets of association rules by canonical StockCode representation.
+    Verifies actual content equivalence beyond simple count matching.
+
+    Returns
+    -------
+    dict with comparison metrics:
+      - is_equivalent: bool
+      - count_a: int
+      - count_b: int
+      - matched_count: int
+      - only_in_a: list
+      - only_in_b: list
+      - max_support_diff: float
+      - max_confidence_diff: float
+      - max_lift_diff: float
+    """
+    df_a = rules_a.copy()
+    df_b = rules_b.copy()
+
+    df_a['canonical_key'] = df_a.apply(lambda r: canonical_rule_key(r['antecedents'], r['consequents']), axis=1)
+    df_b['canonical_key'] = df_b.apply(lambda r: canonical_rule_key(r['antecedents'], r['consequents']), axis=1)
+
+    keys_a = set(df_a['canonical_key'])
+    keys_b = set(df_b['canonical_key'])
+
+    only_in_a = sorted(list(keys_a - keys_b))
+    only_in_b = sorted(list(keys_b - keys_a))
+    common_keys = sorted(list(keys_a & keys_b))
+
+    merged = df_a.merge(df_b, on='canonical_key', suffixes=('_a', '_b'))
+
+    if not merged.empty:
+        sup_diff = (merged['support_a'] - merged['support_b']).abs().max()
+        conf_diff = (merged['confidence_a'] - merged['confidence_b']).abs().max()
+        lift_diff = (merged['lift_a'] - merged['lift_b']).abs().max()
+    else:
+        sup_diff, conf_diff, lift_diff = 0.0, 0.0, 0.0
+
+    is_equivalent = (
+        len(only_in_a) == 0 and
+        len(only_in_b) == 0 and
+        sup_diff <= tolerance and
+        conf_diff <= tolerance and
+        lift_diff <= tolerance
+    )
+
+    return {
+        'is_equivalent': is_equivalent,
+        f'count_{algo_a_name}': len(df_a),
+        f'count_{algo_b_name}': len(df_b),
+        'matched_count': len(common_keys),
+        f'only_in_{algo_a_name}': only_in_a,
+        f'only_in_{algo_b_name}': only_in_b,
+        'max_support_diff': float(sup_diff),
+        'max_confidence_diff': float(conf_diff),
+        'max_lift_diff': float(lift_diff),
+    }
 
 
 # ====================================================================
@@ -231,7 +320,7 @@ def frozenset_to_names(fs, mapping):
 # ====================================================================
 def build_algorithm_comparison(apriori_info, fpgrowth_info):
     """
-    Build comparison table between Apriori and FP-Growth.
+    Build comparison table between Apriori and FP-Growth and mark selected algorithm dynamically.
     """
     rows = []
     for info in [apriori_info, fpgrowth_info]:
@@ -245,5 +334,10 @@ def build_algorithm_comparison(apriori_info, fpgrowth_info):
             'valid_rule_count': info['n_valid_rules'],
             'max_itemset_size': info['max_itemset_size'],
             'max_rule_lift': info['max_lift'],
+            'is_selected': False,
         })
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    if not df.empty and 'runtime_seconds' in df.columns:
+        fastest_idx = df['runtime_seconds'].idxmin()
+        df.loc[fastest_idx, 'is_selected'] = True
+    return df

@@ -78,35 +78,45 @@ def build_rfm_features(df, reference_date=None):
 # ====================================================================
 def _safe_qcut(series, q, labels, ascending=True):
     """
-    Chia series thanh q nhom bang qcut, xu ly truong hop quantile trung.
+    Chia series thanh q nhom bang quantile cut, xu ly chinh xac truong hop quantile bi trung.
+    Bao dam tinh don dieu, khong dao chieu score va bat bien truoc thu tu dong (row-order invariant).
 
     Parameters
     ----------
     series : pd.Series
+        Chuoi gia tri can chia diem.
     q : int
-        So nhom can chia.
+        So nhom can chia (vi du: 5).
     labels : list
-        Nhan cho tung nhom.
+        Danh sach nhan diem tuong ung theo thu tu tu bin thap nhat den cao nhat.
+        Luu y: Voi Recency, caller truyen labels giam dan [5, 4, 3, 2, 1] de gia tri nho nhan diem cao.
     ascending : bool
-        True: gia tri nho -> nhan lon (dung cho Recency).
-        False: gia tri lon -> nhan lon (dung cho Frequency, Monetary).
+        Tham so giu lai de tuong thich interface.
     """
     try:
-        if ascending:
-            # Recency: thap -> score cao
-            result = pd.qcut(series, q=q, labels=labels, duplicates='drop')
-        else:
-            result = pd.qcut(series, q=q, labels=labels, duplicates='drop')
+        # Thu qcut thong thuong neu khong co quantile trung
+        return pd.qcut(series, q=q, labels=labels, duplicates='raise').astype(int)
     except ValueError:
-        # Fallback: dung rank roi chia deu
-        ranks = series.rank(method='first', ascending=(not ascending))
-        n = len(ranks)
-        bin_size = n / q
-        result = pd.Series(
-            [labels[min(int((r - 1) / bin_size), q - 1)] for r in ranks],
-            index=series.index
-        )
-    return result.astype(int)
+        pass
+
+    # Fallback xac dinh nguong phan vi duy nhat
+    probs = np.linspace(0, 1, q + 1)
+    quantiles = series.quantile(probs).values
+    unique_edges = np.unique(quantiles)
+
+    if len(unique_edges) <= 1:
+        # Truong hop dac biet: tat ca cac gia tri deu bang nhau
+        mid_label = labels[len(labels) // 2]
+        return pd.Series(mid_label, index=series.index, dtype=int)
+
+    # Chia deu theo cac moc phan vi duy nhat bang pd.cut
+    bin_indices = pd.cut(series, bins=unique_edges, include_lowest=True, labels=False)
+    m = len(unique_edges) - 1
+
+    # Anh xa tuyen tinh cac bin m sang thang diem q
+    label_indices = np.round(bin_indices * (q - 1) / max(m - 1, 1)).astype(int)
+    label_indices = np.clip(label_indices, 0, len(labels) - 1)
+    return pd.Series([labels[idx] for idx in label_indices], index=series.index, dtype=int)
 
 
 def create_rfm_scores(rfm_df, n_bins=5):

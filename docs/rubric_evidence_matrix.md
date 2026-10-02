@@ -48,8 +48,8 @@ Ma trận minh chứng cho 6 tiêu chí đánh giá, dẫn tới notebook/sectio
 | Sub-requirement | Notebook/Section | Code/Function | Output/Evidence | Status |
 |---|---|---|---|---|
 | Code module hóa | src/*.py | — | 12 modules trong src/, compileall pass | PASS |
-| Pipeline chạy lại | run_pipeline.py | — | 7 steps sequential executed in 448s | PASS |
-| Tests | tests/*.py | — | 27/27 tests passed in 21.6s | PASS |
+| Pipeline chạy lại | run_pipeline.py | — | 7 steps sequential executed in 495s | PASS |
+| Tests | tests/*.py | pytest | 34/34 tests passed (unit, integration, invariance, smoke) | PASS |
 | Notebook executed | NB01-07 | nbclient | 7/7 notebooks executed (0 errors), exported HTML | PASS |
 | Demo dashboard | app/app.py | streamlit | Smoke tested via test_app_smoke.py (2/2 pass) | PASS |
 | Runners synchronized | notebooks/run_*.py | — | Shared src modules, identical logic and outputs | PASS |
@@ -72,7 +72,7 @@ Ma trận minh chứng cho 6 tiêu chí đánh giá, dẫn tới notebook/sectio
 | Data Understanding & Preprocessing | 20% | PASS |
 | Lựa chọn & Xây dựng Mô hình | 25% | PASS |
 | Đánh giá & Phân tích Kết quả | 20% | PASS |
-| Kỹ thuật & Tái lập | 15% | PASS (27 tests, 7 notebooks executed 0 errors, pipeline 100%) |
+| Kỹ thuật & Tái lập | 15% | PASS (34 tests, 7 notebooks executed 0 errors, pipeline 100%) |
 | Báo cáo & Tổng kết | 10% | PARTIAL — kỹ thuật hoàn tất, cần thông tin thành viên nhóm |
 
 ### Items requiring user input (NEEDS_USER_INPUT)
