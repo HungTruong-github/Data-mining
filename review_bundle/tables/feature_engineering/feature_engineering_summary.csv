@@ -1,0 +1,12 @@
+Metric,Value
+Customer count (input),4334
+reference_date,2011-12-10 12:50:00
+cutoff_date,2011-09-10 12:50:00
+Customers with RFM features,4334
+Customers eligible for label,3368
+Label 1 count,1919
+Label 0 count,1449
+Repeat purchase rate (%),56.98
+RFM feature count,20
+Basket invoices,19773
+Basket products,3908

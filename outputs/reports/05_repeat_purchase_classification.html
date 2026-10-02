@@ -8043,7 +8043,7 @@ Test set CHƯA được sử dụng ở bước này.</p>
 <td>0.000000</td>
 <td>0.569785</td>
 <td>0.000423</td>
-<td>2.83</td>
+<td>3.28</td>
 </tr>
 <tr>
 <th>3</th>
@@ -8054,7 +8054,7 @@ Test set CHƯA được sử dụng ở bước này.</p>
 <td>0.013734</td>
 <td>0.784951</td>
 <td>0.013322</td>
-<td>2.28</td>
+<td>2.52</td>
 </tr>
 <tr>
 <th>1</th>
@@ -8065,7 +8065,7 @@ Test set CHƯA được sử dụng ở bước này.</p>
 <td>0.018326</td>
 <td>0.801027</td>
 <td>0.013208</td>
-<td>4.84</td>
+<td>5.80</td>
 </tr>
 <tr>
 <th>2</th>
@@ -8076,7 +8076,7 @@ Test set CHƯA được sử dụng ở bước này.</p>
 <td>0.019611</td>
 <td>0.681687</td>
 <td>0.021032</td>
-<td>4.34</td>
+<td>4.26</td>
 </tr>
 </tbody>
 </table>
@@ -8499,6 +8499,8 @@ Test set CHƯA được sử dụng ở bước này.</p>
     <span class="n">y_proba_best</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_pred_best</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
 <span class="n">pred_df</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">if</span> <span class="s1">'CustomerID'</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="n">pred_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'CustomerID'</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">X_test</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s1">'CustomerID'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 <span class="n">pred_df</span><span class="p">[</span><span class="n">TARGET_COL</span> <span class="o">+</span> <span class="s1">'_actual'</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">values</span>
 <span class="n">pred_df</span><span class="p">[</span><span class="n">TARGET_COL</span> <span class="o">+</span> <span class="s1">'_predicted'</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_pred_best</span>
 <span class="n">pred_df</span><span class="p">[</span><span class="n">TARGET_COL</span> <span class="o">+</span> <span class="s1">'_probability'</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_proba_best</span>

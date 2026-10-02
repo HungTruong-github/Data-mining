@@ -1,0 +1,34 @@
+StockCode,Description,RowCount,TotalQuantity,TotalAmount,Category,Action,Reason
+AMAZONFEE,AMAZON FEE,34,-30,-221520.5,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+B,Adjust bad debt,3,3,-11062.06,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+BANK CHARGES,Bank Charges,37,-13,-7175.639,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+C2,CARRIAGE,144,290,6986.0,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+CRUK,CRUK Commission,16,-16,-7933.43,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+D,Discount,77,-1194,-5696.22,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+DCGS0003,BOXED GLASS ASHTRAY,5,-3,9.94,product,Giu lai,San pham dat biet co Description hop le
+DCGS0004,HAYNES CAMPER SHOULDER BAG,1,1,16.63,product,Giu lai,San pham dat biet co Description hop le
+DCGS0055,N/A,1,-1,0.0,product,Giu lai,San pham dat biet co Description hop le
+DCGS0057,N/A,1,-6,0.0,product,Giu lai,San pham dat biet co Description hop le
+DCGS0066P,N/A,1,-3,0.0,product,Giu lai,San pham dat biet co Description hop le
+DCGS0067,ebay,1,-11,0.0,product,Giu lai,San pham dat biet co Description hop le
+DCGS0068,ebay,1,-10,0.0,product,Giu lai,San pham dat biet co Description hop le
+DCGS0069,OOH LA LA DOGS COLLAR,2,-4,15.79,product,Giu lai,San pham dat biet co Description hop le
+DCGS0070,CAMOUFLAGE DOG COLLAR,2,-7,12.72,product,Giu lai,San pham dat biet co Description hop le
+DCGS0071,N/A,1,-2,0.0,product,Giu lai,San pham dat biet co Description hop le
+DCGS0072,N/A,1,-1,0.0,product,Giu lai,San pham dat biet co Description hop le
+DCGS0073,ebay,1,-4,0.0,product,Giu lai,San pham dat biet co Description hop le
+DCGS0074,N/A,1,-1,0.0,product,Giu lai,San pham dat biet co Description hop le
+DCGS0076,SUNJAR LED NIGHT NIGHT LIGHT,2,3,48.39,product,Giu lai,San pham dat biet co Description hop le
+DCGSSBOY,BOYS PARTY BAG,11,47,150.54999999999998,product,Giu lai,San pham dat biet co Description hop le
+DCGSSGIRL,GIRLS PARTY BAG,13,47,144.43,product,Giu lai,San pham dat biet co Description hop le
+DOT,DOTCOM POSTAGE,710,1707,206245.48,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+M,Manual,571,3164,-68674.19,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+PADS,PADS TO MATCH ALL CUSHIONS,4,4,0.003,product,Giu lai,San pham phu kien (pads) co Description hop le
+POST,POSTAGE,1256,6353,66230.64,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+S,SAMPLES,63,-59,-3049.39,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham
+gift_0001_10,Dotcomgiftshop Gift Voucher £10.00,9,39,74.97,gift_voucher,"Giu (cleaned), Loai (product)","Gift voucher, khong phai san pham vat ly"
+gift_0001_20,Dotcomgiftshop Gift Voucher £20.00,10,20,167.05,gift_voucher,"Giu (cleaned), Loai (product)","Gift voucher, khong phai san pham vat ly"
+gift_0001_30,Dotcomgiftshop Gift Voucher £30.00,8,37,175.53,gift_voucher,"Giu (cleaned), Loai (product)","Gift voucher, khong phai san pham vat ly"
+gift_0001_40,Dotcomgiftshop Gift Voucher £40.00,3,3,100.69999999999999,gift_voucher,"Giu (cleaned), Loai (product)","Gift voucher, khong phai san pham vat ly"
+gift_0001_50,Dotcomgiftshop Gift Voucher £50.00,4,4,167.56,gift_voucher,"Giu (cleaned), Loai (product)","Gift voucher, khong phai san pham vat ly"
+m,Manual,1,1,2.55,non_product,Loai bo,Phi dich vu / dieu chinh / khong phai san pham

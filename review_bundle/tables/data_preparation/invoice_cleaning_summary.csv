@@ -1,0 +1,4 @@
+InvoiceType,RowCount,UniqueInvoices,TotalAmount,Action,Reason
+Normal (numeric),532618,22061,10655622.48,Giu lai,Giao dich mua hang binh thuong
+Cancelled (C),9288,3836,-896812.49,Loai bo,"Hoa don huy, Quantity am, khong phai giao dich mua"
+Adjust bad debt (A),3,3,-11062.06,Loai bo,"But toan ke toan dieu chinh no xau, UnitPrice cuc lon (+-11,062)"

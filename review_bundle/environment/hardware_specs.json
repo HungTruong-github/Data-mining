@@ -1,0 +1,8 @@
+{
+  "os": "nt",
+  "platform": "win32",
+  "cpu_count": 12,
+  "python_executable": "d:\\Project\\Data-mininng\\.venv\\Scripts\\python.exe",
+  "recorded_pipeline_runtime_seconds": 495.73,
+  "recorded_pytest_runtime_seconds": 26.85
+}

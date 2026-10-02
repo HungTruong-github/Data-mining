@@ -1,0 +1,15 @@
+Column,MissingCount,MissingPercent,TotalRows
+CustomerID,135080,24.93,541909
+InvoiceNo,0,0.0,541909
+Description,0,0.0,541909
+Quantity,0,0.0,541909
+InvoiceDate,0,0.0,541909
+StockCode,0,0.0,541909
+UnitPrice,0,0.0,541909
+Country,0,0.0,541909
+TotalAmount,0,0.0,541909
+IsCancelled,0,0.0,541909
+IsAdjust,0,0.0,541909
+IsDuplicate,0,0.0,541909
+IsQuantityInvalid,0,0.0,541909
+IsPriceInvalid,0,0.0,541909

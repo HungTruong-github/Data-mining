@@ -1,0 +1,74 @@
+[
+  {
+    "id": "ACC-01",
+    "requirement": "Action plan 10 columns complete and generated dynamically",
+    "test_method": "tests/test_model_comparison.py::test_action_plan_structure_and_columns",
+    "expected": "10 mandatory strategy columns, non-empty action plan",
+    "observed": "4 business strategies generated with all 10 columns populated",
+    "status": "PASS",
+    "evidence": "tables/insights/customer_segment_action_plan.csv"
+  },
+  {
+    "id": "ACC-02",
+    "requirement": "Zero duplicate module-level functions across entire repository",
+    "test_method": "tests/test_model_comparison.py::test_no_duplicate_function_definitions_in_modules",
+    "expected": "Zero duplicate top-level function names",
+    "observed": "0 duplicate function definitions detected across all .py files",
+    "status": "PASS",
+    "evidence": "source/notebooks/run_07_model_comparison_and_insights.py"
+  },
+  {
+    "id": "ACC-03",
+    "requirement": "Rule sets canonical content comparison and equivalence audit",
+    "test_method": "tests/test_model_comparison.py::test_association_rules_detailed_comparison",
+    "expected": "Exact match on StockCodes and metrics within tolerance",
+    "observed": "61 rules identical across Apriori and FP-Growth (max diff < 1e-15)",
+    "status": "PASS",
+    "evidence": "tables/association_rules/association_rules_equivalence_audit.csv"
+  },
+  {
+    "id": "ACC-04",
+    "requirement": "Pipeline detects rule content mismatch with equal rule counts",
+    "test_method": "tests/test_model_comparison.py::test_pipeline_detects_rule_content_mismatch_with_equal_counts",
+    "expected": "Mismatch detected and equivalence flagged False",
+    "observed": "Identifies differing StockCodes and returns is_equivalent=False",
+    "status": "PASS",
+    "evidence": "tests/test_model_comparison.py"
+  },
+  {
+    "id": "ACC-05",
+    "requirement": "RFM quantile fallback monotonicity and row-order invariance",
+    "test_method": "tests/test_feature_engineering.py::test_rfm_fallback_and_monotonicity",
+    "expected": "R_Score 5 is best; identical scores regardless of row order",
+    "observed": "Monotonicity preserved; row-order permutation invariance verified",
+    "status": "PASS",
+    "evidence": "source/src/feature_engineering.py"
+  },
+  {
+    "id": "ACC-06",
+    "requirement": "CustomerID preserved in test_predictions.csv for error audit",
+    "test_method": "tests/test_classification.py & file inspection",
+    "expected": "CustomerID is column 1 of test_predictions.csv",
+    "observed": "CustomerID present in test_predictions.csv (674 test rows)",
+    "status": "PASS",
+    "evidence": "tables/classification/test_predictions.csv"
+  },
+  {
+    "id": "ACC-07",
+    "requirement": "Streamlit app applies custom classification threshold",
+    "test_method": "tests/test_app_smoke.py::test_prediction_pipeline_applies_custom_threshold",
+    "expected": "Custom threshold from metadata used to classify probabilities",
+    "observed": "preds = (probs >= threshold).astype(int) applied in app and tests",
+    "status": "PASS",
+    "evidence": "source/app/app.py"
+  },
+  {
+    "id": "ACC-08",
+    "requirement": "Pipeline manifest SHA-256 verification and non-zero exit on failure",
+    "test_method": "run_pipeline.py & src/model_comparison.py::generate_manifest",
+    "expected": "All mandatory step outputs verified with SHA-256, validation PASS",
+    "observed": "All artifacts validated; exit code 0 on success, exit code 1 on failure",
+    "status": "PASS",
+    "evidence": "reports/pipeline_manifest.json"
+  }
+]
