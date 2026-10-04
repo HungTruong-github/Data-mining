@@ -72,3 +72,7 @@ outputs/tables/*
 !outputs/tables/.gitkeep
 outputs/rules/*
 !outputs/rules/.gitkeep
+
+# Review bundle deliverables
+review_bundle/
+review_bundle.zip

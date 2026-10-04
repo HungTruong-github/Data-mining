@@ -6,11 +6,11 @@ Provides 4 functional tabs:
 3. Product Recommendation & Cross-Sell (Association Rules)
 4. Model Governance, Methodology & Manifest (CRISP-DM Metadata)
 """
-import io
 import json
+import sys
 from pathlib import Path
+
 import joblib
-import numpy as np
 import pandas as pd
 import streamlit as st
 
@@ -23,11 +23,10 @@ st.set_page_config(
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-import sys
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.classification import predict_with_threshold, predict_customers
+from src.classification import predict_customers
 
 
 @st.cache_resource

@@ -1,6 +1,6 @@
 {
-  "run_id": "RUN_20261004_234557",
-  "generated": "2026-10-04T23:45:57.489827",
+  "run_id": "RUN_20261005_001026",
+  "generated": "2026-10-05T00:10:26.182483",
   "python_version": "3.12.0",
   "validation_status": "PASS",
   "steps": {
@@ -210,15 +210,15 @@
       {
         "file": "outputs/reports/07_model_comparison_and_insights.md",
         "size_bytes": 48113,
-        "sha256": "87262015508dc93f3b37d732d54391fb6ba0aa05524094f2e505d66efd61b1c1"
+        "sha256": "9c283ab9c0f6183e7a0b5c5425bcbebcc4a34c008566eb053d624a6b7fb6d442"
       },
       {
         "file": "outputs/reports/07_model_comparison_and_insights_summary.json",
         "size_bytes": 1651,
-        "sha256": "ca754f177c06c1ebb33a80ca07a161c54b874bccfd4330ca57ac1aa6d6938a93"
+        "sha256": "d348702625b7d209682f7f2cc4e5774521aab014336452a76bbd9a859181c62b"
       }
     ]
   },
-  "git_commit": "b899caae5d9a9a468f8905c3661003c28a2bba0f",
+  "git_commit": "841d5d20f736110e954450372fb42416e407a14e",
   "git_dirty": true
 }

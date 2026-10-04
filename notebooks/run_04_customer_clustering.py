@@ -18,7 +18,7 @@ from src.config import (
 from src.clustering import (
     prepare_clustering_features, run_kmeans, run_gmm, run_agglomerative, run_dbscan,
     build_comparison_table, select_best_model, create_cluster_profiles, assign_business_names,
-    save_clustering_results, pca_2d
+    save_clustering_results, pca_2d, compare_preprocessing_impact, evaluate_clustering_stability
 )
 from src.visualization import (
     plot_elbow_curve, plot_silhouette_comparison, plot_metrics_comparison,
@@ -78,7 +78,6 @@ def main():
 
     # Preprocessing & Stability evaluations
     print("\n--- Evaluating Preprocessing Impact & Cluster Stability ---")
-    from src.clustering import compare_preprocessing_impact, evaluate_clustering_stability
     preproc_df = compare_preprocessing_impact(df, rfm_cols, n_clusters=best_k)
     preproc_df.to_csv(TABLES_CLUSTERING / 'clustering_preprocessing_comparison.csv', index=False)
     print(f"  [OK] Saved clustering_preprocessing_comparison.csv")

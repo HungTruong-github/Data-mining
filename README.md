@@ -50,9 +50,10 @@ Data-mining/
 │   ├── classification.py                 # Huấn luyện classifier
 │   ├── association_rules.py              # Apriori & FP-Growth
 │   ├── evaluation.py                     # Đánh giá mô hình
-│   ├── model_comparison.py               # So sánh và báo cáo
-│   ├── insights.py                       # Sinh business insights
-│   └── visualization.py                  # Biểu đồ
+│   ├── model_comparison.py               # So sánh mô hình & tổng hợp báo cáo
+│   ├── model_comparison_figures.py       # Trực quan hóa so sánh đa mô hình
+│   ├── insights.py                       # Sinh business insights & action plan
+│   └── visualization.py                  # Biểu đồ chuyên biệt từng bước
 │
 ├── models/                               # Model artifacts
 │   ├── clustering/
@@ -64,23 +65,29 @@ Data-mining/
 │       ├── classification_metadata.json
 │       └── *_pipeline.joblib
 │
-├── outputs/                              # Kết quả
+├── outputs/                              # Kết quả thực nghiệm
 │   ├── figures/                          # Biểu đồ PNG
-│   ├── tables/                           # Bảng CSV
-│   ├── reports/                          # Báo cáo Markdown
-│   └── evidence/                         # Manifest, logs
+│   ├── tables/                           # Bảng dữ liệu CSV
+│   ├── reports/                          # Báo cáo Markdown & Summary JSON
+│   └── evidence/                         # Acceptance results, manifest, logs
 │
-├── app/                                  # Streamlit Dashboard
+├── app/                                  # Streamlit Dashboard (4 tabs)
 │   └── app.py
 │
-├── docs/                                 # Tài liệu
+├── docs/                                 # Hồ sơ tài liệu kỹ thuật
 │   ├── business_understanding.md
 │   ├── data_dictionary.md
 │   ├── methodology.md
 │   ├── feature_decision_dictionary.md
 │   ├── decision_log.md
 │   ├── references.md
-│   └── rubric_evidence_matrix.md
+│   ├── rubric_evidence_matrix.md
+│   ├── team_tasks.md
+│   └── source_cleanup_and_handover.md
+│
+├── scripts/                              # Scripts hỗ trợ đóng gói & kiểm tra
+│   ├── build_review_bundle.py            # Đóng gói review_bundle.zip chuẩn rubric
+│   └── execute_notebooks.py              # Thực thi hàng loạt notebooks
 │
 ├── tests/                                # Automated tests (pytest suite, 100% pass)
 │   ├── test_preprocessing.py
@@ -89,7 +96,8 @@ Data-mining/
 │   ├── test_model_comparison.py
 │   └── test_app_smoke.py
 │
-├── run_pipeline.py                       # Pipeline đầu–cuối (01→07)
+├── run_pipeline.py                       # Pipeline đầu–cuối tự động (01→07)
+├── pytest.ini
 ├── requirements.txt
 ├── .gitignore
 └── README.md
