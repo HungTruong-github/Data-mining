@@ -205,19 +205,131 @@ def build_model_pipelines(preprocessor, random_state=None):
 
 
 # ====================================================================
-# 5. CROSS-VALIDATION AND HYPERPARAMETER TUNING
+# 5. PREDICTION WITH UNIFIED THRESHOLD FUNCTION & CUSTOM SCORER
+# ====================================================================
+def predict_with_threshold(pipeline, X, threshold=0.5, pos_label=1):
+    """
+    Unified function to compute positive class probabilities and predict binary labels.
+    
+    Decision Rule:
+        y_pred = 1 if prob >= threshold else 0
+        
+    Key guarantees:
+    - probability == threshold is strictly mapped to class 1 (>= operator).
+    - No rounding is performed on probability prior to threshold comparison.
+    - Positive class column index is determined dynamically from classes_ (pipeline or classifier).
+    - Guaranteed 100% parity between offline evaluation, CSV exports, and Streamlit dashboard.
+    
+    Parameters
+    ----------
+    pipeline : sklearn.pipeline.Pipeline or classifier model
+        Fitted model pipeline.
+    X : pd.DataFrame or np.ndarray
+        Feature matrix.
+    threshold : float, default=0.5
+        Decision threshold for positive class.
+    pos_label : int or str, default=1
+        Label of the positive class.
+        
+    Returns
+    -------
+    y_pred : np.ndarray of shape (n_samples,)
+        Predicted binary labels (0 or 1).
+    y_proba : np.ndarray of shape (n_samples,)
+        Unrounded predicted probabilities for the positive class.
+    """
+    if hasattr(pipeline, 'classes_'):
+        classes = list(pipeline.classes_)
+    elif hasattr(pipeline, 'named_steps') and hasattr(pipeline.named_steps.get('classifier'), 'classes_'):
+        classes = list(pipeline.named_steps['classifier'].classes_)
+    else:
+        classes = [0, 1]
+
+    if hasattr(pipeline, 'predict_proba'):
+        try:
+            pos_idx = classes.index(pos_label)
+        except ValueError:
+            pos_idx = 1 if len(classes) > 1 else 0
+        probs = pipeline.predict_proba(X)[:, pos_idx]
+        preds = (probs >= threshold).astype(int)
+    else:
+        preds = pipeline.predict(X).astype(int)
+        probs = preds.astype(float)
+
+    return preds, probs
+
+
+def threshold_f1_scorer_05(estimator, X, y):
+    """
+    Scikit-learn compatible scorer enforcing probability >= 0.5 decision threshold convention.
+    Uses predict_with_threshold to guarantee complete mathematical parity between
+    cross-validation grid search, test set evaluation, and interactive dashboard predictions.
+    Pickle-safe at module level for multi-process cross-validation.
+    """
+    y_pred, _ = predict_with_threshold(estimator, X, threshold=0.5, pos_label=1)
+    return f1_score(y, y_pred, pos_label=1, zero_division=0)
+
+
+def predict_customers(pipeline, metadata, input_df):
+    """
+    Unified production prediction function for repeat purchase inference.
+    Shared by Streamlit web application (app/app.py), runner scripts, notebooks, and test suite.
+    
+    Parameters
+    ----------
+    pipeline : sklearn.pipeline.Pipeline
+        Fitted model pipeline.
+    metadata : dict
+        Classification metadata dictionary containing 'feature_columns', 'threshold', 'positive_class'.
+    input_df : pd.DataFrame
+        Input DataFrame containing customer features.
+        
+    Returns
+    -------
+    y_pred : np.ndarray
+        Binary predictions (0 or 1).
+    y_proba : np.ndarray
+        Unrounded positive class probabilities.
+    """
+    if not isinstance(metadata, dict):
+        raise TypeError("Metadata must be a dictionary.")
+
+    feature_cols = metadata.get('feature_columns', [])
+    if not feature_cols:
+        raise ValueError("Metadata must contain 'feature_columns' list.")
+
+    missing = [c for c in feature_cols if c not in input_df.columns]
+    if missing:
+        raise ValueError(f"Input dataframe missing required feature columns: {missing}")
+
+    if len(input_df) == 0:
+        raise ValueError("Input dataframe is empty (0 rows).")
+
+    X = input_df[feature_cols].copy()
+    threshold = float(metadata.get('threshold', 0.5))
+    pos_label = metadata.get('positive_class', 1)
+
+    return predict_with_threshold(pipeline, X, threshold=threshold, pos_label=pos_label)
+
+
+# ====================================================================
+# 6. CROSS-VALIDATION AND HYPERPARAMETER TUNING
 # ====================================================================
 def cross_validate_models(model_pipelines, X_train, y_train,
                           cv_folds=5, random_state=None):
     """
-    Cross-validate all models on training data ONLY.
+    Cross-validate all models on training data ONLY using unified threshold scorer.
     Returns DataFrame with CV results.
     """
     if random_state is None:
         random_state = RANDOM_STATE
 
     cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
-    scoring = ['f1', 'roc_auc', 'average_precision']
+    scoring = {
+        'f1': threshold_f1_scorer_05,
+        'roc_auc': 'roc_auc',
+        'average_precision': 'average_precision',
+    }
 
     cv_results = []
     for name, pipeline in model_pipelines.items():
@@ -232,12 +344,12 @@ def cross_validate_models(model_pipelines, X_train, y_train,
 
         cv_results.append({
             'model': name,
-            'cv_f1_mean': np.mean(scores['test_f1']),
-            'cv_f1_std': np.std(scores['test_f1']),
-            'cv_roc_auc_mean': np.mean(scores['test_roc_auc']),
-            'cv_roc_auc_std': np.std(scores['test_roc_auc']),
-            'cv_average_precision_mean': np.mean(scores['test_average_precision']),
-            'cv_average_precision_std': np.std(scores['test_average_precision']),
+            'cv_f1_mean': float(np.mean(scores['test_f1'])),
+            'cv_f1_std': float(np.std(scores['test_f1'])),
+            'cv_roc_auc_mean': float(np.mean(scores['test_roc_auc'])),
+            'cv_roc_auc_std': float(np.std(scores['test_roc_auc'])),
+            'cv_average_precision_mean': float(np.mean(scores['test_average_precision'])),
+            'cv_average_precision_std': float(np.std(scores['test_average_precision'])),
             'cv_runtime_seconds': round(elapsed, 2),
         })
 
@@ -247,7 +359,7 @@ def cross_validate_models(model_pipelines, X_train, y_train,
 def tune_model_hyperparameters(preprocessor, X_train, y_train, cv_folds=5, random_state=None):
     """
     Perform bounded hyperparameter tuning with GridSearchCV strictly on training set.
-    Evaluates LR, DT, RF across defined parameter grids using StratifiedKFold.
+    Evaluates LR, DT, RF across defined parameter grids using StratifiedKFold and threshold_f1_scorer_05.
     Also evaluates DummyClassifier baseline under identical folds.
     
     Returns:
@@ -311,11 +423,17 @@ def tune_model_hyperparameters(preprocessor, X_train, y_train, cv_folds=5, rando
     tuning_history_rows = []
     best_params = {}
 
+    scoring_dict = {
+        'f1': threshold_f1_scorer_05,
+        'roc_auc': 'roc_auc',
+        'average_precision': 'average_precision',
+    }
+
     for name, (base_pipe, param_grid) in raw_pipelines.items():
         t0 = time.time()
         if param_grid:
             gs = GridSearchCV(
-                base_pipe, param_grid, cv=cv, scoring='f1',
+                base_pipe, param_grid, cv=cv, scoring=threshold_f1_scorer_05,
                 return_train_score=False, n_jobs=-1, refit=True
             )
             with warnings.catch_warnings():
@@ -329,13 +447,13 @@ def tune_model_hyperparameters(preprocessor, X_train, y_train, cv_folds=5, rando
                 row = {
                     'model': name,
                     'params': str(cv_res['params'][i]),
-                    'mean_test_f1': cv_res['mean_test_score'][i],
-                    'std_test_f1': cv_res['std_test_score'][i],
-                    'rank_f1': cv_res['rank_test_score'][i],
-                    'mean_fit_time_seconds': cv_res['mean_fit_time'][i],
+                    'mean_test_f1': float(cv_res['mean_test_score'][i]),
+                    'std_test_f1': float(cv_res['std_test_score'][i]),
+                    'rank_f1': int(cv_res['rank_test_score'][i]),
+                    'mean_fit_time_seconds': float(cv_res['mean_fit_time'][i]),
                 }
                 for f in range(cv_folds):
-                    row[f'split{f}_test_f1'] = cv_res[f'split{f}_test_score'][i]
+                    row[f'split{f}_test_f1'] = float(cv_res[f'split{f}_test_score'][i])
                 tuning_history_rows.append(row)
         else:
             with warnings.catch_warnings():
@@ -344,11 +462,10 @@ def tune_model_hyperparameters(preprocessor, X_train, y_train, cv_folds=5, rando
             best_pipe = base_pipe
             best_p = {'strategy': 'most_frequent'}
 
-        scoring = ['f1', 'roc_auc', 'average_precision']
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             scores = cross_validate(
-                best_pipe, X_train, y_train, cv=cv, scoring=scoring, return_train_score=False, n_jobs=-1
+                best_pipe, X_train, y_train, cv=cv, scoring=scoring_dict, return_train_score=False, n_jobs=-1
             )
         elapsed = time.time() - t0
 
@@ -373,7 +490,7 @@ def tune_model_hyperparameters(preprocessor, X_train, y_train, cv_folds=5, rando
 
 
 # ====================================================================
-# 6. SELECT BEST MODEL (by CV, NOT test set)
+# 7. SELECT BEST MODEL (by CV, NOT test set)
 # ====================================================================
 def select_best_model(cv_results_df, metric='cv_f1_mean', secondary_metric='cv_average_precision_mean'):
     """
@@ -395,7 +512,7 @@ def select_best_model(cv_results_df, metric='cv_f1_mean', secondary_metric='cv_a
 
 
 # ====================================================================
-# 7. TRAIN FINAL MODELS (on full training set)
+# 8. TRAIN FINAL MODELS (on full training set)
 # ====================================================================
 def train_final_models(model_pipelines, X_train, y_train):
     """
@@ -409,61 +526,6 @@ def train_final_models(model_pipelines, X_train, y_train):
             pipeline.fit(X_train, y_train)
         trained[name] = pipeline
     return trained
-
-
-# ====================================================================
-# 8. PREDICTION WITH UNIFIED THRESHOLD FUNCTION
-# ====================================================================
-def predict_with_threshold(pipeline, X, threshold=0.5, pos_label=1):
-    """
-    Unified function to compute positive class probabilities and predict binary labels.
-    
-    Decision Rule:
-        y_pred = 1 if prob >= threshold else 0
-        
-    Key guarantees:
-    - probability == threshold is strictly mapped to class 1 (>= operator).
-    - No rounding is performed on probability prior to threshold comparison.
-    - Positive class column index is determined dynamically from classes_ (pipeline or classifier).
-    - Guaranteed 100% parity between offline evaluation, CSV exports, and Streamlit dashboard.
-    
-    Parameters
-    ----------
-    pipeline : sklearn.pipeline.Pipeline or classifier model
-        Fitted model pipeline.
-    X : pd.DataFrame or np.ndarray
-        Feature matrix.
-    threshold : float, default=0.5
-        Decision threshold for positive class.
-    pos_label : int or str, default=1
-        Label of the positive class.
-        
-    Returns
-    -------
-    y_pred : np.ndarray of shape (n_samples,)
-        Predicted binary labels (0 or 1).
-    y_proba : np.ndarray of shape (n_samples,)
-        Unrounded predicted probabilities for the positive class.
-    """
-    if hasattr(pipeline, 'classes_'):
-        classes = list(pipeline.classes_)
-    elif hasattr(pipeline, 'named_steps') and hasattr(pipeline.named_steps.get('classifier'), 'classes_'):
-        classes = list(pipeline.named_steps['classifier'].classes_)
-    else:
-        classes = [0, 1]
-
-    if hasattr(pipeline, 'predict_proba'):
-        try:
-            pos_idx = classes.index(pos_label)
-        except ValueError:
-            pos_idx = 1 if len(classes) > 1 else 0
-        probs = pipeline.predict_proba(X)[:, pos_idx]
-        preds = (probs >= threshold).astype(int)
-    else:
-        preds = pipeline.predict(X).astype(int)
-        probs = preds.astype(float)
-
-    return preds, probs
 
 
 # ====================================================================

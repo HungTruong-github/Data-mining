@@ -7,6 +7,8 @@ sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import time
+from datetime import datetime
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import warnings
@@ -16,7 +18,7 @@ import matplotlib
 matplotlib.use('Agg')
 
 from src.config import (
-    PROCESSED_DIR, FIGURES_CLASSIFICATION, TABLES_CLASSIFICATION,
+    PROJECT_ROOT, PROCESSED_DIR, FIGURES_CLASSIFICATION, TABLES_CLASSIFICATION,
     MODELS_CLASSIFICATION_DIR, RANDOM_STATE, TEST_SIZE, REPEAT_PURCHASE_WINDOW_DAYS
 )
 from src.classification import (
@@ -163,6 +165,13 @@ def main():
 
     # --- STEP 12: Save Models ---
     print("\n--- STEP 12: Save Models and Metadata ---")
+    import subprocess
+    try:
+        commit_res = subprocess.run(['git', 'rev-parse', 'HEAD'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+        git_commit = commit_res.stdout.strip()
+    except Exception:
+        git_commit = 'unknown'
+
     metadata = {
         'target_col': TARGET_COL,
         'feature_columns': list(X_train.columns),
@@ -170,6 +179,13 @@ def main():
         'categorical_features': categorical_features,
         'random_state': RANDOM_STATE,
         'test_size': TEST_SIZE,
+        'cv_folds': 5,
+        'cv_scoring': 'f1 (threshold >= 0.5 via predict_with_threshold)',
+        'search_spaces': {
+            'LogisticRegression': {'classifier__C': [0.1, 1.0, 10.0], 'classifier__class_weight': ['balanced', None]},
+            'DecisionTree': {'classifier__max_depth': [3, 5, 10], 'classifier__min_samples_leaf': [1, 5, 20], 'classifier__class_weight': ['balanced', None]},
+            'RandomForest': {'classifier__n_estimators': [100, 200], 'classifier__max_depth': [5, 10], 'classifier__min_samples_leaf': [1, 5], 'classifier__class_weight': ['balanced', None]},
+        },
         'selected_model': selected_model,
         'selection_metric': 'cv_f1_mean',
         'selection_rationale': 'Selected based on 5-fold CV F1 score among learned models (excluding Dummy baseline). Note that DummyClassifier achieves higher F1 due to class imbalance but has zero discriminative power (ROC-AUC=0.5000).',
@@ -178,6 +194,7 @@ def main():
         'positive_class': 1,
         'decision_rule': 'probability >= threshold',
         'best_hyperparameters': best_params,
+        'actual_model_parameters': best_pipeline.named_steps['classifier'].get_params(),
         'training_row_count': len(X_train),
         'test_row_count': len(X_test),
         'class_distribution': {
@@ -187,6 +204,8 @@ def main():
             'test_1': int((y_test == 1).sum()),
         },
         'window_days': REPEAT_PURCHASE_WINDOW_DAYS,
+        'run_timestamp': datetime.now().isoformat(),
+        'git_commit': git_commit,
     }
 
     save_classification_artifacts(

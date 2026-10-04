@@ -1,6 +1,6 @@
 {
-  "run_id": "RUN_20261003_013048",
-  "generated": "2026-10-03T01:30:48.215583",
+  "run_id": "RUN_20261004_192004",
+  "generated": "2026-10-04T19:20:04.214577",
   "python_version": "3.12.0",
   "validation_status": "PASS",
   "steps": {
@@ -48,8 +48,8 @@
       },
       {
         "file": "outputs/tables/clustering/clustering_algorithm_comparison.csv",
-        "size_bytes": 4401,
-        "sha256": "88f15d9f6c91a2c04dfc71473273551e2469a07894113eb5b79e295198fa54a1"
+        "size_bytes": 4404,
+        "sha256": "cc0d531a5cec6e768685289e3d40896e789f3a5ca2e88574341a26a515e1636b"
       },
       {
         "file": "outputs/tables/clustering/cluster_profiles.csv",
@@ -59,24 +59,24 @@
       {
         "file": "models/clustering/clustering_model.pkl",
         "size_bytes": 18111,
-        "sha256": "27dc85638fb66c1a7859a889551184deae410fb14bb521e1f739c5bdea679e73"
+        "sha256": "bdfd9d961df3888454549378ca76c7d8d4e75abc5d767ff7c4663603ae01bfca"
       },
       {
         "file": "models/clustering/clustering_config.pkl",
         "size_bytes": 539,
-        "sha256": "0879120c2fee7cbbd4f8b89343e6b53a490230a848c9c0a9767d7c56c7b2d05b"
+        "sha256": "f03978ff05f169003dd23c18be3cb74f157996ea95860b2317e3ef9b43f9a0d5"
       }
     ],
     "step_05_classification": [
       {
         "file": "outputs/tables/classification/model_comparison.csv",
-        "size_bytes": 745,
-        "sha256": "2247d5e085201d21a4d393cbd49fa503657c5120bdcde7bb5545092f92f577ff"
+        "size_bytes": 744,
+        "sha256": "89a6b7ecdc03dcaaf0aefa4f272aa6f6a907bdd8cbf120a6f05c8ae879e93cde"
       },
       {
         "file": "outputs/tables/classification/cv_results.csv",
-        "size_bytes": 1022,
-        "sha256": "506e86c9f21a216adb0f0a4b8163b11e5e30187e36860937a837a9d815687ff4"
+        "size_bytes": 1020,
+        "sha256": "1a9f6b21e298430bcead1c7e4cff7e9321388da3fb2296cb3732e0c74ffef288"
       },
       {
         "file": "outputs/tables/classification/feature_importance.csv",
@@ -85,8 +85,8 @@
       },
       {
         "file": "outputs/tables/classification/test_predictions.csv",
-        "size_bytes": 59449,
-        "sha256": "f74eba0a02cbc0cf3bad8e8d1d55b8370d1ba889769ac19b35b9623a36447aca"
+        "size_bytes": 59450,
+        "sha256": "bf5c6b018c12698b0d3b29b9896ff377179877c9ac545ef0890b134c6ddc4624"
       },
       {
         "file": "models/classification/best_classifier_pipeline.joblib",
@@ -95,25 +95,25 @@
       },
       {
         "file": "models/classification/classification_metadata.json",
-        "size_bytes": 1878,
-        "sha256": "80fd6484eac31e243aae01754d2173a73d0d9380bb8b42eec6741216c78d6f8e"
+        "size_bytes": 3446,
+        "sha256": "58b51cf38bacbf8147bdf56d48dc7eaf0d2699e64d2ffd38b5097df437e336ad"
       }
     ],
     "step_06_association": [
       {
         "file": "outputs/tables/association_rules/association_algorithm_comparison.csv",
-        "size_bytes": 271,
-        "sha256": "d539879fab3f3c1205c54a9be60032e873aa31832af42a9bc6322088704758f6"
+        "size_bytes": 270,
+        "sha256": "b2817f5d94860e7c3f45d0efd993e891fb97f5eec4463ee4cf83d3016eb24598"
       },
       {
         "file": "outputs/tables/association_rules/association_business_insights.csv",
-        "size_bytes": 3151,
-        "sha256": "b4171e13c3ce78d09c211ea7cda3fea4b0df65dfd7830644a1c2a12ece58e23b"
+        "size_bytes": 634,
+        "sha256": "6bdc4ee6de90fad96aedc324ff02f2964790d4a3ee18142cff7d7f5cd4f4f256"
       },
       {
         "file": "outputs/tables/association_rules/selected_association_rules.csv",
-        "size_bytes": 11566,
-        "sha256": "ef61386176f43c17e1056739096d5c24ed028cac92aa573f490bc9574742a7ba"
+        "size_bytes": 11444,
+        "sha256": "807d1a817c20c936ac3d06f069760c0d8bcf9bacc60e2cefa16bcad326bb00fc"
       },
       {
         "file": "outputs/tables/association_rules/association_rules_equivalence_audit.csv",
@@ -124,18 +124,18 @@
     "step_07_insights": [
       {
         "file": "outputs/tables/model_comparison/clustering_model_comparison.csv",
-        "size_bytes": 4389,
-        "sha256": "306b02b9cadcbd19aea0a02b833f73fcd4eae5bb79e5174807dae8b8f873b06e"
+        "size_bytes": 4392,
+        "sha256": "7acd6bdaf9298e48c9911ccaccb25920a6416e5cca0588b91a160de48afb924e"
       },
       {
         "file": "outputs/tables/model_comparison/classification_model_comparison.csv",
-        "size_bytes": 1081,
-        "sha256": "569714e6bbb14b26102ed30ecf8b15ccd52f11ae174e64144870e13ef37ade37"
+        "size_bytes": 1080,
+        "sha256": "bb37ba5b67437462b6527265939249bf8ba513bf28bcf564725029e91ce8061d"
       },
       {
         "file": "outputs/tables/model_comparison/association_rules_comparison.csv",
-        "size_bytes": 454,
-        "sha256": "8449d5ae6276fcaabb3c0354aea21fcf023b0528c520b402d2774cab22194b80"
+        "size_bytes": 451,
+        "sha256": "e50527e85c352cf15749ab0ebc55b5da8b1e046c172081ad82b9aaeb28d9c4a4"
       },
       {
         "file": "outputs/tables/insights/customer_segment_insights.csv",
@@ -158,17 +158,67 @@
         "sha256": "6319e262151ec97fe33a9d03700270a70bd22a3f6906db4c67921334af2d64ab"
       },
       {
+        "file": "outputs/figures/model_comparison/clustering_model_comparison.png",
+        "size_bytes": 181091,
+        "sha256": "2213f58c97fa39972529cde6adcbcbdbaafe944fa8bbe36c1c90ad3cd61e4233"
+      },
+      {
+        "file": "outputs/figures/model_comparison/classification_model_comparison.png",
+        "size_bytes": 110279,
+        "sha256": "7e3b592d10ae1940a290a08c9985dfd593025d2976ad40eb2c970513e4967552"
+      },
+      {
+        "file": "outputs/figures/model_comparison/clustering_quality_metrics.png",
+        "size_bytes": 178524,
+        "sha256": "fbf95fc78da8f11c42a010cba05d4dec775c65defc89aa8a1370c59fd4194e78"
+      },
+      {
+        "file": "outputs/figures/model_comparison/classification_cv_vs_test.png",
+        "size_bytes": 97250,
+        "sha256": "8827bf19ba6a9c663e4f1679562e09025429e3051158014e31e149fa32e53b4d"
+      },
+      {
+        "file": "outputs/figures/model_comparison/cluster_size_distribution.png",
+        "size_bytes": 63281,
+        "sha256": "19f232afc9a3efc2494026486e74dadeab9d035904c154da84e417b68a28fd45"
+      },
+      {
+        "file": "outputs/figures/model_comparison/segment_rfm_profile.png",
+        "size_bytes": 99214,
+        "sha256": "f43a6c60e9903fcebf95f6786b496d975ea6b8ba92f519b3448aef7c364897bc"
+      },
+      {
+        "file": "outputs/figures/model_comparison/segment_repeat_purchase_rate.png",
+        "size_bytes": 74192,
+        "sha256": "3e17ad179e39edcf3408e1b52527c1a2359546aabb76f235dc15fd30b4f49fc2"
+      },
+      {
+        "file": "outputs/figures/model_comparison/top_association_rules.png",
+        "size_bytes": 270553,
+        "sha256": "a483471c9fc389b012f46cd7d1da9a4ab57ac8e0cd8a597dcaaca03c8db3ec60"
+      },
+      {
+        "file": "outputs/figures/model_comparison/feature_importance_top20.png",
+        "size_bytes": 180432,
+        "sha256": "47ef31aa0d9101e39ff9eb85b0ed942a63528688b68e4bc881ac2837761675cb"
+      },
+      {
+        "file": "outputs/figures/model_comparison/insight_summary_dashboard.png",
+        "size_bytes": 311217,
+        "sha256": "81c306e2c8e0d7d8eacca6fecee3095eac9d0cace027a08719632f3397ca8002"
+      },
+      {
         "file": "outputs/reports/07_model_comparison_and_insights.md",
-        "size_bytes": 48109,
-        "sha256": "d844327855e7e89647439c5333e73f291786a14f76d9feb9ac6c677b4d99d9e8"
+        "size_bytes": 48099,
+        "sha256": "799bdd456cc9bb15cd4d1846a3a807ee5413c35e27834dd161db01a1447d7f38"
       },
       {
         "file": "outputs/reports/07_model_comparison_and_insights_summary.json",
         "size_bytes": 1649,
-        "sha256": "f375e214fc4d143e6788f3c09470c5d6c1bcb7111a6ea0f0bf6adbd26256f112"
+        "sha256": "0ba7275604270e7e6c762e50ab8581d7e5b300f7de7fad95595d2b9ecdc6a343"
       }
     ]
   },
-  "git_commit": "dbad7c7a047cd1b9f6a6c8269bcbc5e3bc98c48c",
+  "git_commit": "d1ee6fd3ab452317b71811721865917aa8638167",
   "git_dirty": true
 }

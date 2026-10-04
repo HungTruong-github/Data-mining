@@ -38,7 +38,7 @@ Ma trận minh chứng cho 6 tiêu chí đánh giá, dẫn tới notebook/sectio
 |---|---|---|---|---|
 | Internal metrics clustering | NB04 | clustering.py | Silhouette, DB, CH scores (K=2 selected, sil=0.4330) | PASS |
 | CV/validation đúng | NB05 | classification.py | 5-fold StratifiedKFold trên train set, test holdout | PASS |
-| Baseline comparison | NB05 | — | DummyClassifier CV F1=0.7259 vs RF CV F1=0.6726 | PASS |
+| Baseline comparison | NB05 | — | DummyClassifier CV F1=0.7259 vs RF CV F1=0.7102 (Test F1=0.7375) | PASS |
 | Confusion matrix & reports | NB05 | evaluation.py | confusion_matrix.png, classification_report.csv | PASS |
 | Sai số & giới hạn | NB07 | insights.py | 07_model_comparison_and_insights.md limitations | PASS |
 | Lift > 1 validation | NB06 | association_rules.py | validate_rules() strictly enforces lift > 1 | PASS |
@@ -48,8 +48,8 @@ Ma trận minh chứng cho 6 tiêu chí đánh giá, dẫn tới notebook/sectio
 | Sub-requirement | Notebook/Section | Code/Function | Output/Evidence | Status |
 |---|---|---|---|---|
 | Code module hóa | src/*.py | — | 12 modules trong src/, compileall pass | PASS |
-| Pipeline chạy lại | run_pipeline.py | — | 7 steps sequential executed in 495s | PASS |
-| Tests | tests/*.py | pytest | 34/34 tests passed (unit, integration, invariance, smoke) | PASS |
+| Pipeline chạy lại | run_pipeline.py | — | 7 steps sequential executed, logging real execution | PASS |
+| Tests | tests/*.py | pytest | Automated test suite passed 100% (unit, integration, invariance, parity, smoke) | PASS |
 | Notebook executed | NB01-07 | nbclient | 7/7 notebooks executed (0 errors), exported HTML | PASS |
 | Demo dashboard | app/app.py | streamlit | Smoke tested via test_app_smoke.py (2/2 pass) | PASS |
 | Runners synchronized | notebooks/run_*.py | — | Shared src modules, identical logic and outputs | PASS |
@@ -72,7 +72,7 @@ Ma trận minh chứng cho 6 tiêu chí đánh giá, dẫn tới notebook/sectio
 | Data Understanding & Preprocessing | 20% | PASS |
 | Lựa chọn & Xây dựng Mô hình | 25% | PASS |
 | Đánh giá & Phân tích Kết quả | 20% | PASS |
-| Kỹ thuật & Tái lập | 15% | PASS (34 tests, 7 notebooks executed 0 errors, pipeline 100%) |
+| Kỹ thuật & Tái lập | 15% | PASS (pytest suite passed 100%, 7 notebooks executed 0 errors, pipeline 100%) |
 | Báo cáo & Tổng kết | 10% | PARTIAL — kỹ thuật hoàn tất, cần thông tin thành viên nhóm |
 
 ### Items requiring user input (NEEDS_USER_INPUT)

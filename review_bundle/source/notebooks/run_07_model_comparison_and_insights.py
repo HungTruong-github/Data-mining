@@ -21,6 +21,7 @@ from src.model_comparison import (
     build_classification_comparison, build_association_comparison,
     validate_selected_rules, verify_model_artifacts, file_sha256,
     generate_report, generate_summary_json, generate_manifest,
+    generate_all_step_07_figures, export_all_step_07_outputs,
     INPUT_FILES, TABLES_DIR, FIGURES_DIR, REPORTS_DIR, EVIDENCE_DIR,
     MODELS_CLUSTERING_DIR, MODELS_CLASSIFICATION_DIR, DATA_PROCESSED_DIR
 )
@@ -64,7 +65,6 @@ def main():
     # -- STEP 2: Clustering Comparison --
     print("\n--- STEP 2: Clustering Model Comparison ---")
     clust_comp = build_clustering_comparison()
-    clust_comp.to_csv(TABLES_MC / 'clustering_model_comparison.csv', index=False)
     selected_clust = clust_comp[clust_comp['is_selected'].astype(bool)]
     if not selected_clust.empty:
         sc_row = selected_clust.iloc[0]
@@ -75,7 +75,6 @@ def main():
     # -- STEP 3: Classification Comparison --
     print("\n--- STEP 3: Classification Model Comparison ---")
     class_comp = build_classification_comparison()
-    class_comp.to_csv(TABLES_MC / 'classification_model_comparison.csv', index=False)
     selected_class = class_comp[class_comp['is_selected'].astype(bool)]
     if not selected_class.empty:
         mc = selected_class.iloc[0]
@@ -87,7 +86,6 @@ def main():
     # -- STEP 4: Association Rules Comparison --
     print("\n--- STEP 4: Association Rules Comparison ---")
     assoc_comp = build_association_comparison()
-    assoc_comp.to_csv(TABLES_MC / 'association_rules_comparison.csv', index=False)
     selected_assoc = assoc_comp[assoc_comp['is_selected'].astype(bool)]
     if not selected_assoc.empty:
         sa = selected_assoc.iloc[0]
@@ -101,7 +99,6 @@ def main():
     # -- STEP 5: Customer Segment Insights --
     print("\n--- STEP 5: Customer Segment Insights ---")
     seg_insights = build_customer_segment_insights()
-    seg_insights.to_csv(TABLES_INS / 'customer_segment_insights.csv', index=False)
     for _, row in seg_insights.iterrows():
         print(f"  Cluster {row['cluster_id']}: {row['business_segment_name']} "
               f"({row['customer_count']:,} customers, {row['customer_percentage']:.1f}%)")
@@ -110,13 +107,11 @@ def main():
 
     # Action plan
     action_plan = build_action_plan(seg_insights)
-    action_plan.to_csv(TABLES_INS / 'customer_segment_action_plan.csv', index=False)
     print(f"  Action plan: {len(action_plan)} strategies")
 
     # -- STEP 6: Product Association Insights --
     print("\n--- STEP 6: Product Association Insights ---")
     prod_insights = build_product_association_insights()
-    prod_insights.to_csv(TABLES_INS / 'product_association_insights.csv', index=False)
     print(f"  Top {len(prod_insights)} association rules with business interpretation")
     for _, row in prod_insights.head(3).iterrows():
         print(f"    {row['antecedents']} -> {row['consequents']} (Lift={row['lift']:.1f}, {row['evidence_quality']})")
@@ -124,35 +119,22 @@ def main():
     # -- STEP 7: Feature Insights --
     print("\n--- STEP 7: Classification Feature Insights ---")
     feat_insights = build_feature_insights()
-    feat_insights.to_csv(TABLES_INS / 'classification_feature_insights.csv', index=False)
     for _, row in feat_insights.head(5).iterrows():
         print(f"  #{row['rank']}: {row['feature']} ({row['importance']:.4f}) [{row['feature_group']}]")
 
-    # -- STEP 8: Visualizations --
-    print("\n--- STEP 8: Visualizations ---")
-    _plot_clustering_comparison(clust_comp)
-    _plot_classification_comparison(class_comp)
-    _plot_clustering_quality(clust_comp)
-    _plot_cv_vs_test(class_comp)
-    _plot_cluster_size(seg_insights)
-    _plot_segment_rfm(seg_insights)
-    _plot_segment_repeat_rate(seg_insights)
-    _plot_top_rules(prod_insights)
-    _plot_feature_importance(feat_insights)
-    _plot_insight_summary(seg_insights, class_comp, assoc_comp, feat=feat_insights)
-
-    # -- STEP 9: Generate Report --
-    print("\n--- STEP 9: Generate Report ---")
-    _generate_report(clust_comp, class_comp, assoc_comp, seg_insights,
-                     action_plan, prod_insights, feat_insights)
-
-    # -- STEP 10: Generate Summary JSON --
-    print("\n--- STEP 10: Generate Summary JSON ---")
-    _generate_summary_json(clust_comp, class_comp, assoc_comp, seg_insights)
-
-    # -- STEP 11: Pipeline Manifest --
-    print("\n--- STEP 11: Pipeline Manifest ---")
-    _generate_manifest()
+    # -- STEP 8, 9, 10, 11: Export All Synchronized Step 07 Outputs --
+    print("\n--- Exporting All Synchronized Step 07 Outputs (Tables, Figures, Report, Summary, Manifest) ---")
+    res = export_all_step_07_outputs(
+        clust_comp=clust_comp,
+        class_comp=class_comp,
+        assoc_comp=assoc_comp,
+        seg_insights=seg_insights,
+        action_plan=action_plan,
+        prod_insights=prod_insights,
+        feat_insights=feat_insights,
+        save_figures=True
+    )
+    print("  [OK] Exported all tables, 10 figures, report markdown, summary json, and manifest.")
 
     # -- STEP 12: Final Validation --
     print("\n--- STEP 12: Final Validation ---")
@@ -200,6 +182,8 @@ def main():
     print(f"  Figures: {FIGURES_MC}")
     print(f"  Reports: {REPORTS}")
     print(f"{'=' * 60}")
+
+
 
 # -- PLOTTING HELPERS --
 def _save(fig, name):

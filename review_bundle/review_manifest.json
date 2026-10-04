@@ -1,12 +1,12 @@
 {
   "bundle_version": "2.0.0",
-  "generated_at": "2026-10-03T01:31:39.918515",
-  "git_commit": "dbad7c7a047cd1b9f6a6c8269bcbc5e3bc98c48c",
+  "generated_at": "2026-10-04T19:23:23.813187",
+  "git_commit": "d1ee6fd3ab452317b71811721865917aa8638167",
   "total_files": 162,
-  "total_size_bytes": 9797221,
-  "total_size_mb": 9.34,
+  "total_size_bytes": 9873716,
+  "total_size_mb": 9.42,
   "validation_status": "PASS",
-  "tests_passed": "45/45",
+  "tests_passed": "47/47",
   "excluded_artifacts": [
     {
       "file": "data/raw/Online Retail.xlsx",
@@ -37,13 +37,13 @@
     {
       "path": "README_REVIEW.md",
       "size_bytes": 7962,
-      "sha256": "278aeca075ea5ba35020d0869f8a067ba494fd35a8e822631ad3beec846030b5",
+      "sha256": "432841860406bb7e3d0189de04a82d362499a2b474354cfbc0bb0c675394634f",
       "category": "root"
     },
     {
       "path": "review_status.csv",
       "size_bytes": 1308,
-      "sha256": "9a8c809506c2cb35e83e18551fcdb4352063d92e72b9eeaaa80504cb21c0f945",
+      "sha256": "98eeb72552585611777377cdb7dbd3036f5596fb13b67fa7645cfbcee87ad5ec",
       "category": "root"
     },
     {
@@ -72,8 +72,8 @@
     },
     {
       "path": "logs/pipeline_execution.log",
-      "size_bytes": 188,
-      "sha256": "c27dfb7e17ea023e8d6fa6271f57976e34d66df2e6d14d5cda5da56714d56797",
+      "size_bytes": 4328,
+      "sha256": "512900a947befe26fb0c073dfd209b9bd29cf42fe3bb179ebebe0e452d519f67",
       "category": "logs"
     },
     {
@@ -102,8 +102,8 @@
     },
     {
       "path": "notebooks_review/05_repeat_purchase_classification.md",
-      "size_bytes": 11029,
-      "sha256": "a7d92bbe40a6664296e478374509096f9c23d5202a7feb38f4c226276a84933b",
+      "size_bytes": 19224,
+      "sha256": "6d7dcceec32f0820980723011bab93bb655ccbc988aef76113f6cefa5c347ad8",
       "category": "notebooks_review"
     },
     {
@@ -114,26 +114,26 @@
     },
     {
       "path": "notebooks_review/07_model_comparison_and_insights.md",
-      "size_bytes": 69649,
-      "sha256": "9e5b124291c0684a623d62887720a49a9d0528e6829707bc3caf2c1049d881df",
+      "size_bytes": 21637,
+      "sha256": "361bf264220fc7d4a370718098cbbb3f9b2c9e0cb8b1cef0cc93b320e160a005",
       "category": "notebooks_review"
     },
     {
       "path": "notebooks_review/notebook_execution.json",
       "size_bytes": 1238,
-      "sha256": "432fb9ced7f858dbcbadfb1b56960a25802caa849f8218b2ee7347d132ae9df4",
+      "sha256": "aa9f17066d703cb6dbd43fc9f0f1d74822cfa1c0971fb6ee8bbbdb6e1f105ccc",
       "category": "notebooks_review"
     },
     {
       "path": "reports/07_model_comparison_and_insights.md",
-      "size_bytes": 48109,
-      "sha256": "d844327855e7e89647439c5333e73f291786a14f76d9feb9ac6c677b4d99d9e8",
+      "size_bytes": 48099,
+      "sha256": "799bdd456cc9bb15cd4d1846a3a807ee5413c35e27834dd161db01a1447d7f38",
       "category": "reports"
     },
     {
       "path": "reports/07_model_comparison_and_insights_summary.json",
       "size_bytes": 1649,
-      "sha256": "f375e214fc4d143e6788f3c09470c5d6c1bcb7111a6ea0f0bf6adbd26256f112",
+      "sha256": "0ba7275604270e7e6c762e50ab8581d7e5b300f7de7fad95595d2b9ecdc6a343",
       "category": "reports"
     },
     {
@@ -144,8 +144,8 @@
     },
     {
       "path": "reports/decision_log.md",
-      "size_bytes": 4975,
-      "sha256": "59dd018fba381b8dc7e165f7c4e9a3fab85eed53f19425401c9cf3999e1002b6",
+      "size_bytes": 5276,
+      "sha256": "509fa4dd988db63760e96ffba74ddeea9222fbb478a92e2d64c823424af25ad3",
       "category": "reports"
     },
     {
@@ -156,14 +156,14 @@
     },
     {
       "path": "reports/pipeline_manifest.json",
-      "size_bytes": 6777,
-      "sha256": "6df436967514e93f3602e400538f4ecb565545a43e66ce26694a2466f8cbdeb9",
+      "size_bytes": 8963,
+      "sha256": "03ff7699cb135f0c75b0af2bad4caa994e8b983759e1a30cd5098bf76f992ba7",
       "category": "reports"
     },
     {
       "path": "reports/rubric_evidence_matrix.md",
-      "size_bytes": 5384,
-      "sha256": "6dea2e56c488baf9bcafe7c24fad613fc10150311b36c4b68fe032e2dab305f5",
+      "size_bytes": 5455,
+      "sha256": "1986f364ae235ef932ce57ff617b3c66db1a3203cbcb02619af76ff850c56eb6",
       "category": "reports"
     },
     {
@@ -180,8 +180,8 @@
     },
     {
       "path": "samples/sample_test_predictions_20.csv",
-      "size_bytes": 2031,
-      "sha256": "6f1ca38420eee6118ddf2cb46fa0de4813f7672f7b2d54aa5c2a92b83e1c6c86",
+      "size_bytes": 2033,
+      "sha256": "5cfbba10175b9918772b5f16f1aa5f5208ab1028a3db7a083f440bd8aa50ebfd",
       "category": "samples"
     },
     {
@@ -198,8 +198,8 @@
     },
     {
       "path": "source/README.md",
-      "size_bytes": 7187,
-      "sha256": "69428ed91a2826e08e391013b9447c06d3062afe82e965a1cc3f2dab5abcaf99",
+      "size_bytes": 7704,
+      "sha256": "ef2b4f0274c1754d3a5b25c184edaf65b3ad6b0901a5a7ca771f65056794e4a1",
       "category": "source"
     },
     {
@@ -210,32 +210,32 @@
     },
     {
       "path": "source/run_pipeline.py",
-      "size_bytes": 6596,
-      "sha256": "6a0e4b8ae4ffb893e080876ee1d96e9d5ad693f9b8ec310f9eaccf5249266e18",
+      "size_bytes": 8218,
+      "sha256": "2ca036c2942b5f7de19d1a43b54bab55de5f23a877fd5519fd38b5a9d75663e5",
       "category": "source"
     },
     {
       "path": "validation/acceptance_results.csv",
-      "size_bytes": 3935,
-      "sha256": "4b52e261b6ebad11759564385932cc1ee9a0ee7ac2fbb670a641d6964d951b6a",
+      "size_bytes": 3897,
+      "sha256": "1a5d82f8f9f1f1914d75a7fac6997dd2899ac4f014b59c1d2a19fc055e342c27",
       "category": "validation"
     },
     {
       "path": "validation/acceptance_results.json",
-      "size_bytes": 5628,
-      "sha256": "670ac2afa5ae45de8599c4e646f23996921577cf6d343e223f34d64879821db2",
+      "size_bytes": 5588,
+      "sha256": "9a06db64c164eb9636d26e39d68fbd5fcbfc71755e26265e99652ddca4269c73",
       "category": "validation"
     },
     {
       "path": "validation/pytest_report.xml",
-      "size_bytes": 5118,
-      "sha256": "660f700f38927cac31daa44ab5c859c276b89dbdf7ed7a0300a781c62486363c",
+      "size_bytes": 10505,
+      "sha256": "6802437a46a80817b86ee234f4a48f1e9984a6197a405171b70a0dbd6d999bf3",
       "category": "validation"
     },
     {
       "path": "figures/association_rules/algorithm_comparison.png",
-      "size_bytes": 60705,
-      "sha256": "a0b29960a75d77546c40fcc6c7385054b91b9de8ce656d583dd5e569cc7e7ffc",
+      "size_bytes": 62819,
+      "sha256": "7ab0de5866bf3de5e0a71d449f89f5e589afa4acde34fbbd67d8682997cfd560",
       "category": "figures"
     },
     {
@@ -270,20 +270,20 @@
     },
     {
       "path": "figures/classification/model_metric_comparison.png",
-      "size_bytes": 60793,
-      "sha256": "95c817eeb09177f0db626d8fa60c0f8188870b89272a93a01322f63ce0b15f2a",
+      "size_bytes": 60837,
+      "sha256": "6fbac40195cd6b4b1af776d5edb243feb06532f24eda635179a18e211d3ab318",
       "category": "figures"
     },
     {
       "path": "figures/classification/precision_recall_curves.png",
-      "size_bytes": 142613,
-      "sha256": "0db39d3839421f2133742a890ba3db82dcf0dac8b2dfd4e01b488bb6d1aa2244",
+      "size_bytes": 140605,
+      "sha256": "c037c8e105754620ba2d47a1de1837983b72e88439aac14b4042ac00745c2c6d",
       "category": "figures"
     },
     {
       "path": "figures/classification/roc_curves.png",
-      "size_bytes": 125798,
-      "sha256": "66f1f3377b07b94d0ffb4f5752129652920ba7ad00b2697fc33e9044bcc66c3f",
+      "size_bytes": 126736,
+      "sha256": "72243a8caa16d15ae6d8dd806b8418c70eb8b881c3cc888c4fcb0885a3efa192",
       "category": "figures"
     },
     {
@@ -456,68 +456,68 @@
     },
     {
       "path": "figures/model_comparison/classification_cv_vs_test.png",
-      "size_bytes": 52432,
-      "sha256": "b7b2f6e7bd0130dd1ed22d9eb09e70b491ae353ddea3e7d0fba3559a96e641d7",
+      "size_bytes": 97250,
+      "sha256": "8827bf19ba6a9c663e4f1679562e09025429e3051158014e31e149fa32e53b4d",
       "category": "figures"
     },
     {
       "path": "figures/model_comparison/classification_model_comparison.png",
-      "size_bytes": 106571,
-      "sha256": "1a51d29648de9a88ff57f95e42a5a1ddf459bb8096f102aec2d60c11be3af0b1",
+      "size_bytes": 110279,
+      "sha256": "7e3b592d10ae1940a290a08c9985dfd593025d2976ad40eb2c970513e4967552",
       "category": "figures"
     },
     {
       "path": "figures/model_comparison/clustering_model_comparison.png",
-      "size_bytes": 144378,
-      "sha256": "28fd44d9cc3e2d9c292a6c7325fda690ae59625467d27cb4df5f1ba5f3b8d8e3",
+      "size_bytes": 181091,
+      "sha256": "2213f58c97fa39972529cde6adcbcbdbaafe944fa8bbe36c1c90ad3cd61e4233",
       "category": "figures"
     },
     {
       "path": "figures/model_comparison/clustering_quality_metrics.png",
-      "size_bytes": 179727,
-      "sha256": "5ab7e2dcca6899742239e3de8b52d7c83b762be9c9083c3b96dddb189ef18cb9",
+      "size_bytes": 178524,
+      "sha256": "fbf95fc78da8f11c42a010cba05d4dec775c65defc89aa8a1370c59fd4194e78",
       "category": "figures"
     },
     {
       "path": "figures/model_comparison/cluster_size_distribution.png",
-      "size_bytes": 62772,
-      "sha256": "a42326678b9ac31e9b5adab0399fe4db0740c58d2ae81b27f4b631d4cf7809d5",
+      "size_bytes": 63281,
+      "sha256": "19f232afc9a3efc2494026486e74dadeab9d035904c154da84e417b68a28fd45",
       "category": "figures"
     },
     {
       "path": "figures/model_comparison/feature_importance_top20.png",
-      "size_bytes": 181885,
-      "sha256": "3a08440bc252751b05571fc33c57c5dba2fb0c364cb47ff3e2155bb4f363ecbc",
+      "size_bytes": 180432,
+      "sha256": "47ef31aa0d9101e39ff9eb85b0ed942a63528688b68e4bc881ac2837761675cb",
       "category": "figures"
     },
     {
       "path": "figures/model_comparison/insight_summary_dashboard.png",
-      "size_bytes": 310947,
-      "sha256": "55c90099299a0bbf3bc356453ff84386fc96cc89b26b57939bff75842a1348f0",
+      "size_bytes": 311217,
+      "sha256": "81c306e2c8e0d7d8eacca6fecee3095eac9d0cace027a08719632f3397ca8002",
       "category": "figures"
     },
     {
       "path": "figures/model_comparison/segment_repeat_purchase_rate.png",
-      "size_bytes": 73444,
-      "sha256": "de05ae7e3cdc1c341de275baa316c67faa7ce8498d2afc22dfec8de44844e32b",
+      "size_bytes": 74192,
+      "sha256": "3e17ad179e39edcf3408e1b52527c1a2359546aabb76f235dc15fd30b4f49fc2",
       "category": "figures"
     },
     {
       "path": "figures/model_comparison/segment_rfm_profile.png",
-      "size_bytes": 99315,
-      "sha256": "f4789ab930649426933e6dc38c9eda56f342f97ed275bd1aaf9b06a232c8cb45",
+      "size_bytes": 99214,
+      "sha256": "f43a6c60e9903fcebf95f6786b496d975ea6b8ba92f519b3448aef7c364897bc",
       "category": "figures"
     },
     {
       "path": "figures/model_comparison/top_association_rules.png",
-      "size_bytes": 272736,
-      "sha256": "be2c23e77dbdc204328ed4252f3806b2c92ad727acbd3fa4d2c9f8b91dc0c562",
+      "size_bytes": 270553,
+      "sha256": "a483471c9fc389b012f46cd7d1da9a4ab57ac8e0cd8a597dcaaca03c8db3ec60",
       "category": "figures"
     },
     {
       "path": "source/app/app.py",
-      "size_bytes": 14441,
-      "sha256": "4207e5b4fda39eaf37386b2ec136681d47e34c16fdacbba40dfd2485ab6bd651",
+      "size_bytes": 14192,
+      "sha256": "7d15dc07f07fe9fc66adedda71841774f0e3afcf534873d74bcee05ef444c9cc",
       "category": "source"
     },
     {
@@ -546,8 +546,8 @@
     },
     {
       "path": "source/docs/decision_log.md",
-      "size_bytes": 4975,
-      "sha256": "59dd018fba381b8dc7e165f7c4e9a3fab85eed53f19425401c9cf3999e1002b6",
+      "size_bytes": 5276,
+      "sha256": "509fa4dd988db63760e96ffba74ddeea9222fbb478a92e2d64c823424af25ad3",
       "category": "source"
     },
     {
@@ -576,8 +576,8 @@
     },
     {
       "path": "source/docs/rubric_evidence_matrix.md",
-      "size_bytes": 5384,
-      "sha256": "6dea2e56c488baf9bcafe7c24fad613fc10150311b36c4b68fe032e2dab305f5",
+      "size_bytes": 5455,
+      "sha256": "1986f364ae235ef932ce57ff617b3c66db1a3203cbcb02619af76ff850c56eb6",
       "category": "source"
     },
     {
@@ -618,8 +618,8 @@
     },
     {
       "path": "source/notebooks/run_05_repeat_purchase_classification.py",
-      "size_bytes": 11111,
-      "sha256": "4e7d9acd20249a22f4c0e1005c4d35e5df90f4a826cd7c15acd1b6d9c657e40b",
+      "size_bytes": 12233,
+      "sha256": "4dfbd082577e94a68cd54e0e0033031d08f9664846a43049e69a31021604061d",
       "category": "source"
     },
     {
@@ -630,8 +630,8 @@
     },
     {
       "path": "source/notebooks/run_07_model_comparison_and_insights.py",
-      "size_bytes": 21640,
-      "sha256": "e25c739f566e75b1a1d3cdc96e8fad80e7b96b061e81be98c97ed9d31ba31377",
+      "size_bytes": 20641,
+      "sha256": "37ff9545308dfdd8e7b1f3fbad613b22a74e99b2b8d5f3e1a880e8abbeed13ad",
       "category": "source"
     },
     {
@@ -642,8 +642,8 @@
     },
     {
       "path": "source/src/classification.py",
-      "size_bytes": 24685,
-      "sha256": "4527646e0c258a90500f00ca3cc151c3cda0f76c42901ab06f3b65b68f08949c",
+      "size_bytes": 27112,
+      "sha256": "c31d6dfe36aa1bbd4feaff51d1e421ae69599304b0a48af5a23ae15b80a8b474",
       "category": "source"
     },
     {
@@ -684,8 +684,8 @@
     },
     {
       "path": "source/src/model_comparison.py",
-      "size_bytes": 32576,
-      "sha256": "cc4cda160981d2e324f04ad6c183257caec2b731645108201b8a7e8a3443296c",
+      "size_bytes": 49682,
+      "sha256": "ef5f14e6a499828084ab01677bdd4c3f8df5206f94a0887bd0d7fcca357438fd",
       "category": "source"
     },
     {
@@ -720,8 +720,8 @@
     },
     {
       "path": "source/tests/test_classification.py",
-      "size_bytes": 7521,
-      "sha256": "e58a0e30df6eeafd0243160d52b7780dd9cc29ab480e1e42045457bdd543bfda",
+      "size_bytes": 9026,
+      "sha256": "5d282cd7758a7fc0e177898d5fd5a5ee93495c24ac8e9966a7e969080aa63c50",
       "category": "source"
     },
     {
@@ -732,8 +732,8 @@
     },
     {
       "path": "source/tests/test_model_comparison.py",
-      "size_bytes": 17242,
-      "sha256": "a70f188637c56d659bb5049ed7b4cc517dda33486ac62e7a79f050d35a53085f",
+      "size_bytes": 17987,
+      "sha256": "94463182c2b7f07fdbc1d5cd49a1b5c1e94fa3d5c6244f03176d1bde8b63aa18",
       "category": "source"
     },
     {
@@ -756,14 +756,14 @@
     },
     {
       "path": "tables/association_rules/association_algorithm_comparison.csv",
-      "size_bytes": 271,
-      "sha256": "d539879fab3f3c1205c54a9be60032e873aa31832af42a9bc6322088704758f6",
+      "size_bytes": 270,
+      "sha256": "b2817f5d94860e7c3f45d0efd993e891fb97f5eec4463ee4cf83d3016eb24598",
       "category": "tables"
     },
     {
       "path": "tables/association_rules/association_business_insights.csv",
-      "size_bytes": 3151,
-      "sha256": "b4171e13c3ce78d09c211ea7cda3fea4b0df65dfd7830644a1c2a12ece58e23b",
+      "size_bytes": 634,
+      "sha256": "6bdc4ee6de90fad96aedc324ff02f2964790d4a3ee18142cff7d7f5cd4f4f256",
       "category": "tables"
     },
     {
@@ -786,8 +786,8 @@
     },
     {
       "path": "tables/association_rules/selected_association_rules.csv",
-      "size_bytes": 11566,
-      "sha256": "ef61386176f43c17e1056739096d5c24ed028cac92aa573f490bc9574742a7ba",
+      "size_bytes": 11444,
+      "sha256": "807d1a817c20c936ac3d06f069760c0d8bcf9bacc60e2cefa16bcad326bb00fc",
       "category": "tables"
     },
     {
@@ -804,14 +804,14 @@
     },
     {
       "path": "tables/classification/cv_results.csv",
-      "size_bytes": 1022,
-      "sha256": "506e86c9f21a216adb0f0a4b8163b11e5e30187e36860937a837a9d815687ff4",
+      "size_bytes": 1020,
+      "sha256": "1a9f6b21e298430bcead1c7e4cff7e9321388da3fb2296cb3732e0c74ffef288",
       "category": "tables"
     },
     {
       "path": "tables/classification/cv_tuning_history.csv",
-      "size_bytes": 11293,
-      "sha256": "363a588dcc31892304f16fcfbfdc2d645f761caa0fbb2f7709a6a3f35606e140",
+      "size_bytes": 11286,
+      "sha256": "3ab2f65948de8af8623a6395299f4c69a23ae506919e38187c254373c47640a6",
       "category": "tables"
     },
     {
@@ -822,20 +822,20 @@
     },
     {
       "path": "tables/classification/model_comparison.csv",
-      "size_bytes": 745,
-      "sha256": "2247d5e085201d21a4d393cbd49fa503657c5120bdcde7bb5545092f92f577ff",
+      "size_bytes": 744,
+      "sha256": "89a6b7ecdc03dcaaf0aefa4f272aa6f6a907bdd8cbf120a6f05c8ae879e93cde",
       "category": "tables"
     },
     {
       "path": "tables/classification/test_predictions.csv",
-      "size_bytes": 59449,
-      "sha256": "f74eba0a02cbc0cf3bad8e8d1d55b8370d1ba889769ac19b35b9623a36447aca",
+      "size_bytes": 59450,
+      "sha256": "bf5c6b018c12698b0d3b29b9896ff377179877c9ac545ef0890b134c6ddc4624",
       "category": "tables"
     },
     {
       "path": "tables/clustering/clustering_algorithm_comparison.csv",
-      "size_bytes": 4401,
-      "sha256": "88f15d9f6c91a2c04dfc71473273551e2469a07894113eb5b79e295198fa54a1",
+      "size_bytes": 4404,
+      "sha256": "cc0d531a5cec6e768685289e3d40896e789f3a5ca2e88574341a26a515e1636b",
       "category": "tables"
     },
     {
@@ -972,20 +972,20 @@
     },
     {
       "path": "tables/model_comparison/association_rules_comparison.csv",
-      "size_bytes": 454,
-      "sha256": "8449d5ae6276fcaabb3c0354aea21fcf023b0528c520b402d2774cab22194b80",
+      "size_bytes": 451,
+      "sha256": "e50527e85c352cf15749ab0ebc55b5da8b1e046c172081ad82b9aaeb28d9c4a4",
       "category": "tables"
     },
     {
       "path": "tables/model_comparison/classification_model_comparison.csv",
-      "size_bytes": 1081,
-      "sha256": "569714e6bbb14b26102ed30ecf8b15ccd52f11ae174e64144870e13ef37ade37",
+      "size_bytes": 1080,
+      "sha256": "bb37ba5b67437462b6527265939249bf8ba513bf28bcf564725029e91ce8061d",
       "category": "tables"
     },
     {
       "path": "tables/model_comparison/clustering_model_comparison.csv",
-      "size_bytes": 4389,
-      "sha256": "306b02b9cadcbd19aea0a02b833f73fcd4eae5bb79e5174807dae8b8f873b06e",
+      "size_bytes": 4392,
+      "sha256": "7acd6bdaf9298e48c9911ccaccb25920a6416e5cca0588b91a160de48afb924e",
       "category": "tables"
     },
     {
@@ -1002,8 +1002,8 @@
     },
     {
       "path": "tables/association_rules/association_rules/selected_association_rules.csv",
-      "size_bytes": 11566,
-      "sha256": "ef61386176f43c17e1056739096d5c24ed028cac92aa573f490bc9574742a7ba",
+      "size_bytes": 11444,
+      "sha256": "807d1a817c20c936ac3d06f069760c0d8bcf9bacc60e2cefa16bcad326bb00fc",
       "category": "tables"
     }
   ]

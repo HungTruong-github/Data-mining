@@ -4,8 +4,8 @@
     "requirement": "Action plan 10 columns complete and generated dynamically",
     "test_method": "tests/test_model_comparison.py::test_action_plan_structure_and_columns",
     "expected": "10 mandatory strategy columns, non-empty action plan",
-    "observed": "4 business strategies generated with all 10 columns populated",
     "status": "PASS",
+    "observed": "4 business strategies generated with all 10 columns populated",
     "evidence": "tables/insights/customer_segment_action_plan.csv"
   },
   {
@@ -13,8 +13,8 @@
     "requirement": "Zero duplicate module-level functions across entire repository",
     "test_method": "tests/test_model_comparison.py::test_no_duplicate_function_definitions_in_modules",
     "expected": "Zero duplicate top-level function names",
-    "observed": "0 duplicate function definitions detected across all .py files",
     "status": "PASS",
+    "observed": "0 duplicate function definitions across 20 scanned .py files",
     "evidence": "source/notebooks/run_07_model_comparison_and_insights.py"
   },
   {
@@ -22,8 +22,8 @@
     "requirement": "Rule sets canonical content comparison and equivalence audit",
     "test_method": "tests/test_model_comparison.py::test_association_rules_detailed_comparison",
     "expected": "Exact match on StockCodes and metrics within tolerance",
-    "observed": "61 rules identical across Apriori and FP-Growth (max diff = 0.0)",
     "status": "PASS",
+    "observed": "61 rules identical across Apriori and FP-Growth (max diff = 0.000000)",
     "evidence": "tables/association_rules/association_rules_equivalence_audit.csv"
   },
   {
@@ -31,8 +31,8 @@
     "requirement": "Pipeline detects rule content mismatch with equal rule counts",
     "test_method": "tests/test_model_comparison.py::test_pipeline_detects_rule_content_mismatch_with_equal_counts",
     "expected": "Mismatch detected and equivalence flagged False",
-    "observed": "Identifies differing StockCodes and returns is_equivalent=False",
     "status": "PASS",
+    "observed": "Synthetic mismatch correctly flagged is_equivalent=False",
     "evidence": "tests/test_model_comparison.py"
   },
   {
@@ -40,8 +40,8 @@
     "requirement": "RFM quantile fallback monotonicity and row-order invariance",
     "test_method": "tests/test_feature_engineering.py::test_rfm_fallback_and_monotonicity",
     "expected": "R_Score 5 is best; identical scores regardless of row order",
-    "observed": "Monotonicity preserved; row-order permutation invariance verified",
     "status": "PASS",
+    "observed": "Monotonicity preserved; row-order permutation invariance verified",
     "evidence": "source/src/feature_engineering.py"
   },
   {
@@ -49,8 +49,8 @@
     "requirement": "CustomerID preserved in test_predictions.csv for error audit",
     "test_method": "tests/test_classification.py & file inspection",
     "expected": "CustomerID is column 1 of test_predictions.csv",
-    "observed": "CustomerID present in test_predictions.csv (674 test rows)",
     "status": "PASS",
+    "observed": "CustomerID is column 1 of test_predictions.csv (674 rows, 0 nulls)",
     "evidence": "tables/classification/test_predictions.csv"
   },
   {
@@ -58,8 +58,8 @@
     "requirement": "Streamlit app and offline pipeline share identical prediction rule",
     "test_method": "tests/test_classification.py::test_offline_dashboard_parity",
     "expected": "predict_with_threshold applies unrounded prob >= threshold with dynamic classes_",
-    "observed": "Exact probability-to-label parity verified on test set, boundary cases, and dashboard",
     "status": "PASS",
+    "observed": "Exact probability-to-label parity verified across all 674 test rows",
     "evidence": "source/src/classification.py & source/app/app.py"
   },
   {
@@ -67,8 +67,8 @@
     "requirement": "Pipeline manifest SHA-256 verification and failure on missing audit",
     "test_method": "tests/test_model_comparison.py::test_manifest_fails_when_audit_csv_missing",
     "expected": "Missing equivalence audit causes manifest validation FAIL and non-zero exit",
-    "observed": "Manifest marks validation_status=PASS only when all artifacts exist with SHA256",
     "status": "PASS",
+    "observed": "Manifest marks validation_status=PASS with valid SHA-256 for all artifacts",
     "evidence": "reports/pipeline_manifest.json"
   },
   {
@@ -76,8 +76,8 @@
     "requirement": "Bounded hyperparameter grid search on train folds only",
     "test_method": "tests/test_classification.py::test_tune_model_hyperparameters_runs_cleanly",
     "expected": "5-fold CV grid search on train set, saving cv_tuning_history.csv",
-    "observed": "Tuning history recorded across LR, DT, RF (40 total fits, honest selection rationale)",
     "status": "PASS",
+    "observed": "Tuning history recorded 40 candidate configurations (200 fits) across LR, DT, RF",
     "evidence": "tables/classification/cv_tuning_history.csv"
   },
   {
@@ -85,8 +85,8 @@
     "requirement": "Clustering stability audit across seeds and preprocessing comparison",
     "test_method": "src/clustering.py & runner 04",
     "expected": "Multi-seed ARI stability audit and StandardScaler vs Log1p+StandardScaler table",
-    "observed": "Mean ARI = 0.9996 across seeds; preprocessing comparison documented",
     "status": "PASS",
+    "observed": "Mean ARI = 1.0000 across seeds; stability audit verified",
     "evidence": "tables/clustering/clustering_stability_audit.csv"
   },
   {
@@ -94,8 +94,8 @@
     "requirement": "Association rules multi-run benchmark and sensitivity analysis",
     "test_method": "src/association_rules.py & runner 06",
     "expected": "3-run median runtime with IQR, minimum baskets ceil(min_support * n_baskets)",
-    "observed": "396 min baskets; median runtime reported; 12 grid points sensitivity table",
     "status": "PASS",
+    "observed": "Multi-run benchmark verified (2 algorithms, 12 sensitivity grid points)",
     "evidence": "tables/association_rules/rule_sensitivity_analysis.csv"
   },
   {
@@ -103,8 +103,8 @@
     "requirement": "Recalculated metrics from test_predictions.csv match comparison table",
     "test_method": "tests/test_model_comparison.py::test_recalculated_metrics_from_predictions_match_comparison_table",
     "expected": "Accuracy, Precision, Recall, F1 match within 1e-4",
-    "observed": "Recalculated metrics from test predictions match model_comparison.csv exactly",
     "status": "PASS",
+    "observed": "Recalculated test F1 (0.7375) matches model_comparison.csv (0.7375) exactly",
     "evidence": "tables/classification/model_comparison.csv"
   }
 ]

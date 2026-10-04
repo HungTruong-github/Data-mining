@@ -190,3 +190,40 @@ def test_tune_model_hyperparameters_runs_cleanly(sample_df):
     assert 'rank_f1' in tuning_history.columns
     assert 'mean_test_f1' in tuning_history.columns
     assert len(best_params) == 4
+
+
+def test_predict_customers_validation_and_parity(sample_df):
+    """Verify predict_customers validates features and exactly matches predict_with_threshold."""
+    from src.classification import predict_customers, threshold_f1_scorer_05
+
+    X_train, X_test, y_train, y_test = split_classification_data(sample_df)
+    preprocessor, _, _ = build_preprocessor(X_train)
+    pipelines = build_model_pipelines(preprocessor)
+    pipe = pipelines['RandomForest']
+    pipe.fit(X_train, y_train)
+
+    metadata = {
+        'target_col': 'repeat_purchase_90d',
+        'feature_columns': list(X_train.columns),
+        'threshold': 0.5,
+        'positive_class': 1,
+    }
+
+    # 1. Missing columns test
+    bad_input = X_test.drop(columns=[X_train.columns[0]])
+    with pytest.raises(ValueError, match="Input dataframe missing required feature columns"):
+        predict_customers(pipe, metadata, bad_input)
+
+    # 2. Functional parity test
+    preds_cust, probs_cust = predict_customers(pipe, metadata, X_test)
+    assert len(preds_cust) == len(X_test)
+    assert len(probs_cust) == len(X_test)
+
+    y_pred_direct, y_proba_direct = predict_with_threshold(pipe, X_test, threshold=0.5, pos_label=1)
+    np.testing.assert_array_equal(preds_cust, y_pred_direct)
+    np.testing.assert_array_almost_equal(probs_cust, y_proba_direct, decimal=10)
+
+    # 3. Test threshold_f1_scorer_05 callable
+    f1_val = threshold_f1_scorer_05(pipe, X_test, y_test)
+    assert 0.0 <= f1_val <= 1.0
+

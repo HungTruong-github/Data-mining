@@ -27,7 +27,7 @@ import sys
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.classification import predict_with_threshold
+from src.classification import predict_with_threshold, predict_customers
 
 
 @st.cache_resource
@@ -87,11 +87,12 @@ st.caption("Dự án Khai phá Dữ liệu Khách hàng — Khoa học Dữ li�
 
 # Governance Warning Banner
 clf_meta_banner = artifacts.get('clf_metadata', {})
-train_0 = clf_meta_banner.get('class_distribution', {}).get('train_0', 1159)
-train_1 = clf_meta_banner.get('class_distribution', {}).get('train_1', 1535)
-total_train = max(1, train_0 + train_1)
-pos_pct = (train_1 / total_train) * 100
-sel_model_name = clf_meta_banner.get('selected_model', 'RandomForest')
+class_dist = clf_meta_banner.get('class_distribution', {})
+train_0 = class_dist.get('train_0', 0)
+train_1 = class_dist.get('train_1', 0)
+total_train = train_0 + train_1
+pos_pct = (train_1 / total_train * 100) if total_train > 0 else 0.0
+sel_model_name = clf_meta_banner.get('selected_model', 'N/A')
 applied_th = float(clf_meta_banner.get('threshold', 0.5))
 
 st.warning(
@@ -124,7 +125,7 @@ with tab1:
         st.error("Chưa tìm thấy mô hình phân loại. Vui lòng chạy pipeline bước 05.")
     else:
         col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-        col_m1.metric("Mô hình được chọn", clf_meta.get('selected_model', 'RandomForest'))
+        col_m1.metric("Mô hình được chọn", clf_meta.get('selected_model', 'N/A'))
         col_m2.metric("Ngưỡng phân loại", f"{clf_meta.get('threshold', 0.5):.2f}")
         col_m3.metric("Số lượng biến đặc trưng", len(clf_meta.get('feature_columns', [])))
         col_m4.metric("Kích thước tập huấn luyện", f"{clf_meta.get('training_row_count', 0):,} mẫu")
@@ -166,10 +167,7 @@ with tab1:
                     st.error("Dữ liệu đầu vào rỗng (0 dòng)!")
                 else:
                     with st.spinner("Đang chạy dự báo qua Scikit-Learn Pipeline..."):
-                        X_in = input_df[feat_cols].copy()
-                        applied_threshold = float(clf_meta.get('threshold', 0.5))
-                        pos_label = clf_meta.get('positive_class', 1)
-                        preds, probs = predict_with_threshold(clf_pipeline, X_in, threshold=applied_threshold, pos_label=pos_label)
+                        preds, probs = predict_customers(clf_pipeline, clf_meta, input_df)
 
                         out_df = input_df.copy()
                         if 'CustomerID' in input_df.columns:

@@ -33,9 +33,9 @@
   },
   {
     "notebook": "05_repeat_purchase_classification.ipynb",
-    "total_cells": 19,
-    "code_cells": 11,
-    "executed_cells": 11,
+    "total_cells": 20,
+    "code_cells": 12,
+    "executed_cells": 12,
     "errors": 0,
     "status": "PASS"
   },

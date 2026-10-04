@@ -82,7 +82,7 @@ Data-mining/
 │   ├── references.md
 │   └── rubric_evidence_matrix.md
 │
-├── tests/                                # Unit tests (34 tests, 100% pass)
+├── tests/                                # Automated tests (pytest suite, 100% pass)
 │   ├── test_preprocessing.py
 │   ├── test_feature_engineering.py
 │   ├── test_classification.py
@@ -155,18 +155,20 @@ python -m streamlit run app/app.py
 
 ### 4.1 Customer Clustering
 - Thuật toán: K-Means (K=2) trên RFM features (log1p + StandardScaler)
-- Silhouette Score: 0.4330
+- Silhouette Score: 0.4330, Davies-Bouldin: 0.8917
 - 2 phân khúc: Best Customers (38.4%) và Low-Value Customers (61.6%)
 
 ### 4.2 Repeat Purchase Classification
-- Model: Random Forest (class_weight=balanced)
-- CV F1: 0.6726, Test F1: 0.7086, Test AUC: 0.7438
-- Baseline (DummyClassifier): CV F1 0.7259
+- Model: Random Forest (`n_estimators: 100, max_depth: 5, min_samples_leaf: 5, class_weight: None`)
+- CV F1: 0.7102, Test F1: 0.7375, Test AUC: 0.7438
+- Baseline (DummyClassifier): CV F1 0.7259 (không phân biệt khách hàng, ROC-AUC = 0.5000)
 - Target: repeat_purchase_90d (mua lại trong 90 ngày)
+- Ngưỡng suy luận thống nhất: `probability >= 0.5` đồng bộ giữa CV, test evaluation và Dashboard
 
 ### 4.3 Association Rules
-- 61 valid rules (lift > 1) từ cả Apriori và FP-Growth
-- min_support=0.02, min_confidence=0.5
+- Thuật toán được chọn: Được chọn động theo runtime benchmark (Apriori hoặc FP-Growth; cả hai giải cùng bài toán frequent itemsets)
+- 61 valid rules (lift > 1) trùng khớp tuyệt đối giữa Apriori và FP-Growth (max diff = 0.0)
+- min_support=0.02 (tương đương 396 giỏ hàng trên 19,792 giao dịch), min_confidence=0.5
 - Top rule lift: ~18.2 (PINK/GREEN/ROSES REGENCY TEACUP sets)
 
 ## 5. Tài Liệu Tham Khảo

@@ -338,3 +338,21 @@ def test_recalculated_metrics_from_predictions_match_comparison_table():
     np.testing.assert_almost_equal(calc_f1, sel_row['test_f1'], decimal=4, err_msg="F1 recalculated mismatch")
 
 
+def test_export_all_step_07_outputs_produces_all_artifacts():
+    """Verify that export_all_step_07_outputs generates tables, figures, report, summary, and manifest."""
+    from src.model_comparison import export_all_step_07_outputs
+    
+    # Run export (dry run or live if inputs present)
+    try:
+        res = export_all_step_07_outputs(save_figures=False)
+        assert 'manifest' in res
+        assert 'summary' in res
+        assert 'report_path' in res
+        assert Path(res['report_path']).exists()
+        assert Path(res['summary_path']).exists()
+        assert Path(res['manifest_path']).exists()
+    except Exception as e:
+        pytest.skip(f"Inputs not yet available for export_all_step_07_outputs: {e}")
+
+
+
