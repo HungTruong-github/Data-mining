@@ -1,7 +1,0 @@
-{
-  "os": "nt",
-  "platform": "win32",
-  "cpu_count": 12,
-  "python_executable": "D:\\Data-mininng\\.venv\\Scripts\\python.exe",
-  "recorded_pytest_runtime_seconds": 55.1
-}
