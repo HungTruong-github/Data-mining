@@ -1,3 +1,0 @@
-algorithm,min_support,min_confidence,runtime_seconds,frequent_itemset_count,rule_count,valid_rule_count,max_itemset_size,max_rule_lift,is_selected
-Apriori,0.02,0.5,6.525,389,61,61,3,18.23110667996012,False
-FP-Growth,0.02,0.5,5.1126,389,61,61,3,18.23110667996012,True

@@ -1,2 +1,0 @@
-is_equivalent,count_Apriori,count_FP-Growth,matched_count,only_in_Apriori,only_in_FP-Growth,max_support_diff,max_confidence_diff,max_lift_diff
-True,61,61,61,[],[],0.0,0.0,0.0

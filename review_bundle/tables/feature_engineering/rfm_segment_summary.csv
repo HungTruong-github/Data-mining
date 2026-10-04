@@ -1,7 +1,0 @@
-RFM_Segment,CustomerCount,AverageRecency,AverageFrequency,AverageMonetary,TotalMonetary,AverageOrderValue,CustomerPercent
-Regular Customers,1714,165.42,1.37,345.41,592028.67,266.12,39.55
-Champions,912,12.47,11.44,6165.47,5622904.48,454.55,21.04
-Recent Customers,583,17.64,1.79,408.33,238054.92,239.26,13.45
-Loyal Customers,553,70.48,5.71,2045.08,1130926.49,340.35,12.76
-Big Spenders,459,88.1,2.3,2390.03,1097022.54,1272.35,10.59
-At Risk,113,151.9,3.18,498.15,56290.54,162.13,2.61
