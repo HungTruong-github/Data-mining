@@ -54,9 +54,10 @@ Rà soát AST và loại bỏ toàn bộ các import dư thừa, cải thiện t
 
 ## 3. Tổng Hợp Trạng Thái Kiểm Thử & Nghiệm Thu Khoa Học
 
-### 3.1. Kết Quả Kiểm Thử Đơn Vị & Tích Hợp (Pytest Suite)
+### 3.1. Kết Quả Kiểm Thử Đơn Vị & Tích Hợp (Nghiệm Thu Lịch Sử Trước Bàn Giao)
+- **Mốc thực thi:** Commit `099a5cb3c5230eba6fb6166d7ef79ed34c53c09a` (trước khi dọn dẹp bộ test suite để bàn giao source code cuối).
 - **Tổng số ca kiểm thử:** 47 test cases.
-- **Trạng thái:** **47 PASSED, 0 FAILED, 0 SKIPPED** (Tỷ lệ thành công: 100%).
+- **Trạng thái:** **47 PASSED, 0 FAILED, 0 SKIPPED** (Tỷ lệ thành công: 100%, thời gian chạy: 44.93s).
 - **Chi tiết phân bổ:**
   - `tests/test_preprocessing.py`: 7 tests passed (Làm sạch Invoice, phân loại StockCode, kiểm soát giá trị ngoại lai).
   - `tests/test_feature_engineering.py`: 8 tests passed (Tạo biến RFM, kiểm soát thứ tự phân vị monotonic, zero data leakage).
@@ -68,8 +69,8 @@ Rà soát AST và loại bỏ toàn bộ các import dư thừa, cải thiện t
 
 | Mã tiêu chí | Yêu cầu kỹ thuật | Phương pháp kiểm chứng | Kết quả quan sát | Trạng thái |
 |:---:|:---|:---|:---|:---:|
-| **ACC-01** | Action plan 10 cột hoàn chỉnh, sinh động | `test_model_comparison.py` | 2 chiến lược kinh doanh sinh động, đầy đủ 10 cột | **PASS** |
-| **ACC-02** | Zero duplicate module-level functions | Quét AST toàn bộ file `.py` | 0 hàm trùng lặp trên toàn bộ kho mã nguồn | **PASS** |
+| **ACC-01** | Action plan 10 cột hoàn chỉnh, sinh động | `test_model_comparison.py` | 4 phân khúc có chiến lược sinh động, đủ 10 cột | **PASS** |
+| **ACC-02** | Zero duplicate module-level functions | Quét AST 21 file `.py` | 0 hàm trùng lặp trên toàn bộ kho mã nguồn | **PASS** |
 | **ACC-03** | Đối chiếu nội dung tương đương Apriori & FP-Growth | `association_rules_equivalence_audit.csv` | 61 luật trùng khớp tuyệt đối (sai khác metric = 0.0) | **PASS** |
 | **ACC-04** | Pipeline phát hiện sai lệch nội dung luật | `test_pipeline_detects_rule_content_mismatch` | Bắt lỗi mismatch khi gán nhãn giả lập | **PASS** |
 | **ACC-05** | RFM quantile fallback đơn điệu & bất biến thứ tự dòng | `test_rfm_fallback_and_monotonicity` | Đơn điệu bảo toàn; bất biến thứ tự sắp xếp | **PASS** |
@@ -94,17 +95,11 @@ Hội đồng chấm thi và giảng viên có thể tái lập toàn bộ quy t
 # 2. Cài đặt các gói phụ thuộc
 pip install -r requirements.txt
 
-# 3. Chạy toàn bộ kiểm thử tự động
-python -m pytest -q
-
-# 4. Thực thi toàn bộ pipeline 7 bước
+# 3. Thực thi tuần tự toàn bộ pipeline 7 bước (sinh outputs tự động)
 python run_pipeline.py
 
-# 5. Khởi chạy Dashboard tương tác
-streamlit run app/app.py
-
-# 6. (Tùy chọn) Đóng gói hồ sơ nộp bài review_bundle.zip
-python scripts/build_review_bundle.py
+# 4. Khởi chạy Dashboard tương tác
+python -m streamlit run app/app.py
 ```
 
 ---

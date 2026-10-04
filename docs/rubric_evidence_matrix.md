@@ -47,11 +47,11 @@ Ma trận minh chứng cho 6 tiêu chí đánh giá, dẫn tới notebook/sectio
 
 | Sub-requirement | Notebook/Section | Code/Function | Output/Evidence | Status |
 |---|---|---|---|---|
-| Code module hóa | src/*.py | — | 12 modules trong src/, compileall pass | PASS |
+| Code module hóa | src/*.py | — | 14 modules trong src/, compileall pass | PASS |
 | Pipeline chạy lại | run_pipeline.py | — | 7 steps sequential executed, logging real execution | PASS |
-| Tests | tests/*.py | pytest | Automated test suite passed 100% (unit, integration, invariance, parity, smoke) | PASS |
-| Notebook executed | NB01-07 | nbclient | 7/7 notebooks executed (0 errors), exported HTML | PASS |
-| Demo dashboard | app/app.py | streamlit | Smoke tested via test_app_smoke.py (2/2 pass) | PASS |
+| Tests | tests/*.py (nghiệm thu trước bàn giao) | pytest | Nghiệm thu lịch sử tại commit 099a5cb: 47/47 tests passed (unit, integration, invariance, parity, smoke) | PASS |
+| Notebook executed | NB01-07 | nbclient | 7/7 notebooks executed (0 errors) | PASS |
+| Demo dashboard | app/app.py | streamlit | Dashboard 4 tabs hoạt động đầy đủ, chia sẻ chung mô hình và dự đoán với pipeline | PASS |
 | Runners synchronized | notebooks/run_*.py | — | Shared src modules, identical logic and outputs | PASS |
 
 ## 6. Báo cáo & Tổng kết (10%)
@@ -72,7 +72,7 @@ Ma trận minh chứng cho 6 tiêu chí đánh giá, dẫn tới notebook/sectio
 | Data Understanding & Preprocessing | 20% | PASS |
 | Lựa chọn & Xây dựng Mô hình | 25% | PASS |
 | Đánh giá & Phân tích Kết quả | 20% | PASS |
-| Kỹ thuật & Tái lập | 15% | PASS (pytest suite passed 100%, 7 notebooks executed 0 errors, pipeline 100%) |
+| Kỹ thuật & Tái lập | 15% | PASS (nghiệm thu lịch sử 47/47 tests pass, 7 notebooks executed 0 errors, pipeline 100%) |
 | Báo cáo & Tổng kết | 10% | PARTIAL — kỹ thuật hoàn tất, cần thông tin thành viên nhóm |
 
 ### Items requiring user input (NEEDS_USER_INPUT)

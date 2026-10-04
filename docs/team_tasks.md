@@ -30,7 +30,7 @@ Tài liệu này xác lập khung phân công nhiệm vụ, cơ chế ghi nhận
 | **6. Modeling: Classification** | Huấn luyện phân loại khách hàng mua lại, 5-fold Stratified CV, GridSearch siêu tham số, đồng bộ ngưỡng quyết định | `src/classification.py`, `notebooks/run_05_repeat_purchase_classification.py`, `models/classification/` | Thành viên 3 |
 | **7. Modeling: Association Rules** | Khai phá luật kết hợp Apriori & FP-Growth, benchmark thời gian thực thi (median/IQR), phân tích độ nhạy | `src/association_rules.py`, `notebooks/run_06_association_rules.py`, `outputs/tables/association_rules/` | Thành viên 4 |
 | **8. Model Evaluation & Insights** | Tổng hợp so sánh đa mô hình, xây dựng Kế hoạch hành động 10 cột, biểu đồ dashboard tổng hợp | `src/model_comparison.py`, `src/model_comparison_figures.py`, `src/insights.py` | Cả nhóm |
-| **9. Deployment & Governance** | Xây dựng Streamlit App tương tác 4 tab, tài liệu rubric evidence matrix, kiểm thử tự động pytest 100% pass | `app/app.py`, `run_pipeline.py`, `tests/`, `docs/rubric_evidence_matrix.md` | Thành viên 4 & Trưởng nhóm |
+| **9. Deployment & Governance** | Xây dựng Streamlit App tương tác 4 tab, tài liệu rubric evidence matrix, nghiệm thu kiểm thử tự động 100% pass | `app/app.py`, `run_pipeline.py`, `docs/rubric_evidence_matrix.md` | Thành viên 4 & Trưởng nhóm |
 
 ---
 
@@ -38,7 +38,7 @@ Tài liệu này xác lập khung phân công nhiệm vụ, cơ chế ghi nhận
 
 Các thành viên đánh giá chéo nhau theo thang điểm 1–5 cho từng tiêu chí, sau đó quy đổi về điểm tổng hợp /10:
 
-1. **Chất lượng kỹ thuật (Technical Quality - 30%):** Code đúng logic, tái lập được, kiểm thử tự động vượt qua (pytest), tuân thủ chuẩn clean code.
+1. **Chất lượng kỹ thuật (Technical Quality - 30%):** Code đúng logic, tái lập được, nghiệm thu kiểm định kỹ thuật đạt chuẩn clean code.
 2. **Tiến độ và tính kỷ luật (Timeliness & Reliability - 25%):** Hoàn thành module đúng thời hạn cam kết, tham gia đầy đủ các buổi họp kỹ thuật.
 3. **Đóng góp ý tưởng & Giải quyết vấn đề (Problem Solving - 20%):** Chủ động phân tích phương án mô hình, đề xuất giải pháp khi gặp trở ngại kỹ thuật.
 4. **Tài liệu & Báo cáo (Documentation - 15%):** Viết báo cáo rõ ràng, giải thích cặn kẽ số liệu thực nghiệm, chú thích mã nguồn đầy đủ.

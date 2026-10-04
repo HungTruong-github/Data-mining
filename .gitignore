@@ -65,13 +65,8 @@ models/classification/*
 *.pkl
 *.joblib
 
-# Outputs
-outputs/figures/*
-!outputs/figures/.gitkeep
-outputs/tables/*
-!outputs/tables/.gitkeep
-outputs/rules/*
-!outputs/rules/.gitkeep
+# Outputs generated during pipeline runs
+outputs/
 
 # Review bundle deliverables
 review_bundle/
