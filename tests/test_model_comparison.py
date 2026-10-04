@@ -340,19 +340,31 @@ def test_recalculated_metrics_from_predictions_match_comparison_table():
 
 def test_export_all_step_07_outputs_produces_all_artifacts():
     """Verify that export_all_step_07_outputs generates tables, figures, report, summary, and manifest."""
-    from src.model_comparison import export_all_step_07_outputs
-    
-    # Run export (dry run or live if inputs present)
+    from src.model_comparison import export_all_step_07_outputs, validate_inputs
+
+    # Check prerequisites strictly BEFORE calling export.
+    # Only skip if required upstream pipeline artifacts are not available.
     try:
-        res = export_all_step_07_outputs(save_figures=False)
-        assert 'manifest' in res
-        assert 'summary' in res
-        assert 'report_path' in res
-        assert Path(res['report_path']).exists()
-        assert Path(res['summary_path']).exists()
-        assert Path(res['manifest_path']).exists()
+        validate_inputs()
     except Exception as e:
-        pytest.skip(f"Inputs not yet available for export_all_step_07_outputs: {e}")
+        pytest.skip(f"Prerequisite inputs not yet available for export_all_step_07_outputs: {e}")
+
+    # Once prerequisites are confirmed, execute export without catching errors.
+    # Assertion errors or export bugs MUST fail loudly instead of being skipped.
+    res = export_all_step_07_outputs(save_figures=False)
+    assert 'manifest' in res, "Return dict missing 'manifest'"
+    assert 'summary' in res, "Return dict missing 'summary'"
+    assert 'report_path' in res, "Return dict missing 'report_path'"
+    assert 'summary_path' in res, "Return dict missing 'summary_path'"
+    assert 'manifest_path' in res, "Return dict missing 'manifest_path'"
+
+    rep_p = Path(res['report_path'])
+    sum_p = Path(res['summary_path'])
+    man_p = Path(res['manifest_path'])
+
+    assert rep_p.exists() and rep_p.stat().st_size > 0, f"Report file missing or empty: {rep_p}"
+    assert sum_p.exists() and sum_p.stat().st_size > 0, f"Summary file missing or empty: {sum_p}"
+    assert man_p.exists() and man_p.stat().st_size > 0, f"Manifest file missing or empty: {man_p}"
 
 
 

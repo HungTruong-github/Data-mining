@@ -6,7 +6,7 @@ Ho tro doc du lieu tho (raw), du lieu trung gian (interim) va du lieu da xu ly (
 import hashlib
 import pandas as pd
 from pathlib import Path
-from src.config import RAW_DIR, INTERIM_DIR, PROCESSED_DIR, get_raw_data_path, REQUIRED_COLUMNS
+from src.config import INTERIM_DIR, PROCESSED_DIR, get_raw_data_path, REQUIRED_COLUMNS
 
 
 def load_raw_data(filepath=None):

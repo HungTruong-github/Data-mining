@@ -961,19 +961,22 @@ def export_all_step_07_outputs(
         )
 
     # Generate Markdown report
+    report_file = REPORTS / '07_model_comparison_and_insights.md'
     report_text = generate_report(
         clust_comp, class_comp, assoc_comp, seg=seg_insights, actions=action_plan,
-        prod=prod_insights, feat=feat_insights, output_path=REPORTS / '07_model_comparison_and_insights.md'
+        prod=prod_insights, feat=feat_insights, output_path=report_file
     )
 
     # Generate dynamic summary JSON
+    summary_file = REPORTS / '07_model_comparison_and_insights_summary.json'
     summary = generate_summary_json(
         clust_comp, class_comp, assoc_comp, seg=seg_insights, validation_status='PASS',
-        output_path=REPORTS / '07_model_comparison_and_insights_summary.json'
+        output_path=summary_file
     )
 
     # Generate manifest and strictly enforce PASS
-    manifest = generate_manifest(output_path=EVIDENCE / 'pipeline_manifest.json')
+    manifest_file = EVIDENCE / 'pipeline_manifest.json'
+    manifest = generate_manifest(output_path=manifest_file)
     if manifest.get('validation_status') != 'PASS':
         missing = manifest.get('missing_files', [])
         raise RuntimeError(f"Step 07 FAILED: pipeline_manifest validation_status is 'FAIL'. Missing: {missing}")
@@ -989,4 +992,7 @@ def export_all_step_07_outputs(
         'report_text': report_text,
         'summary': summary,
         'manifest': manifest,
+        'report_path': report_file,
+        'summary_path': summary_file,
+        'manifest_path': manifest_file,
     }

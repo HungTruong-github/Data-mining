@@ -7,7 +7,6 @@ Cac ham khong hard-code duong dan, su dung config.py de quan ly paths.
 
 import pandas as pd
 import numpy as np
-from pathlib import Path
 from src.config import REPEAT_PURCHASE_WINDOW_DAYS
 
 

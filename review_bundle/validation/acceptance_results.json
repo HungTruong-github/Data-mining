@@ -86,7 +86,7 @@
     "test_method": "src/clustering.py & runner 04",
     "expected": "Multi-seed ARI stability audit and StandardScaler vs Log1p+StandardScaler table",
     "status": "PASS",
-    "observed": "Mean ARI = 1.0000 across seeds; stability audit verified",
+    "observed": "Mean pairwise ARI = 0.9996 across seeds; preprocessing comparison verified",
     "evidence": "tables/clustering/clustering_stability_audit.csv"
   },
   {

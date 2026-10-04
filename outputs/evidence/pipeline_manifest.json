@@ -1,6 +1,6 @@
 {
-  "run_id": "RUN_20261004_192004",
-  "generated": "2026-10-04T19:20:04.214577",
+  "run_id": "RUN_20261004_234557",
+  "generated": "2026-10-04T23:45:57.489827",
   "python_version": "3.12.0",
   "validation_status": "PASS",
   "steps": {
@@ -49,7 +49,7 @@
       {
         "file": "outputs/tables/clustering/clustering_algorithm_comparison.csv",
         "size_bytes": 4404,
-        "sha256": "cc0d531a5cec6e768685289e3d40896e789f3a5ca2e88574341a26a515e1636b"
+        "sha256": "149701079298036dc47d2d832039bab7f186c068ecb58911f34bfb1b74a94840"
       },
       {
         "file": "outputs/tables/clustering/cluster_profiles.csv",
@@ -64,19 +64,19 @@
       {
         "file": "models/clustering/clustering_config.pkl",
         "size_bytes": 539,
-        "sha256": "f03978ff05f169003dd23c18be3cb74f157996ea95860b2317e3ef9b43f9a0d5"
+        "sha256": "c99aae20f05af8f020a97df3c3fc799d7da7ec56f111c667384411dcdb24dc98"
       }
     ],
     "step_05_classification": [
       {
         "file": "outputs/tables/classification/model_comparison.csv",
-        "size_bytes": 744,
-        "sha256": "89a6b7ecdc03dcaaf0aefa4f272aa6f6a907bdd8cbf120a6f05c8ae879e93cde"
+        "size_bytes": 745,
+        "sha256": "947cd1fd54c7d4e0f98400020af2f4f9d6f47510e5dc89dc4a6513d2feab39ee"
       },
       {
         "file": "outputs/tables/classification/cv_results.csv",
         "size_bytes": 1020,
-        "sha256": "1a9f6b21e298430bcead1c7e4cff7e9321388da3fb2296cb3732e0c74ffef288"
+        "sha256": "45ae119104ea07500e818d5958ca085f1dcdf758410102c1f57640e5490c74dd"
       },
       {
         "file": "outputs/tables/classification/feature_importance.csv",
@@ -85,8 +85,8 @@
       },
       {
         "file": "outputs/tables/classification/test_predictions.csv",
-        "size_bytes": 59450,
-        "sha256": "bf5c6b018c12698b0d3b29b9896ff377179877c9ac545ef0890b134c6ddc4624"
+        "size_bytes": 59456,
+        "sha256": "0659e4058b7146db57365b678aaba542be932da7ebf7d96ba9b418ed51237d60"
       },
       {
         "file": "models/classification/best_classifier_pipeline.joblib",
@@ -96,14 +96,14 @@
       {
         "file": "models/classification/classification_metadata.json",
         "size_bytes": 3446,
-        "sha256": "58b51cf38bacbf8147bdf56d48dc7eaf0d2699e64d2ffd38b5097df437e336ad"
+        "sha256": "8f86e626e1367480f905fba956b2b292da97a7c3eb4ead3802eaafb1c5e7bbec"
       }
     ],
     "step_06_association": [
       {
         "file": "outputs/tables/association_rules/association_algorithm_comparison.csv",
         "size_bytes": 270,
-        "sha256": "b2817f5d94860e7c3f45d0efd993e891fb97f5eec4463ee4cf83d3016eb24598"
+        "sha256": "ca954be3fa25d2d0809f784fe74cd5f05b092d2f1021a361d4cf0cddcf171242"
       },
       {
         "file": "outputs/tables/association_rules/association_business_insights.csv",
@@ -112,8 +112,8 @@
       },
       {
         "file": "outputs/tables/association_rules/selected_association_rules.csv",
-        "size_bytes": 11444,
-        "sha256": "807d1a817c20c936ac3d06f069760c0d8bcf9bacc60e2cefa16bcad326bb00fc"
+        "size_bytes": 11566,
+        "sha256": "ef61386176f43c17e1056739096d5c24ed028cac92aa573f490bc9574742a7ba"
       },
       {
         "file": "outputs/tables/association_rules/association_rules_equivalence_audit.csv",
@@ -125,17 +125,17 @@
       {
         "file": "outputs/tables/model_comparison/clustering_model_comparison.csv",
         "size_bytes": 4392,
-        "sha256": "7acd6bdaf9298e48c9911ccaccb25920a6416e5cca0588b91a160de48afb924e"
+        "sha256": "93de64f95303d76ef32c888f130e98d918a94c95ad3890e46169ec9973c5cee3"
       },
       {
         "file": "outputs/tables/model_comparison/classification_model_comparison.csv",
-        "size_bytes": 1080,
-        "sha256": "bb37ba5b67437462b6527265939249bf8ba513bf28bcf564725029e91ce8061d"
+        "size_bytes": 1081,
+        "sha256": "20ac690011a0f21a1b6a4160608be985729e4101de51d2d804ee6b24ab03de0e"
       },
       {
         "file": "outputs/tables/model_comparison/association_rules_comparison.csv",
-        "size_bytes": 451,
-        "sha256": "e50527e85c352cf15749ab0ebc55b5da8b1e046c172081ad82b9aaeb28d9c4a4"
+        "size_bytes": 454,
+        "sha256": "9987293c02fa4f6be78c901762211310b1de128e06392b1cc52d7b3e6373bca8"
       },
       {
         "file": "outputs/tables/insights/customer_segment_insights.csv",
@@ -204,21 +204,21 @@
       },
       {
         "file": "outputs/figures/model_comparison/insight_summary_dashboard.png",
-        "size_bytes": 311217,
-        "sha256": "81c306e2c8e0d7d8eacca6fecee3095eac9d0cace027a08719632f3397ca8002"
+        "size_bytes": 310764,
+        "sha256": "90fd36dc6bbd5f9373e99ccc85105a399bbf54fe5289ca5e3579c3f4bd144a15"
       },
       {
         "file": "outputs/reports/07_model_comparison_and_insights.md",
-        "size_bytes": 48099,
-        "sha256": "799bdd456cc9bb15cd4d1846a3a807ee5413c35e27834dd161db01a1447d7f38"
+        "size_bytes": 48113,
+        "sha256": "87262015508dc93f3b37d732d54391fb6ba0aa05524094f2e505d66efd61b1c1"
       },
       {
         "file": "outputs/reports/07_model_comparison_and_insights_summary.json",
-        "size_bytes": 1649,
-        "sha256": "0ba7275604270e7e6c762e50ab8581d7e5b300f7de7fad95595d2b9ecdc6a343"
+        "size_bytes": 1651,
+        "sha256": "ca754f177c06c1ebb33a80ca07a161c54b874bccfd4330ca57ac1aa6d6938a93"
       }
     ]
   },
-  "git_commit": "d1ee6fd3ab452317b71811721865917aa8638167",
+  "git_commit": "b899caae5d9a9a468f8905c3661003c28a2bba0f",
   "git_dirty": true
 }

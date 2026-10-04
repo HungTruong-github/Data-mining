@@ -19,11 +19,10 @@ from sklearn.impute import SimpleImputer
 from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score, balanced_accuracy_score, precision_score, recall_score,
-    f1_score, roc_auc_score, average_precision_score, confusion_matrix,
-    classification_report
+    f1_score, roc_auc_score, average_precision_score, confusion_matrix
 )
 
 from src.config import RANDOM_STATE, TEST_SIZE

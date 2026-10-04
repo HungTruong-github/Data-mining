@@ -1,27 +1,27 @@
 algorithm,n_clusters,silhouette_score,davies_bouldin_score,calinski_harabasz_score,dunn_approximation,noise_ratio,min_cluster_size,max_cluster_pct,runtime_seconds,is_selected,is_eligible,rejection_reason,selection_reason,rank_sil,rank_db,rank_ch,rank_dunn,combined_rank
-K-Means,2,0.433,0.8917,4364.6091,0.2093,0.0,1662,61.65,0.0891,True,True,,"Silhouette=0.4330; DB=0.8917; Best combined ranking across Silhouette, DB, CH metrics",1.0,1.0,1.0,3.0,6.0
-K-Means,3,0.3375,1.0462,3626.2766,0.1669,0.0,763,43.22,0.0406,False,True,,Eligible candidate (Combined Rank = 23.0),4.0,8.0,3.0,8.0,23.0
-K-Means,4,0.3381,1.0131,3329.6842,0.1506,0.0,686,37.75,0.0765,False,True,,Eligible candidate (Combined Rank = 27.0),3.0,7.0,4.0,13.0,27.0
-K-Means,5,0.3172,0.9851,3194.6602,0.1786,0.0,312,27.57,0.0959,False,True,,Eligible candidate (Combined Rank = 19.0),5.0,4.0,5.0,5.0,19.0
-K-Means,6,0.3141,1.0106,3083.6138,0.163,0.0,317,22.82,0.0819,False,True,,Eligible candidate (Combined Rank = 28.0),7.0,6.0,6.0,9.0,28.0
-K-Means,7,0.3095,0.9692,2960.3706,0.1719,0.0,219,20.51,0.114,False,True,,Eligible candidate (Combined Rank = 25.0),8.0,3.0,8.0,6.0,25.0
-K-Means,8,0.3012,0.9944,2824.3335,0.1525,0.0,214,19.54,0.0922,False,True,,Eligible candidate (Combined Rank = 35.0),9.0,5.0,9.0,12.0,35.0
-GMM,2,0.2874,1.0662,2307.4172,0.158,0.0,1505,65.27,0.3118,False,True,,Eligible candidate (Combined Rank = 50.0),12.0,11.0,17.0,10.0,50.0
-GMM,3,0.2562,1.2157,2749.8992,0.1406,0.0,864,45.34,0.2503,False,True,,Eligible candidate (Combined Rank = 54.0),13.0,16.0,11.0,14.0,54.0
-GMM,4,0.1752,1.7079,2167.5913,0.0885,0.0,831,34.73,0.3673,False,True,,Eligible candidate (Combined Rank = 76.0),19.0,19.0,19.0,19.0,76.0
-GMM,5,0.152,1.7655,1880.2369,0.0764,0.0,185,34.7,0.3254,False,True,,Eligible candidate (Combined Rank = 80.0),20.0,20.0,20.0,20.0,80.0
-GMM,6,0.1164,2.2668,1454.5443,0.0546,0.0,110,34.7,0.6593,False,True,,Eligible candidate (Combined Rank = 84.0),21.0,21.0,21.0,21.0,84.0
-GMM,7,0.1019,2.5613,1271.3215,0.046,0.0,81,34.7,0.6914,False,True,,Eligible candidate (Combined Rank = 90.0),22.0,23.0,23.0,22.0,90.0
-GMM,8,0.0681,2.2984,1279.117,0.0454,0.0,72,34.7,0.8248,False,True,,Eligible candidate (Combined Rank = 90.0),23.0,22.0,22.0,23.0,90.0
-Agglomerative(ward),2,0.4232,0.9064,4227.3723,0.2048,0.0,1726,60.18,0.6579,False,True,,Eligible candidate (Combined Rank = 10.0),2.0,2.0,2.0,4.0,10.0
-Agglomerative(ward),3,0.3146,1.1509,3040.2604,0.1694,0.0,633,60.18,0.7815,False,True,,Eligible candidate (Combined Rank = 34.0),6.0,14.0,7.0,7.0,34.0
-Agglomerative(ward),4,0.2428,1.2255,2780.0958,0.1244,0.0,633,37.54,0.6783,False,True,,Eligible candidate (Combined Rank = 59.0),16.0,17.0,10.0,16.0,59.0
-Agglomerative(ward),5,0.2385,1.2431,2551.4344,0.1177,0.0,633,25.22,0.6692,False,True,,Eligible candidate (Combined Rank = 64.5),17.0,18.0,12.0,17.5,64.5
-Agglomerative(ward),6,0.2447,1.1518,2439.1744,0.1177,0.0,474,22.63,0.7668,False,True,,Eligible candidate (Combined Rank = 60.5),15.0,15.0,13.0,17.5,60.5
-Agglomerative(ward),7,0.2489,1.1215,2405.8703,0.1526,0.0,101,22.63,0.7505,False,True,,Eligible candidate (Combined Rank = 54.0),14.0,13.0,16.0,11.0,54.0
-Agglomerative(ward),8,0.2252,1.0852,2281.4319,0.1315,0.0,101,22.63,0.7928,False,True,,Eligible candidate (Combined Rank = 63.0),18.0,12.0,18.0,15.0,63.0
-"DBSCAN(eps=0.3,min=5)",8,0.0632,1.5042,837.2949,0.0949,5.7,7,33.87,0.1065,False,False,Trivial cluster size: smallest cluster has 7 < 10 samples,Ineligible: Trivial cluster size: smallest cluster has 7 < 10 samples,,,,,
-"DBSCAN(eps=0.5,min=5)",2,0.2946,1.0626,2408.381,0.2419,1.32,1496,64.17,0.1271,False,True,,Eligible candidate (Combined Rank = 37.0),11.0,10.0,15.0,1.0,37.0
-"DBSCAN(eps=0.7,min=5)",2,0.5659,0.3483,49.9624,0.477,0.55,5,99.33,0.177,False,False,Degenerate cluster: largest cluster has 99.3% >= 90%; Trivial cluster size: smallest cluster has 5 < 10 samples,Ineligible: Degenerate cluster: largest cluster has 99.3% >= 90%,,,,,
-"DBSCAN(eps=1.0,min=5)",1,,,,,0.23,4324,99.77,0.2672,False,False,Silhouette score is NaN (single cluster or pure noise); Fewer than 2 clusters formed; Degenerate cluster: largest cluster has 99.8% >= 90%,Ineligible: Silhouette score is NaN (single cluster or pure noise),,,,,
-"DBSCAN(eps=0.5,min=10)",2,0.2961,1.0613,2416.0711,0.2403,1.78,1492,63.8,0.1236,False,True,,Eligible candidate (Combined Rank = 35.0),10.0,9.0,14.0,2.0,35.0
+K-Means,2,0.433,0.8917,4364.6091,0.2093,0.0,1662,61.65,0.3301,True,True,,"Silhouette=0.4330; DB=0.8917; Best combined ranking across Silhouette, DB, CH metrics",1.0,1.0,1.0,3.0,6.0
+K-Means,3,0.3375,1.0462,3626.2766,0.1669,0.0,763,43.22,0.0827,False,True,,Eligible candidate (Combined Rank = 23.0),4.0,8.0,3.0,8.0,23.0
+K-Means,4,0.3381,1.0131,3329.6842,0.1506,0.0,686,37.75,0.1648,False,True,,Eligible candidate (Combined Rank = 27.0),3.0,7.0,4.0,13.0,27.0
+K-Means,5,0.3172,0.9851,3194.6602,0.1786,0.0,312,27.57,0.1366,False,True,,Eligible candidate (Combined Rank = 19.0),5.0,4.0,5.0,5.0,19.0
+K-Means,6,0.3141,1.0106,3083.6138,0.163,0.0,317,22.82,0.135,False,True,,Eligible candidate (Combined Rank = 28.0),7.0,6.0,6.0,9.0,28.0
+K-Means,7,0.3095,0.9692,2960.3706,0.1719,0.0,219,20.51,0.2052,False,True,,Eligible candidate (Combined Rank = 25.0),8.0,3.0,8.0,6.0,25.0
+K-Means,8,0.3012,0.9944,2824.3335,0.1525,0.0,214,19.54,0.2787,False,True,,Eligible candidate (Combined Rank = 35.0),9.0,5.0,9.0,12.0,35.0
+GMM,2,0.2874,1.0662,2307.4172,0.158,0.0,1505,65.27,0.4238,False,True,,Eligible candidate (Combined Rank = 50.0),12.0,11.0,17.0,10.0,50.0
+GMM,3,0.2562,1.2157,2749.8992,0.1406,0.0,864,45.34,0.3361,False,True,,Eligible candidate (Combined Rank = 54.0),13.0,16.0,11.0,14.0,54.0
+GMM,4,0.1752,1.7079,2167.5913,0.0885,0.0,831,34.73,0.5462,False,True,,Eligible candidate (Combined Rank = 76.0),19.0,19.0,19.0,19.0,76.0
+GMM,5,0.152,1.7655,1880.2369,0.0764,0.0,185,34.7,0.4328,False,True,,Eligible candidate (Combined Rank = 80.0),20.0,20.0,20.0,20.0,80.0
+GMM,6,0.1164,2.2668,1454.5443,0.0546,0.0,110,34.7,0.8915,False,True,,Eligible candidate (Combined Rank = 84.0),21.0,21.0,21.0,21.0,84.0
+GMM,7,0.1019,2.5613,1271.3215,0.046,0.0,81,34.7,0.9634,False,True,,Eligible candidate (Combined Rank = 90.0),22.0,23.0,23.0,22.0,90.0
+GMM,8,0.0681,2.2984,1279.117,0.0454,0.0,72,34.7,2.0877,False,True,,Eligible candidate (Combined Rank = 90.0),23.0,22.0,22.0,23.0,90.0
+Agglomerative(ward),2,0.4232,0.9064,4227.3723,0.2048,0.0,1726,60.18,2.5304,False,True,,Eligible candidate (Combined Rank = 10.0),2.0,2.0,2.0,4.0,10.0
+Agglomerative(ward),3,0.3146,1.1509,3040.2604,0.1694,0.0,633,60.18,1.5838,False,True,,Eligible candidate (Combined Rank = 34.0),6.0,14.0,7.0,7.0,34.0
+Agglomerative(ward),4,0.2428,1.2255,2780.0958,0.1244,0.0,633,37.54,0.9318,False,True,,Eligible candidate (Combined Rank = 59.0),16.0,17.0,10.0,16.0,59.0
+Agglomerative(ward),5,0.2385,1.2431,2551.4344,0.1177,0.0,633,25.22,1.4983,False,True,,Eligible candidate (Combined Rank = 64.5),17.0,18.0,12.0,17.5,64.5
+Agglomerative(ward),6,0.2447,1.1518,2439.1744,0.1177,0.0,474,22.63,0.8637,False,True,,Eligible candidate (Combined Rank = 60.5),15.0,15.0,13.0,17.5,60.5
+Agglomerative(ward),7,0.2489,1.1215,2405.8703,0.1526,0.0,101,22.63,0.8391,False,True,,Eligible candidate (Combined Rank = 54.0),14.0,13.0,16.0,11.0,54.0
+Agglomerative(ward),8,0.2252,1.0852,2281.4319,0.1315,0.0,101,22.63,0.9642,False,True,,Eligible candidate (Combined Rank = 63.0),18.0,12.0,18.0,15.0,63.0
+"DBSCAN(eps=0.3,min=5)",8,0.0632,1.5042,837.2949,0.0949,5.7,7,33.87,0.1023,False,False,Trivial cluster size: smallest cluster has 7 < 10 samples,Ineligible: Trivial cluster size: smallest cluster has 7 < 10 samples,,,,,
+"DBSCAN(eps=0.5,min=5)",2,0.2946,1.0626,2408.381,0.2419,1.32,1496,64.17,0.118,False,True,,Eligible candidate (Combined Rank = 37.0),11.0,10.0,15.0,1.0,37.0
+"DBSCAN(eps=0.7,min=5)",2,0.5659,0.3483,49.9624,0.477,0.55,5,99.33,0.2299,False,False,Degenerate cluster: largest cluster has 99.3% >= 90%; Trivial cluster size: smallest cluster has 5 < 10 samples,Ineligible: Degenerate cluster: largest cluster has 99.3% >= 90%,,,,,
+"DBSCAN(eps=1.0,min=5)",1,,,,,0.23,4324,99.77,0.3877,False,False,Silhouette score is NaN (single cluster or pure noise); Fewer than 2 clusters formed; Degenerate cluster: largest cluster has 99.8% >= 90%,Ineligible: Silhouette score is NaN (single cluster or pure noise),,,,,
+"DBSCAN(eps=0.5,min=10)",2,0.2961,1.0613,2416.0711,0.2403,1.78,1492,63.8,0.1732,False,True,,Eligible candidate (Combined Rank = 35.0),10.0,9.0,14.0,2.0,35.0

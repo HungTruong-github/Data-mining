@@ -7,10 +7,10 @@
 
 ## 1. Thông Tin Phiên Bản & Môi Trường Thực Thi
 - **Repository:** [https://github.com/HungTruong-github/Data-mining](https://github.com/HungTruong-github/Data-mining)
-- **Branch:** `feature-insights`
-- **Git Commit:** `d1ee6fd3ab452317b71811721865917aa8638167`
-- **Thời điểm đóng gói:** `2026-10-04 19:23:22`
-- **Trạng thái kiểm thử:** **47/47 tests PASSED (100%)**
+- **Branch:** `clean`
+- **Git Commit:** `b899caae5d9a9a468f8905c3661003c28a2bba0f`
+- **Thời điểm đóng gói:** `2026-10-04 23:46:15`
+- **Trạng thái kiểm thử:** **47/47 tests PASSED (100% success rate, 0 failed)**
 - **Trạng thái pipeline:** Hoàn tất tuần tự 7 bước (Exit code: 0, `pipeline_manifest.json`: PASS)
 - **Môi trường Python:** Python 3.12 (Windows 64-bit)
 

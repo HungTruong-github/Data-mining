@@ -250,6 +250,7 @@ total_tests = 0
 failures = 0
 errors = 0
 skipped = 0
+passed = 0
 
 if pytest_xml.exists():
     shutil.copy2(pytest_xml, val_dest / "pytest_report.xml")
@@ -267,7 +268,8 @@ if pytest_xml.exists():
             failures = int(root.attrib.get('failures', 0))
             errors = int(root.attrib.get('errors', 0))
             skipped = int(root.attrib.get('skipped', 0))
-        print(f"  [OK] Pytest JUnit XML: {total_tests} tests, {failures} failures, {errors} errors, {skipped} skipped")
+        passed = max(0, total_tests - failures - errors - skipped)
+        print(f"  [OK] Pytest JUnit XML: {total_tests} tests, {passed} passed, {failures} failures, {errors} errors, {skipped} skipped")
     except Exception as e:
         print(f"  [WARN] Failed to parse pytest XML: {e}")
 else:
@@ -497,12 +499,27 @@ def evaluate_acceptance_checks(project_root):
 
     # ACC-10: Clustering stability audit across seeds and preprocessing comparison
     stab_path = project_root / "outputs" / "tables" / "clustering" / "clustering_stability_audit.csv"
-    if stab_path.exists() and stab_path.stat().st_size > 0:
-        df_stab = pd.read_csv(stab_path)
-        mean_ari = df_stab['ari_score'].mean() if 'ari_score' in df_stab.columns else 1.0
-        acc10 = {"status": "PASS", "observed": f"Mean ARI = {mean_ari:.4f} across seeds; stability audit verified"}
+    prep_path = project_root / "outputs" / "tables" / "clustering" / "clustering_preprocessing_comparison.csv"
+    if not stab_path.exists() or stab_path.stat().st_size == 0:
+        acc10 = {"status": "NOT_RUN", "observed": "clustering_stability_audit.csv missing or empty"}
     else:
-        acc10 = {"status": "NOT_RUN", "observed": "clustering_stability_audit.csv missing"}
+        df_stab = pd.read_csv(stab_path)
+        ari_col = None
+        if 'mean_pairwise_ari' in df_stab.columns:
+            ari_col = 'mean_pairwise_ari'
+        elif 'ari_mean' in df_stab.columns:
+            ari_col = 'ari_mean'
+
+        if ari_col is None:
+            acc10 = {"status": "FAIL", "observed": f"Column 'mean_pairwise_ari' missing in clustering_stability_audit.csv (columns: {list(df_stab.columns)})"}
+        else:
+            mean_ari = float(df_stab[ari_col].mean())
+            has_prep = prep_path.exists() and prep_path.stat().st_size > 0
+            if mean_ari >= 0.8:
+                prep_note = "; preprocessing comparison verified" if has_prep else " (preprocessing comparison pending)"
+                acc10 = {"status": "PASS", "observed": f"Mean pairwise ARI = {mean_ari:.4f} across seeds{prep_note}"}
+            else:
+                acc10 = {"status": "FAIL", "observed": f"Mean pairwise ARI ({mean_ari:.4f}) below acceptable stability threshold (0.80)"}
     checks.append({
         "id": "ACC-10",
         "requirement": "Clustering stability audit across seeds and preprocessing comparison",
@@ -618,6 +635,20 @@ if pred_csv.exists():
 # -------------------------------------------------------------
 print("10. Writing review_status.csv and README_REVIEW.md...")
 
+if total_tests > 0:
+    if failures == 0 and errors == 0 and skipped == 0:
+        pytest_status = "PASS"
+        pytest_details = f"{passed}/{total_tests} tests passed (100% success rate, 0 skipped, 0 failed)"
+    elif failures == 0 and errors == 0:
+        pytest_status = "PASS"
+        pytest_details = f"{passed}/{total_tests} tests passed ({skipped} skipped, 0 failed)"
+    else:
+        pytest_status = "FAIL"
+        pytest_details = f"{passed}/{total_tests} tests passed ({failures + errors} failed/errors, {skipped} skipped)"
+else:
+    pytest_status = "NOT_RUN"
+    pytest_details = "pytest_report.xml missing or no tests found"
+
 review_status_rows = [
     {"Component": "01. Data Understanding", "Type": "Pipeline Step", "Status": "PASS", "Details": "541,909 rows, 8 cols, summary & descriptive statistics generated"},
     {"Component": "02. EDA & Cleaning", "Type": "Pipeline Step", "Status": "PASS", "Details": "Cancellation & non-product StockCodes isolated, duplicates removed"},
@@ -626,18 +657,35 @@ review_status_rows = [
     {"Component": "05. Repeat Purchase Classification", "Type": "Pipeline Step", "Status": "PASS", "Details": "5-fold Stratified CV bounded tuning; Random Forest selected (CV F1=0.7102, Test F1=0.7375); predict_with_threshold shared"},
     {"Component": "06. Association Rules", "Type": "Pipeline Step", "Status": "PASS", "Details": "61 canonical rules verified identical between Apriori and FP-Growth; 3-run benchmark and sensitivity analysis"},
     {"Component": "07. Model Comparison & Insights", "Type": "Pipeline Step", "Status": "PASS", "Details": "10-column Action Plan, cohort coverage audit, SHA-256 manifest PASS"},
-    {"Component": "Test Suite (pytest)", "Type": "Automated Tests", "Status": "PASS", "Details": f"{total_tests}/{total_tests} tests passed (100% success rate, 0 skipped, 0 failed)"},
+    {"Component": "Test Suite (pytest)", "Type": "Automated Tests", "Status": pytest_status, "Details": pytest_details},
     {"Component": "Notebooks 01-07", "Type": "Jupyter Notebooks", "Status": "PASS", "Details": "All 7 notebooks executed with 0 errors; exported to clean Markdown"},
     {"Component": "Streamlit Dashboard", "Type": "Web Application", "Status": "PASS", "Details": "4 tabs: Prediction (predict_with_threshold parity), Clustering, Rules, Governance"},
 ]
 pd.DataFrame(review_status_rows).to_csv(BUNDLE_DIR / "review_status.csv", index=False)
 
-# Get current git commit
+# Get current git commit and branch
 try:
     commit_res = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
     git_commit = commit_res.stdout.strip()
 except Exception:
     git_commit = "unknown"
+
+try:
+    branch_res = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+    git_branch = branch_res.stdout.strip()
+except Exception:
+    git_branch = "clean"
+
+if total_tests > 0:
+    test_summary_line = f"**{passed}/{total_tests} tests PASSED"
+    if skipped > 0:
+        test_summary_line += f", {skipped} skipped"
+    if (failures + errors) > 0:
+        test_summary_line += f", {failures + errors} failed** (Status: **{pytest_status}**)"
+    else:
+        test_summary_line += f" (100% success rate, 0 failed)**"
+else:
+    test_summary_line = "**Chưa có kết quả kiểm thử (pytest_report.xml missing)**"
 
 readme_review_content = f"""# Online Retail Data Mining — Review Bundle
 
@@ -648,10 +696,10 @@ readme_review_content = f"""# Online Retail Data Mining — Review Bundle
 
 ## 1. Thông Tin Phiên Bản & Môi Trường Thực Thi
 - **Repository:** [https://github.com/HungTruong-github/Data-mining](https://github.com/HungTruong-github/Data-mining)
-- **Branch:** `feature-insights`
+- **Branch:** `{git_branch}`
 - **Git Commit:** `{git_commit}`
 - **Thời điểm đóng gói:** `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}`
-- **Trạng thái kiểm thử:** **{total_tests}/{total_tests} tests PASSED (100%)**
+- **Trạng thái kiểm thử:** {test_summary_line}
 - **Trạng thái pipeline:** Hoàn tất tuần tự 7 bước (Exit code: 0, `pipeline_manifest.json`: PASS)
 - **Môi trường Python:** Python 3.12 (Windows 64-bit)
 
@@ -774,9 +822,10 @@ review_manifest = {
     "git_commit": git_commit,
     "total_files": len(manifest_entries),
     "total_size_bytes": total_bytes,
-    "total_size_mb": round(total_bytes / (1024 * 1024), 2),
-    "validation_status": "PASS",
-    "tests_passed": f"{total_tests}/{total_tests}",
+    "validation_status": "PASS" if (failures == 0 and errors == 0 and all(c.get('status') == 'PASS' for c in acceptance_checks)) else "FAIL",
+    "tests_passed": f"{passed}/{total_tests}" if total_tests > 0 else "0/0",
+    "tests_failed": failures + errors,
+    "tests_skipped": skipped,
     "excluded_artifacts": [
         {"file": "data/raw/Online Retail.xlsx", "size_mb": 22.62, "reason": "Large raw excel file", "reproduce_cmd": "Download from UCI ML Repository"},
         {"file": "data/interim/cleaned_transactions.csv", "size_mb": 72.17, "reason": "Interim transaction table", "reproduce_cmd": "python notebooks/run_02_eda_and_cleaning.py"},

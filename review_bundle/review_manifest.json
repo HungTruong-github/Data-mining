@@ -1,12 +1,13 @@
 {
   "bundle_version": "2.0.0",
-  "generated_at": "2026-10-04T19:23:23.813187",
-  "git_commit": "d1ee6fd3ab452317b71811721865917aa8638167",
+  "generated_at": "2026-10-04T23:46:16.171470",
+  "git_commit": "b899caae5d9a9a468f8905c3661003c28a2bba0f",
   "total_files": 162,
-  "total_size_bytes": 9873716,
-  "total_size_mb": 9.42,
+  "total_size_bytes": 9855212,
   "validation_status": "PASS",
   "tests_passed": "47/47",
+  "tests_failed": 0,
+  "tests_skipped": 0,
   "excluded_artifacts": [
     {
       "file": "data/raw/Online Retail.xlsx",
@@ -36,8 +37,8 @@
   "files": [
     {
       "path": "README_REVIEW.md",
-      "size_bytes": 7962,
-      "sha256": "432841860406bb7e3d0189de04a82d362499a2b474354cfbc0bb0c675394634f",
+      "size_bytes": 7974,
+      "sha256": "ca987d09d08d7a8a7299bd5132d7e414a77743073173c79ed6f3d514bcf2f34e",
       "category": "root"
     },
     {
@@ -72,8 +73,8 @@
     },
     {
       "path": "logs/pipeline_execution.log",
-      "size_bytes": 4328,
-      "sha256": "512900a947befe26fb0c073dfd209b9bd29cf42fe3bb179ebebe0e452d519f67",
+      "size_bytes": 4330,
+      "sha256": "9c469990e5f70c527e9515f0cb9cf92e7a630440c738625afa99e6d8da4fbb74",
       "category": "logs"
     },
     {
@@ -126,14 +127,14 @@
     },
     {
       "path": "reports/07_model_comparison_and_insights.md",
-      "size_bytes": 48099,
-      "sha256": "799bdd456cc9bb15cd4d1846a3a807ee5413c35e27834dd161db01a1447d7f38",
+      "size_bytes": 48113,
+      "sha256": "87262015508dc93f3b37d732d54391fb6ba0aa05524094f2e505d66efd61b1c1",
       "category": "reports"
     },
     {
       "path": "reports/07_model_comparison_and_insights_summary.json",
-      "size_bytes": 1649,
-      "sha256": "0ba7275604270e7e6c762e50ab8581d7e5b300f7de7fad95595d2b9ecdc6a343",
+      "size_bytes": 1651,
+      "sha256": "ca754f177c06c1ebb33a80ca07a161c54b874bccfd4330ca57ac1aa6d6938a93",
       "category": "reports"
     },
     {
@@ -157,7 +158,7 @@
     {
       "path": "reports/pipeline_manifest.json",
       "size_bytes": 8963,
-      "sha256": "03ff7699cb135f0c75b0af2bad4caa994e8b983759e1a30cd5098bf76f992ba7",
+      "sha256": "a0f348861021a739dfd9d9173ef62ca2366b07304beb9d5725d202de07f700fc",
       "category": "reports"
     },
     {
@@ -180,8 +181,8 @@
     },
     {
       "path": "samples/sample_test_predictions_20.csv",
-      "size_bytes": 2033,
-      "sha256": "5cfbba10175b9918772b5f16f1aa5f5208ab1028a3db7a083f440bd8aa50ebfd",
+      "size_bytes": 2031,
+      "sha256": "af5c7fc1c0202d61aaa7ca2402cb3a2a04c3d5cd71f6f4b02b2eb138b0e72d8d",
       "category": "samples"
     },
     {
@@ -216,26 +217,26 @@
     },
     {
       "path": "validation/acceptance_results.csv",
-      "size_bytes": 3897,
-      "sha256": "1a5d82f8f9f1f1914d75a7fac6997dd2899ac4f014b59c1d2a19fc055e342c27",
+      "size_bytes": 3915,
+      "sha256": "582a87c871fd58abcbef3670ad7c556b073ee2be6382cd81c750f3c0ecc9bc41",
       "category": "validation"
     },
     {
       "path": "validation/acceptance_results.json",
-      "size_bytes": 5588,
-      "sha256": "9a06db64c164eb9636d26e39d68fbd5fcbfc71755e26265e99652ddca4269c73",
+      "size_bytes": 5606,
+      "sha256": "209582c2a4a7e98a0b14a8854e4767c5168cc90d8c41f75711a734ab0d3852aa",
       "category": "validation"
     },
     {
       "path": "validation/pytest_report.xml",
-      "size_bytes": 10505,
-      "sha256": "6802437a46a80817b86ee234f4a48f1e9984a6197a405171b70a0dbd6d999bf3",
+      "size_bytes": 5359,
+      "sha256": "f992ddb3ef3e8746a434832fcab4cfc5586cb8184c4db2ccf624333195f870af",
       "category": "validation"
     },
     {
       "path": "figures/association_rules/algorithm_comparison.png",
-      "size_bytes": 62819,
-      "sha256": "7ab0de5866bf3de5e0a71d449f89f5e589afa4acde34fbbd67d8682997cfd560",
+      "size_bytes": 61497,
+      "sha256": "337fecd8f4b682a196b33e8f2e83c9bdbf9eacec2845fb8506394cc265373069",
       "category": "figures"
     },
     {
@@ -492,8 +493,8 @@
     },
     {
       "path": "figures/model_comparison/insight_summary_dashboard.png",
-      "size_bytes": 311217,
-      "sha256": "81c306e2c8e0d7d8eacca6fecee3095eac9d0cace027a08719632f3397ca8002",
+      "size_bytes": 310764,
+      "sha256": "90fd36dc6bbd5f9373e99ccc85105a399bbf54fe5289ca5e3579c3f4bd144a15",
       "category": "figures"
     },
     {
@@ -630,20 +631,20 @@
     },
     {
       "path": "source/notebooks/run_07_model_comparison_and_insights.py",
-      "size_bytes": 20641,
-      "sha256": "37ff9545308dfdd8e7b1f3fbad613b22a74e99b2b8d5f3e1a880e8abbeed13ad",
+      "size_bytes": 7491,
+      "sha256": "c32e6649cb8db22d70c9890e2828ecc39dcce6cdc9aa097daff1c2ee2aa92f20",
       "category": "source"
     },
     {
       "path": "source/src/association_rules.py",
-      "size_bytes": 17346,
-      "sha256": "84ff45c52c6ef2611c5898a943daebf8ed1267aa7bc3b619863ea47e243a09ef",
+      "size_bytes": 17320,
+      "sha256": "56315c6b2013c7cbb6786197f6e6fd8e93833c564992ffb5eac8486740fe9bc2",
       "category": "source"
     },
     {
       "path": "source/src/classification.py",
-      "size_bytes": 27112,
-      "sha256": "c31d6dfe36aa1bbd4feaff51d1e421ae69599304b0a48af5a23ae15b80a8b474",
+      "size_bytes": 27056,
+      "sha256": "fa018c02cbace436dc04aacc57f20c8cf3d52f7697f42cd308d628c3414f5696",
       "category": "source"
     },
     {
@@ -660,50 +661,50 @@
     },
     {
       "path": "source/src/data_loader.py",
-      "size_bytes": 3777,
-      "sha256": "85c6e579cf41a909198fb053b6077a7bb87ffe6830ea767ff4ccbb1dbd8f058c",
+      "size_bytes": 3768,
+      "sha256": "892db91c7bd19f66e0ed75badc1374810129376f1697873b39b41e6c9700029b",
       "category": "source"
     },
     {
       "path": "source/src/evaluation.py",
-      "size_bytes": 5476,
-      "sha256": "5459260225eb998ac17738960c9da128e4924144b7e47c54ce01b55942851687",
+      "size_bytes": 5457,
+      "sha256": "2cd499f491fd8b0584f5ed566da97c22cc1f95e8c1d1dad790ab21e23e8fd8c3",
       "category": "source"
     },
     {
       "path": "source/src/feature_engineering.py",
-      "size_bytes": 25171,
-      "sha256": "38deb47ace96bf481bb920f6611f5ca7f0c3b3ca2e65698f2e46a00b4889bd9c",
+      "size_bytes": 25145,
+      "sha256": "d7e27caa2684734cd79e2bec89a48dcdccc10c36bd355126d1259f52857d5c70",
       "category": "source"
     },
     {
       "path": "source/src/insights.py",
-      "size_bytes": 17719,
-      "sha256": "7e7c4c4d0ffe4c2c6dfacf821941bf61e7e264df2b8c6e843e4b0c740bee9668",
+      "size_bytes": 17693,
+      "sha256": "632f8558839f193f00ad5cf0e6cc8b41b43e5c25a44340a7267538d2ac583638",
       "category": "source"
     },
     {
       "path": "source/src/model_comparison.py",
-      "size_bytes": 49682,
-      "sha256": "ef5f14e6a499828084ab01677bdd4c3f8df5206f94a0887bd0d7fcca357438fd",
+      "size_bytes": 49898,
+      "sha256": "7c81cdcc81576aeabeed9b7d9b25796a2452d5d7a990dc485875707cef1b2ca6",
       "category": "source"
     },
     {
       "path": "source/src/preprocessing.py",
-      "size_bytes": 15080,
-      "sha256": "fb5ea9488831381bb679e8a20479ace421a49f630de40cb062a60c13546ed28d",
+      "size_bytes": 15061,
+      "sha256": "c3f865210649597731095becd7bfa9d9a3b811b34110c744be67f5a742905bdd",
       "category": "source"
     },
     {
       "path": "source/src/rfm_analysis.py",
-      "size_bytes": 139,
-      "sha256": "d4f6486f3a8137d5358c46f07e9dab14c0017f2c3c3bf498951948e53c722d1c",
+      "size_bytes": 580,
+      "sha256": "fdefe9ef84250f8b6bd45422b5f8ff9c254e74d88fb8dcd283496e17c9390f92",
       "category": "source"
     },
     {
       "path": "source/src/visualization.py",
-      "size_bytes": 20937,
-      "sha256": "2c9f909094b90b690cb09a300eef17bd8b05ad778df9f797bba98787dff643db",
+      "size_bytes": 20911,
+      "sha256": "6dde6d3ee9573cf25914371d2a8ea44355d336481b1b643a1fdf2f4e29c3b03a",
       "category": "source"
     },
     {
@@ -732,8 +733,8 @@
     },
     {
       "path": "source/tests/test_model_comparison.py",
-      "size_bytes": 17987,
-      "sha256": "94463182c2b7f07fdbc1d5cd49a1b5c1e94fa3d5c6244f03176d1bde8b63aa18",
+      "size_bytes": 18785,
+      "sha256": "20de9adc61272764042cb332b2cc61a3065f05762c582d3e095bcefcd2a340d0",
       "category": "source"
     },
     {
@@ -757,7 +758,7 @@
     {
       "path": "tables/association_rules/association_algorithm_comparison.csv",
       "size_bytes": 270,
-      "sha256": "b2817f5d94860e7c3f45d0efd993e891fb97f5eec4463ee4cf83d3016eb24598",
+      "sha256": "ca954be3fa25d2d0809f784fe74cd5f05b092d2f1021a361d4cf0cddcf171242",
       "category": "tables"
     },
     {
@@ -786,8 +787,8 @@
     },
     {
       "path": "tables/association_rules/selected_association_rules.csv",
-      "size_bytes": 11444,
-      "sha256": "807d1a817c20c936ac3d06f069760c0d8bcf9bacc60e2cefa16bcad326bb00fc",
+      "size_bytes": 11566,
+      "sha256": "ef61386176f43c17e1056739096d5c24ed028cac92aa573f490bc9574742a7ba",
       "category": "tables"
     },
     {
@@ -805,13 +806,13 @@
     {
       "path": "tables/classification/cv_results.csv",
       "size_bytes": 1020,
-      "sha256": "1a9f6b21e298430bcead1c7e4cff7e9321388da3fb2296cb3732e0c74ffef288",
+      "sha256": "45ae119104ea07500e818d5958ca085f1dcdf758410102c1f57640e5490c74dd",
       "category": "tables"
     },
     {
       "path": "tables/classification/cv_tuning_history.csv",
       "size_bytes": 11286,
-      "sha256": "3ab2f65948de8af8623a6395299f4c69a23ae506919e38187c254373c47640a6",
+      "sha256": "ee828f906789649691c9bf70c15122dca702bbcc87adf0c26a88e3b1ac065d9d",
       "category": "tables"
     },
     {
@@ -822,20 +823,20 @@
     },
     {
       "path": "tables/classification/model_comparison.csv",
-      "size_bytes": 744,
-      "sha256": "89a6b7ecdc03dcaaf0aefa4f272aa6f6a907bdd8cbf120a6f05c8ae879e93cde",
+      "size_bytes": 745,
+      "sha256": "947cd1fd54c7d4e0f98400020af2f4f9d6f47510e5dc89dc4a6513d2feab39ee",
       "category": "tables"
     },
     {
       "path": "tables/classification/test_predictions.csv",
-      "size_bytes": 59450,
-      "sha256": "bf5c6b018c12698b0d3b29b9896ff377179877c9ac545ef0890b134c6ddc4624",
+      "size_bytes": 59456,
+      "sha256": "0659e4058b7146db57365b678aaba542be932da7ebf7d96ba9b418ed51237d60",
       "category": "tables"
     },
     {
       "path": "tables/clustering/clustering_algorithm_comparison.csv",
       "size_bytes": 4404,
-      "sha256": "cc0d531a5cec6e768685289e3d40896e789f3a5ca2e88574341a26a515e1636b",
+      "sha256": "149701079298036dc47d2d832039bab7f186c068ecb58911f34bfb1b74a94840",
       "category": "tables"
     },
     {
@@ -972,20 +973,20 @@
     },
     {
       "path": "tables/model_comparison/association_rules_comparison.csv",
-      "size_bytes": 451,
-      "sha256": "e50527e85c352cf15749ab0ebc55b5da8b1e046c172081ad82b9aaeb28d9c4a4",
+      "size_bytes": 454,
+      "sha256": "9987293c02fa4f6be78c901762211310b1de128e06392b1cc52d7b3e6373bca8",
       "category": "tables"
     },
     {
       "path": "tables/model_comparison/classification_model_comparison.csv",
-      "size_bytes": 1080,
-      "sha256": "bb37ba5b67437462b6527265939249bf8ba513bf28bcf564725029e91ce8061d",
+      "size_bytes": 1081,
+      "sha256": "20ac690011a0f21a1b6a4160608be985729e4101de51d2d804ee6b24ab03de0e",
       "category": "tables"
     },
     {
       "path": "tables/model_comparison/clustering_model_comparison.csv",
       "size_bytes": 4392,
-      "sha256": "7acd6bdaf9298e48c9911ccaccb25920a6416e5cca0588b91a160de48afb924e",
+      "sha256": "93de64f95303d76ef32c888f130e98d918a94c95ad3890e46169ec9973c5cee3",
       "category": "tables"
     },
     {
@@ -1002,8 +1003,8 @@
     },
     {
       "path": "tables/association_rules/association_rules/selected_association_rules.csv",
-      "size_bytes": 11444,
-      "sha256": "807d1a817c20c936ac3d06f069760c0d8bcf9bacc60e2cefa16bcad326bb00fc",
+      "size_bytes": 11566,
+      "sha256": "ef61386176f43c17e1056739096d5c24ed028cac92aa573f490bc9574742a7ba",
       "category": "tables"
     }
   ]
