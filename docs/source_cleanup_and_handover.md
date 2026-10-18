@@ -23,27 +23,27 @@ Quá trình rà soát và tái cấu trúc mã nguồn được thực hiện tr
 ### 2.1. Tách Mô-đun `src/model_comparison.py`
 - **Hiện trạng trước sửa:** Tệp `src/model_comparison.py` dài gần 1,000 dòng (~999 dòng), tích hợp lẫn lộn giữa logic so sánh đa mô hình, trích xuất metrics và mã vẽ 10 biểu đồ Matplotlib/Seaborn.
 - **Giải pháp tái cấu trúc:**
-  - Tách toàn bộ logic vẽ biểu đồ và hàm điều phối `generate_all_step_07_figures` sang mô-đun mới [`src/model_comparison_figures.py`](file:///d:/Data-mininng/src/model_comparison_figures.py) (236 dòng).
-  - Tái xuất khẩu (re-export) hàm `generate_all_step_07_figures` ngay trong [`src/model_comparison.py`](file:///d:/Data-mininng/src/model_comparison.py) (giảm xuống còn 786 dòng), đảm bảo tương thích ngược 100% cho mọi runner và test hiện hành.
+  - Tách toàn bộ logic vẽ biểu đồ và hàm điều phối `generate_all_step_07_figures` sang mô-đun mới [`src/model_comparison_figures.py`](../src/model_comparison_figures.py) (236 dòng).
+  - Tái xuất khẩu (re-export) hàm `generate_all_step_07_figures` ngay trong [`src/model_comparison.py`](../src/model_comparison.py) (giảm xuống còn 786 dòng), đảm bảo tương thích ngược 100% cho mọi runner và test hiện hành.
   - Phân tách hoàn toàn trách nhiệm: `src/model_comparison.py` tập trung vào nghiệp vụ tổng hợp chỉ số, validation và xuất báo cáo; `src/model_comparison_figures.py` chuyên trách đồ họa trực quan.
 
 ### 2.2. Dọn Dẹp Mã Nguồn & Tinh Giản Imports
 Rà soát AST và loại bỏ toàn bộ các import dư thừa, cải thiện tốc độ nạp mô-đun:
-- [`app/app.py`](file:///d:/Data-mininng/app/app.py): Loại bỏ các import không sử dụng `io`, `numpy as np`, và `predict_with_threshold` (sử dụng thống nhất qua `predict_customers`). Sửa lỗi cấu trúc docstring ban đầu.
-- [`run_pipeline.py`](file:///d:/Data-mininng/run_pipeline.py): Loại bỏ import `os` không dùng.
-- [`notebooks/run_01_data_understanding.py`](file:///d:/Data-mininng/notebooks/run_01_data_understanding.py): Loại bỏ import dư thừa `get_raw_data_path`, `FIGURES_DIR`, `TABLES_DIR`.
-- [`notebooks/run_02_eda_and_cleaning.py`](file:///d:/Data-mininng/notebooks/run_02_eda_and_cleaning.py): Loại bỏ import `get_raw_data_path`.
-- [`notebooks/run_03_feature_engineering.py`](file:///d:/Data-mininng/notebooks/run_03_feature_engineering.py): Loại bỏ import `get_raw_data_path`.
-- [`notebooks/run_04_customer_clustering.py`](file:///d:/Data-mininng/notebooks/run_04_customer_clustering.py): Chuyển import `compare_preprocessing_impact`, `evaluate_clustering_stability` từ trong thân hàm lên phần đầu tệp theo chuẩn PEP 8.
+- [`app/app.py`](../app/app.py): Loại bỏ các import không sử dụng `io`, `numpy as np`, và `predict_with_threshold` (sử dụng thống nhất qua `predict_customers`). Sửa lỗi cấu trúc docstring ban đầu.
+- [`run_pipeline.py`](../run_pipeline.py): Loại bỏ import `os` không dùng.
+- [`notebooks/run_01_data_understanding.py`](../notebooks/run_01_data_understanding.py): Loại bỏ import dư thừa `get_raw_data_path`, `FIGURES_DIR`, `TABLES_DIR`.
+- [`notebooks/run_02_eda_and_cleaning.py`](../notebooks/run_02_eda_and_cleaning.py): Loại bỏ import `get_raw_data_path`.
+- [`notebooks/run_03_feature_engineering.py`](../notebooks/run_03_feature_engineering.py): Loại bỏ import `get_raw_data_path`.
+- [`notebooks/run_04_customer_clustering.py`](../notebooks/run_04_customer_clustering.py): Chuyển import `compare_preprocessing_impact`, `evaluate_clustering_stability` từ trong thân hàm lên phần đầu tệp theo chuẩn PEP 8.
 
 ### 2.3. Hợp Nhất Minh Chứng & Thu Gọn Thư Mục Gốc
 - **Hợp nhất minh chứng vào `outputs/`:**
   - `outputs/evidence/acceptance_results.csv` & `acceptance_results.json`: Ghi nhận trạng thái 12 tiêu chí nghiệm thu.
   - `outputs/evidence/environment/`: Lưu trữ `python_version.txt`, `pip_freeze.txt`, `hardware_specs.json`, `raw_data_provenance.md`.
   - `outputs/tables/customer_features/`: Chứa `customer_clusters.csv`, `repeat_purchase_features.csv`, `rfm_customer_features.csv`.
-- **Chuyển dịch các script vận hành vào `scripts/`:**
-  - [`scripts/build_review_bundle.py`](file:///d:/Data-mininng/scripts/build_review_bundle.py): Script chuẩn hóa đóng gói `review_bundle.zip` (đã chỉnh sửa tránh tạo file rác ở thư mục gốc).
-  - [`scripts/execute_notebooks.py`](file:///d:/Data-mininng/scripts/execute_notebooks.py): Script thực thi toàn bộ 7 Jupyter Notebooks không cần mở IDE.
+- **Chuyển dịch các script vận hành:**
+  - `scripts/build_review_bundle.py`: Script chuẩn hóa đóng gói `review_bundle.zip` (đã chỉnh sửa tránh tạo file rác ở thư mục gốc).
+  - `scripts/execute_notebooks.py`: Script thực thi toàn bộ 7 Jupyter Notebooks không cần mở IDE.
 - **Xóa bỏ các tệp rác và tệp tạm đã được Git theo dõi:**
   - Thư mục `review_bundle/` (166 file trùng lặp).
   - Thư mục `scratch/` (các file script debug dùng 1 lần).
@@ -107,8 +107,8 @@ python -m streamlit run app/app.py
 ## 5. Các Hạng Mục Chờ Nhóm Học Viên Hoàn Thiện Trước Khi Nộp
 
 1. **Thông tin định danh nhóm học viên:**
-   - Cập nhật thông tin thực tế vào bảng mục 1 của [`docs/team_tasks.md`](file:///d:/Data-mininng/docs/team_tasks.md): Họ và tên, MSHV, Email sinh viên, phân chia tỷ lệ đóng góp (%).
+   - Cập nhật thông tin thực tế vào bảng mục 1 của [`docs/team_tasks.md`](team_tasks.md): Họ và tên, MSHV, Email sinh viên, phân chia tỷ lệ đóng góp (%).
 2. **Biên bản đánh giá chéo (Peer Assessment):**
-   - Hoàn thiện bảng điểm đánh giá chéo nội bộ trong [`docs/team_tasks.md`](file:///d:/Data-mininng/docs/team_tasks.md) theo 5 tiêu chí đã quy định.
+   - Hoàn thiện bảng điểm đánh giá chéo nội bộ trong [`docs/team_tasks.md`](team_tasks.md) theo 5 tiêu chí đã quy định.
 3. **Slide báo cáo thuyết minh:**
    - Sử dụng các biểu đồ chất lượng cao trong `outputs/figures/model_comparison/` (đặc biệt là `insight_summary_dashboard.png`) và các bảng số liệu trong `outputs/tables/` để chuẩn bị slide báo cáo cuối kỳ.

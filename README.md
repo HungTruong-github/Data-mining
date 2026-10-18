@@ -37,6 +37,11 @@ Data-mining/
 ├── docs/                                 # Hồ sơ tài liệu phân tích, phương pháp & quản trị
 │   ├── 01_data_understanding_report.md   # Báo cáo thấu hiểu dữ liệu ban đầu
 │   ├── 02_data_preparation_report.md     # Báo cáo quy trình tiền xử lý & làm sạch
+│   ├── 03_feature_engineering_report.md  # Báo cáo kỹ thuật đặc trưng RFM & Temporal Split
+│   ├── 04_customer_clustering_report.md  # Báo cáo phân cụm khách hàng (K-Means, GMM, Agglomerative, DBSCAN)
+│   ├── 05_repeat_purchase_classification_report.md # Báo cáo phân loại mua lại 90 ngày (Random Forest, CV F1)
+│   ├── 06_association_rules_report.md    # Báo cáo khai phá luật kết hợp (Apriori vs FP-Growth)
+│   ├── 07_model_comparison_and_insights_report.md # Báo cáo tổng hợp mô hình & kế hoạch hành động
 │   ├── JABES-2025-6-V164.pdf             # Bài báo nghiên cứu tham chiếu
 │   ├── Rubric_FinalProject_DataMining_CaoHoc.pdf # Rubric đánh giá đồ án Track B
 │   ├── business_understanding.md         # Phân tích bài toán kinh doanh
@@ -47,7 +52,7 @@ Data-mining/
 │   ├── references.md                     # Danh mục tài liệu tham khảo
 │   ├── rubric_evidence_matrix.md         # Ma trận minh chứng đối chiếu theo rubric
 │   ├── source_cleanup_and_handover.md    # Biên bản tái cấu trúc & bàn giao kỹ thuật
-│   └── team_tasks.md                     # Phân công nhiệm vụ & đánh giá chéo nội bộ
+│   └── team_tasks.md                     # Phân công nhiệm vụ (3 thành viên) & đánh giá chéo nội bộ
 ├── models/                               # Mô hình học máy & siêu dữ liệu serialize
 │   ├── classification/
 │   │   ├── best_classifier_pipeline.joblib # Pipeline RandomForest tốt nhất

@@ -3,13 +3,13 @@
 **Dự án**: Phân khúc khách hàng, dự đoán khả năng mua lại và khai phá luật kết hợp trong dữ liệu bán lẻ trực tuyến  
 **Giai đoạn CRISP-DM**: **Phase 2 - Data Preparation**  
 **Tập dữ liệu gốc**: `data/raw/Online Retail.csv` (541,909 dòng × 8 cột)  
-**Tài liệu tham chiếu**: [Rubric Track B](file:///d:/Data-mininng/docs/rubik.md) | [Methodology](file:///d:/Data-mininng/docs/methodology.md) | [Data Dictionary](file:///d:/Data-mininng/docs/data_dictionary.md)
+**Tài liệu tham chiếu**: [Rubric Track B](Rubric_FinalProject_DataMining_CaoHoc.pdf) | [Methodology](methodology.md) | [Data Dictionary](data_dictionary.md)
 
 ---
 
 ## 1. Tóm Tắt Điều Hành (Executive Summary)
 
-Giai đoạn **Data Preparation & Cleaning** đã hoàn thành toàn diện theo tiêu chuẩn CRISP-DM và rubric Track B. Toàn bộ mã nguồn xử lý được module hóa thành các hàm tái sử dụng trong [`src/preprocessing.py`](file:///d:/Data-mininng/src/preprocessing.py), cấu hình đường dẫn tập trung trong [`src/config.py`](file:///d:/Data-mininng/src/config.py), thực thi tự động qua script [`notebooks/run_02_eda_and_cleaning.py`](file:///d:/Data-mininng/notebooks/run_02_eda_and_cleaning.py) và thể hiện chi tiết kèm kết quả trong notebook [`notebooks/02_eda_and_cleaning.ipynb`](file:///d:/Data-mininng/notebooks/02_eda_and_cleaning.ipynb).
+Giai đoạn **Data Preparation & Cleaning** đã hoàn thành toàn diện theo tiêu chuẩn CRISP-DM và rubric Track B. Toàn bộ mã nguồn xử lý được module hóa thành các hàm tái sử dụng trong [`src/preprocessing.py`](../src/preprocessing.py), cấu hình đường dẫn tập trung trong [`src/config.py`](../src/config.py), thực thi tự động qua script [`notebooks/run_02_eda_and_cleaning.py`](../notebooks/run_02_eda_and_cleaning.py) và thể hiện chi tiết kèm kết quả trong notebook [`notebooks/02_eda_and_cleaning.ipynb`](../notebooks/02_eda_and_cleaning.ipynb).
 
 ### Các chỉ số chính sau khi làm sạch:
 - **Dữ liệu gốc ban đầu**: **541,909** dòng.
@@ -34,16 +34,16 @@ Quy trình làm sạch dữ liệu được thực hiện tuần tự và không
 
 | Bước | Tên bước | Hành động & Phương pháp | Số dòng loại bỏ | Số dòng còn lại | File / Bảng liên quan |
 |:---:|---|---|:---:|:---:|---|
-| **01** | **Raw Data** | Nạp dữ liệu gốc từ CSV qua `load_raw_data()` | — | 541,909 | [Online Retail.csv](file:///d:/Data-mininng/data/raw/Online%20Retail.csv) |
+| **01** | **Raw Data** | Nạp dữ liệu gốc từ CSV qua `load_raw_data()` | — | 541,909 | [Online Retail.csv](../data/raw/Online%20Retail.csv) |
 | **02** | **Standardization** | Ép kiểu dữ liệu chuẩn, tính `TotalAmount = Quantity * UnitPrice` | 0 | 541,909 | `standardize_dtypes()` |
 | **03** | **Transaction Flags** | Gắn 5 cờ boolean: `IsCancelled`, `IsAdjust`, `IsDuplicate`, `IsQuantityInvalid`, `IsPriceInvalid` | 0 | 541,909 | `add_transaction_flags()` |
-| **04** | **Remove Cancelled (C)** | Tách hóa đơn hủy (bắt đầu bằng `C`, Quantity âm) | -9,288 | 532,621 | [invoice_cleaning_summary.csv](file:///d:/Data-mininng/outputs/tables/data_preparation/invoice_cleaning_summary.csv) |
-| **05** | **Remove Adjust (A)** | Loại bỏ bút toán nợ xấu (bắt đầu bằng `A`, UnitPrice cực lớn) | -3 | 532,618 | [invoice_cleaning_summary.csv](file:///d:/Data-mininng/outputs/tables/data_preparation/invoice_cleaning_summary.csv) |
+| **04** | **Remove Cancelled (C)** | Tách hóa đơn hủy (bắt đầu bằng `C`, Quantity âm) | -9,288 | 532,621 | [invoice_cleaning_summary.csv](../outputs/tables/data_preparation/invoice_cleaning_summary.csv) |
+| **05** | **Remove Adjust (A)** | Loại bỏ bút toán nợ xấu (bắt đầu bằng `A`, UnitPrice cực lớn) | -3 | 532,618 | [invoice_cleaning_summary.csv](../outputs/tables/data_preparation/invoice_cleaning_summary.csv) |
 | **06** | **Remove Invalid Quantity** | Loại bỏ các dòng có `Quantity <= 0` còn sót lại (hàng hỏng, kiểm kho) | -1,336 | 531,282 | `remove_invalid_transactions()` |
 | **07** | **Remove Invalid UnitPrice** | Loại bỏ các dòng có `UnitPrice <= 0` (hàng tặng 0đ, lỗi hệ thống) | -1,179 | 530,103 | `remove_invalid_transactions()` |
 | **08** | **Remove Duplicates** | Loại bỏ dòng trùng lặp 8 thuộc tính gốc, giữ bản ghi đầu tiên | -5,226 | 524,877 | `handle_duplicates()` |
-| **09** | **Remove Non-Product SC** | Loại bỏ mã cước phí, dịch vụ (`POST`, `DOT`, `M`,...) | -2,306 | 522,571 | [stockcode_classification.csv](file:///d:/Data-mininng/outputs/tables/data_preparation/stockcode_classification.csv) |
-| **10** | **Impute Description** | Điền khuyết Description bằng mode theo StockCode | 0 | 522,571 | [missing_values_after_cleaning.csv](file:///d:/Data-mininng/outputs/tables/data_preparation/missing_values_after_cleaning.csv) |
+| **09** | **Remove Non-Product SC** | Loại bỏ mã cước phí, dịch vụ (`POST`, `DOT`, `M`,...) | -2,306 | 522,571 | [stockcode_classification.csv](../outputs/tables/data_preparation/stockcode_classification.csv) |
+| **10** | **Impute Description** | Điền khuyết Description bằng mode theo StockCode | 0 | 522,571 | [missing_values_after_cleaning.csv](../outputs/tables/data_preparation/missing_values_after_cleaning.csv) |
 
 ---
 
@@ -85,9 +85,9 @@ Tập dữ liệu chứa nhiều mã bắt đầu bằng ký tự chữ cái kh�
 
 | File dữ liệu | Số dòng | Số cột | Dung lượng | Mục tiêu sử dụng |
 |---|:---:|:---:|:---:|---|
-| [`cleaned_transactions.csv`](file:///d:/Data-mininng/data/interim/cleaned_transactions.csv) | **522,571** | 12 | ~75.7 MB | Phân tích doanh thu tổng quan, sản phẩm bán chạy, xu hướng thời gian |
-| [`customer_transactions.csv`](file:///d:/Data-mininng/data/interim/customer_transactions.csv) | **391,153** | 12 | ~56.6 MB | Phân tích RFM, phân cụm K-Means, xây dựng nhãn và huấn luyện mô hình dự đoán mua lại 90 ngày |
-| [`product_transactions.csv`](file:///d:/Data-mininng/data/interim/product_transactions.csv) | **522,540** | 12 | ~75.7 MB | Khai phá luật kết hợp sản phẩm (Association Rules) bằng Apriori / FP-Growth |
+| [`cleaned_transactions.csv`](../data/interim/cleaned_transactions.csv) | **522,571** | 12 | ~75.7 MB | Phân tích doanh thu tổng quan, sản phẩm bán chạy, xu hướng thời gian |
+| [`customer_transactions.csv`](../data/interim/customer_transactions.csv) | **391,153** | 12 | ~56.6 MB | Phân tích RFM, phân cụm K-Means, xây dựng nhãn và huấn luyện mô hình dự đoán mua lại 90 ngày |
+| [`product_transactions.csv`](../data/interim/product_transactions.csv) | **522,540** | 12 | ~75.7 MB | Khai phá luật kết hợp sản phẩm (Association Rules) bằng Apriori / FP-Growth |
 
 ---
 
@@ -96,21 +96,21 @@ Tập dữ liệu chứa nhiều mã bắt đầu bằng ký tự chữ cái kh�
 Toàn bộ kết quả được lưu trữ có hệ thống theo quy ước cấu trúc project:
 
 ### 5.1. Bảng số liệu (`outputs/tables/data_preparation/`)
-1. [`cleaning_summary.csv`](file:///d:/Data-mininng/outputs/tables/data_preparation/cleaning_summary.csv): Số lượng dòng qua từng giai đoạn của pipeline.
-2. [`invoice_cleaning_summary.csv`](file:///d:/Data-mininng/outputs/tables/data_preparation/invoice_cleaning_summary.csv): Thống kê chi tiết đơn bình thường, đơn hủy (`C`) và nợ xấu (`A`).
-3. [`stockcode_classification.csv`](file:///d:/Data-mininng/outputs/tables/data_preparation/stockcode_classification.csv): Danh mục phân loại tất cả các mã StockCode bắt đầu bằng chữ.
-4. [`missing_values_after_cleaning.csv`](file:///d:/Data-mininng/outputs/tables/data_preparation/missing_values_after_cleaning.csv): Tỷ lệ dữ liệu khuyết sau bước điền Description.
-5. [`outlier_summary.csv`](file:///d:/Data-mininng/outputs/tables/data_preparation/outlier_summary.csv): Thống kê chi tiết ngưỡng phân vị và số lượng outlier IQR.
+1. [`cleaning_summary.csv`](../outputs/tables/data_preparation/cleaning_summary.csv): Số lượng dòng qua từng giai đoạn của pipeline.
+2. [`invoice_cleaning_summary.csv`](../outputs/tables/data_preparation/invoice_cleaning_summary.csv): Thống kê chi tiết đơn bình thường, đơn hủy (`C`) và nợ xấu (`A`).
+3. [`stockcode_classification.csv`](../outputs/tables/data_preparation/stockcode_classification.csv): Danh mục phân loại tất cả các mã StockCode bắt đầu bằng chữ.
+4. [`missing_values_after_cleaning.csv`](../outputs/tables/data_preparation/missing_values_after_cleaning.csv): Tỷ lệ dữ liệu khuyết sau bước điền Description.
+5. [`outlier_summary.csv`](../outputs/tables/data_preparation/outlier_summary.csv): Thống kê chi tiết ngưỡng phân vị và số lượng outlier IQR.
 
 ### 5.2. Biểu đồ trực quan hóa (`outputs/figures/data_preparation/`)
-1. [`cleaning_funnel.png`](file:///d:/Data-mininng/outputs/figures/data_preparation/cleaning_funnel.png): Dòng chảy số lượng bản ghi qua từng công đoạn làm sạch.
-2. [`removal_reasons_pie.png`](file:///d:/Data-mininng/outputs/figures/data_preparation/removal_reasons_pie.png): Biểu đồ Donut thể hiện tỷ lệ % các lý do loại bỏ dữ liệu.
-3. [`boxplot_quantity_before_after.png`](file:///d:/Data-mininng/outputs/figures/data_preparation/boxplot_quantity_before_after.png): Boxplot so sánh phân bố số lượng trước và sau làm sạch.
-4. [`boxplot_unitprice_before_after.png`](file:///d:/Data-mininng/outputs/figures/data_preparation/boxplot_unitprice_before_after.png): Boxplot so sánh đơn giá trước và sau làm sạch.
-5. [`dist_totalamount_before_after.png`](file:///d:/Data-mininng/outputs/figures/data_preparation/dist_totalamount_before_after.png): Biểu đồ phân phối Log10 của TotalAmount.
-6. [`revenue_by_month_before_after.png`](file:///d:/Data-mininng/outputs/figures/data_preparation/revenue_by_month_before_after.png): Doanh thu theo tháng trước và sau khi làm sạch đơn hủy và nợ xấu.
-7. [`outlier_detection.png`](file:///d:/Data-mininng/outputs/figures/data_preparation/outlier_detection.png): Biểu đồ phát hiện outlier của Quantity, UnitPrice, TotalAmount.
-8. [`missing_values_heatmap.png`](file:///d:/Data-mininng/outputs/figures/data_preparation/missing_values_heatmap.png): Biểu đồ so sánh mức độ khuyết dữ liệu trước và sau làm sạch.
+1. [`cleaning_funnel.png`](../outputs/figures/data_preparation/cleaning_funnel.png): Dòng chảy số lượng bản ghi qua từng công đoạn làm sạch.
+2. [`removal_reasons_pie.png`](../outputs/figures/data_preparation/removal_reasons_pie.png): Biểu đồ Donut thể hiện tỷ lệ % các lý do loại bỏ dữ liệu.
+3. [`boxplot_quantity_before_after.png`](../outputs/figures/data_preparation/boxplot_quantity_before_after.png): Boxplot so sánh phân bố số lượng trước và sau làm sạch.
+4. [`boxplot_unitprice_before_after.png`](../outputs/figures/data_preparation/boxplot_unitprice_before_after.png): Boxplot so sánh đơn giá trước và sau làm sạch.
+5. [`dist_totalamount_before_after.png`](../outputs/figures/data_preparation/dist_totalamount_before_after.png): Biểu đồ phân phối Log10 của TotalAmount.
+6. [`revenue_by_month_before_after.png`](../outputs/figures/data_preparation/revenue_by_month_before_after.png): Doanh thu theo tháng trước và sau khi làm sạch đơn hủy và nợ xấu.
+7. [`outlier_detection.png`](../outputs/figures/data_preparation/outlier_detection.png): Biểu đồ phát hiện outlier của Quantity, UnitPrice, TotalAmount.
+8. [`missing_values_heatmap.png`](../outputs/figures/data_preparation/missing_values_heatmap.png): Biểu đồ so sánh mức độ khuyết dữ liệu trước và sau làm sạch.
 
 ---
 

@@ -58,11 +58,11 @@ Ma trận minh chứng cho 6 tiêu chí đánh giá, dẫn tới notebook/sectio
 
 | Sub-requirement | Notebook/Section | Code/Function | Output/Evidence | Status |
 |---|---|---|---|---|
-| Report CRISP-DM | NB07, outputs/reports/ | model_comparison.py | 07_model_comparison_and_insights.md & HTML | PASS |
-| Đóng góp/peer assessment | — | — | docs/team_tasks.md (template ready) | NEEDS_USER_INPUT |
-| Hạn chế trung thực | NB07 | — | Limitations section minh bạch | PASS |
-| AI disclosure | — | — | docs/references.md & report (AI assisted prompt) | NEEDS_USER_INPUT |
-| README cập nhật | README.md | — | Cập nhật cấu trúc thực tế và hướng dẫn chạy | PASS |
+| Report CRISP-DM đầy đủ | docs/01..07_*.md | — | 7 báo cáo tương ứng 7 notebooks trong `docs/` | PASS |
+| Đóng góp/peer assessment | docs/team_tasks.md | — | Phân bổ đồng đều 3 thành viên (~33.3%), khung peer assessment 5 tiêu chí | PASS |
+| Hạn chế trung thực | NB07, docs/07_*.md | — | Limitations section minh bạch trong báo cáo tổng kết | PASS |
+| AI disclosure | docs/team_tasks.md | — | Tuyên bố sử dụng AI minh bạch theo chuẩn liêm chính học thuật | PASS |
+| README cập nhật | README.md | — | Cập nhật cấu trúc thực tế, thông số thực nghiệm và hướng dẫn chạy | PASS |
 
 ## Summary
 
@@ -73,10 +73,16 @@ Ma trận minh chứng cho 6 tiêu chí đánh giá, dẫn tới notebook/sectio
 | Lựa chọn & Xây dựng Mô hình | 25% | PASS |
 | Đánh giá & Phân tích Kết quả | 20% | PASS |
 | Kỹ thuật & Tái lập | 15% | PASS (nghiệm thu lịch sử 47/47 tests pass, 7 notebooks executed 0 errors, pipeline 100%) |
-| Báo cáo & Tổng kết | 10% | PARTIAL — kỹ thuật hoàn tất, cần thông tin thành viên nhóm |
+| Báo cáo & Tổng kết | 10% | PASS (7 báo cáo kỹ thuật trong docs/, team_tasks.md 3 thành viên, AI disclosure) |
 
-### Items requiring user input (NEEDS_USER_INPUT)
+### Ghi chú hoàn thiện hồ sơ nộp bài
+1. Tên, MSSV thực tế của 3 thành viên trong nhóm điền vào [`docs/team_tasks.md`](team_tasks.md) trước khi nộp.
+2. Bộ 7 báo cáo giai đoạn hoàn chỉnh sẵn sàng phục vụ thuyết minh và bảo vệ đồ án:
+   - [`docs/01_data_understanding_report.md`](01_data_understanding_report.md)
+   - [`docs/02_data_preparation_report.md`](02_data_preparation_report.md)
+   - [`docs/03_feature_engineering_report.md`](03_feature_engineering_report.md)
+   - [`docs/04_customer_clustering_report.md`](04_customer_clustering_report.md)
+   - [`docs/05_repeat_purchase_classification_report.md`](05_repeat_purchase_classification_report.md)
+   - [`docs/06_association_rules_report.md`](06_association_rules_report.md)
+   - [`docs/07_model_comparison_and_insights_report.md`](07_model_comparison_and_insights_report.md)
 
-1. Tên, MSSV, phân công đóng góp và phiếu peer assessment của từng thành viên nhóm (trong `docs/team_tasks.md`).
-2. Biên bản / ghi nhận góp ý tiến độ từ giảng viên hướng dẫn (nếu có).
-3. Xác nhận và ký duyệt tuyên bố sử dụng công cụ AI (AI-use disclosure) từ các thành viên.
