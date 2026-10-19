@@ -158,6 +158,14 @@ def main():
                 "outputs/reports/07_model_comparison_and_insights_summary.json",
                 "outputs/evidence/pipeline_manifest.json"
             ]
+        },
+        {
+            "name": "08. Automated Testing & Verification Suite",
+            "script": "tests/run_tests.py",
+            "outputs": [
+                "outputs/evidence/test_execution_report.csv",
+                "outputs/evidence/pytest_report.xml"
+            ]
         }
     ]
     
